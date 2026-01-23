@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureLogin", "AzureLogin\AzureLogin.csproj", "{0FA24E61-DE1D-474F-9E74-E0CDB2116A41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureLogin.Shared", "AzureLogin.Shared\AzureLogin.Shared.csproj", "{AE844526-91C9-4BFE-BECA-5B2CEEE982A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureLogin.Web", "AzureLogin.Web\AzureLogin.Web.csproj", "{19C55496-B5A8-4F29-828B-84BC7721E64E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FA24E61-DE1D-474F-9E74-E0CDB2116A41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FA24E61-DE1D-474F-9E74-E0CDB2116A41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FA24E61-DE1D-474F-9E74-E0CDB2116A41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FA24E61-DE1D-474F-9E74-E0CDB2116A41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE844526-91C9-4BFE-BECA-5B2CEEE982A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE844526-91C9-4BFE-BECA-5B2CEEE982A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE844526-91C9-4BFE-BECA-5B2CEEE982A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE844526-91C9-4BFE-BECA-5B2CEEE982A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19C55496-B5A8-4F29-828B-84BC7721E64E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19C55496-B5A8-4F29-828B-84BC7721E64E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19C55496-B5A8-4F29-828B-84BC7721E64E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19C55496-B5A8-4F29-828B-84BC7721E64E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

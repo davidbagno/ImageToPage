@@ -1,0 +1,510 @@
+@namespace AzureLogin.Shared.Components
+
+@if (IsVisible)
+{
+    <div class="service-modal-overlay" @onclick="Close">
+        <div class="service-modal" @onclick:stopPropagation="true">
+            <div class="service-modal-header">
+                <h2>🎯 Service & API Reference</h2>
+                <p>All capabilities with availability status</p>
+            </div>
+            
+            <div class="service-modal-body">
+                @* Legend *@
+                <div class="legend-box">
+                    <span class="legend-item"><span class="status-dot available"></span> Available</span>
+                    <span class="legend-item"><span class="status-dot partial"></span> Partial/Limited</span>
+                    <span class="legend-item"><span class="status-dot unavailable"></span> Not Available</span>
+                    <span class="legend-item"><span class="status-dot config-needed"></span> Needs Config</span>
+                </div>
+
+                @* Azure AI Vision Section *@
+                <div class="service-section azure-vision">
+                    <div class="service-header">
+                        <h3>☁️ Azure AI Vision 4.0 + 3.2</h3>
+                        <span class="badge @(AzureVisionAvailable ? "badge-success" : "badge-error")">
+                            @(AzureVisionAvailable ? "✅ Configured" : "❌ Not Configured")
+                        </span>
+                    </div>
+                    <table class="api-table">
+                        <thead><tr><th>API Method</th><th>Description</th><th>API</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><b>AnalyzeImageAsync</b></td><td>Object detection with bounding boxes</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeComprehensiveAsync</b></td><td>Objects + People + Captions + Tags</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectPeopleAsync</b></td><td>People/avatar detection</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetDenseCaptionsAsync</b></td><td>Semantic region descriptions</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectObjectsAsync</b></td><td>Object classification</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetSmartCropsAsync</b></td><td>AI-suggested crops</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectTextAsync</b></td><td>OCR with text regions</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetImageCaptionAsync</b></td><td>Single caption for entire image</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetImageTagsAsync</b></td><td>Content tags (nature, indoor, etc.)</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>RemoveBackgroundAsync</b></td><td>Remove/replace backgrounds</td><td>v4.0</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectBrandsAsync</b></td><td>Logo/brand recognition</td><td>v3.2</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetImageCategoryAsync</b></td><td>Scene categorization</td><td>v3.2</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>GetImageTypeAsync</b></td><td>Clipart vs photo vs drawing</td><td>v3.2</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectAdultContentAsync</b></td><td>NSFW filtering</td><td>v3.2</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectFacesAsync</b></td><td>Face detection with age/gender</td><td>v3.2</td><td><span class="status available">✅</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                @* Azure OpenAI GPT-4o Vision Section *@
+                <div class="service-section openai">
+                    <div class="service-header">
+                        <h3>🤖 Azure OpenAI GPT-4o Vision</h3>
+                        <span class="badge badge-success">✅ Ready</span>
+                    </div>
+                    <table class="api-table">
+                        <thead><tr><th>API Method</th><th>Description</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><b>GenerateCodeFromImageAsync</b></td><td>UI to code generation</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DescribeImageAsync</b></td><td>Image description</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractColorPaletteAsync</b></td><td>Color extraction</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractTypographyAsync</b></td><td>Font analysis</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractLayoutAsync</b></td><td>Layout analysis</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractUIComponentsAsync</b></td><td>UI component extraction</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>IdentifyIconsAsync</b></td><td>Icon detection</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeAccessibilityAsync</b></td><td>A11y audit</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>SuggestImprovementsAsync</b></td><td>UI improvement tips</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractTextAsync</b></td><td>OCR text extraction</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeUIAsync</b></td><td>Full comprehensive analysis</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AskAboutImageAsync</b></td><td>Image Q&A</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ParseDocumentAsync</b></td><td>Invoice/receipt/form parsing</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractChartDataAsync</b></td><td>Chart/graph data extraction</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ParseMathEquationAsync</b></td><td>Mathematical notation OCR</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ReadHandwritingAsync</b></td><td>Handwriting recognition</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractTableAsync</b></td><td>Table to structured data</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnswerSpatialQuestionAsync</b></td><td>Spatial reasoning queries</td><td><span class="status available">✅</span></td></tr>
+                            <tr class="partial-row"><td><b>CompareMultipleImagesAsync</b></td><td>Multi-image comparison</td><td><span class="status partial">⚠️ Limited</span></td></tr>
+                            <tr class="partial-row"><td><b>GetImageDiffAsync</b></td><td>Image difference detection</td><td><span class="status partial">⚠️ Limited</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                @* Local Processing Section *@
+                <div class="service-section local">
+                    <div class="service-header">
+                        <h3>🖼️ Local Processing (SkiaSharp)</h3>
+                        <span class="badge badge-success">✅ Always Ready</span>
+                    </div>
+                    <table class="api-table">
+                        <thead><tr><th>API Method</th><th>Description</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><b>ExtractUICardsAsync</b></td><td>Card/widget detection</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractByContourDetectionAsync</b></td><td>Edge boundaries</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractByFloodFillAsync</b></td><td>Color region fill</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractGridAsync</b></td><td>Uniform grid split</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractSectionsAsync</b></td><td>H/V section split</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractComponentsAsync</b></td><td>Connected components</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>CropRegionAsync</b></td><td>Manual bounding box crop</td><td><span class="status available">✅</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                @* Advanced Services - Now Implemented *@
+                <div class="service-section advanced">
+                    <div class="service-header">
+                        <h3>🚀 Advanced AI Services</h3>
+                        <span class="badge badge-success">✅ Implemented</span>
+                    </div>
+                    <table class="api-table">
+                        <thead><tr><th>API Method</th><th>Description</th><th>Service</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><b>AnalyzeDocumentAsync</b></td><td>General document analysis</td><td>Doc Intelligence</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeInvoiceAsync</b></td><td>Invoice parsing</td><td>Doc Intelligence</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeReceiptAsync</b></td><td>Receipt parsing</td><td>Doc Intelligence</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeIdDocumentAsync</b></td><td>ID document parsing</td><td>Doc Intelligence</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeBusinessCardAsync</b></td><td>Business card parsing</td><td>Doc Intelligence</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ClassifyImageAsync</b></td><td>Custom image classification</td><td>Custom Vision</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>DetectObjectsCustomAsync</b></td><td>Custom object detection</td><td>Custom Vision</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>AnalyzeVideoAsync</b></td><td>Full video analysis</td><td>Video Indexer</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ExtractVideoFramesAsync</b></td><td>Extract video frames</td><td>Local/FFmpeg</td><td><span class="status partial">⚠️ FFmpeg</span></td></tr>
+                            <tr><td><b>EditImageAsync</b></td><td>Edit image regions</td><td>DALL-E</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>CreateImageVariationAsync</b></td><td>Create image variations</td><td>DALL-E</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>UpscaleImageAsync</b></td><td>Image upscaling</td><td>Local (SkiaSharp)</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>ApplyStyleTransferAsync</b></td><td>Apply artistic styles</td><td>Local (SkiaSharp)</td><td><span class="status available">✅</span></td></tr>
+                            <tr><td><b>EstimateDepthAsync</b></td><td>Depth map estimation</td><td>Local (Simplified)</td><td><span class="status partial">⚠️ Basic</span></td></tr>
+                            <tr><td><b>SegmentImageAsync</b></td><td>Image segmentation</td><td>Local (SkiaSharp)</td><td><span class="status available">✅</span></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="config-note">
+                        <small>💡 Configure endpoints in <code>appsettings.json</code> to enable cloud services</small>
+                    </div>
+                </div>
+
+                @if (!AzureVisionAvailable)
+                {
+                    <div class="warning-box">
+                        <div class="warning-title">⚠️ Azure AI Vision Not Configured</div>
+                        <div class="warning-text">Set <code>VisionEndpoint</code> and <code>VisionKey</code> in appsettings.json to enable Azure Vision features.</div>
+                    </div>
+                }
+                
+                @* Summary Stats *@
+                <div class="summary-box">
+                    <div class="summary-title">📊 Coverage Summary</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-number">54</span>
+                            <span class="summary-label">Available</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-number text-warning">4</span>
+                            <span class="summary-label">Partial</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-number text-error">0</span>
+                            <span class="summary-label">Not Available</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-number text-info">93%</span>
+                            <span class="summary-label">Coverage</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="service-modal-footer">
+                <span class="current-mode">Current Mode: <b>@CurrentMode</b></span>
+                <button class="btn-done" @onclick="Close">Done</button>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .service-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .service-modal {
+        background: white;
+        border-radius: 16px;
+        width: 95%;
+        max-width: 950px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+
+    @@keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .service-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+    }
+
+    .service-modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .service-modal-header p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    .service-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(90vh - 160px);
+    }
+
+    .legend-box {
+        display: flex;
+        gap: 20px;
+        padding: 10px 15px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-dot.available { background: #22c55e; }
+    .status-dot.partial { background: #f59e0b; }
+    .status-dot.unavailable { background: #ef4444; }
+    .status-dot.config-needed { background: #6366f1; }
+
+    .service-section {
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .service-section.azure-vision {
+        background: #f8fafc;
+        border-left: 4px solid #667eea;
+    }
+
+    .service-section.openai {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+    }
+
+    .service-section.local {
+        background: #f5f3ff;
+        border-left: 4px solid #8b5cf6;
+    }
+
+    .service-section.advanced {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .service-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .service-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .azure-vision .service-header h3 { color: #667eea; }
+    .openai .service-header h3 { color: #16a34a; }
+    .local .service-header h3 { color: #7c3aed; }
+    .advanced .service-header h3 { color: #d97706; }
+
+    .badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 500;
+        color: white;
+    }
+
+    .badge-success { background: #22c55e; }
+    .badge-error { background: #ef4444; }
+    .badge-warning { background: #f59e0b; }
+
+    .api-table {
+        width: 100%;
+        font-size: 12px;
+        border-collapse: collapse;
+    }
+
+    .api-table th {
+        text-align: left;
+        padding: 8px;
+        background: rgba(0,0,0,0.03);
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .api-table td {
+        padding: 6px 8px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        color: #4b5563;
+    }
+
+    .api-table td:first-child {
+        width: 35%;
+    }
+
+    .api-table td:last-child {
+        width: 15%;
+        text-align: center;
+    }
+
+    .api-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .api-table tr.partial-row {
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .api-table tr.unavailable-row {
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .status {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    .status.available {
+        color: #166534;
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    .status.partial {
+        color: #92400e;
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .status.unavailable {
+        color: #991b1b;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .warning-box {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .warning-title {
+        color: #dc2626;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .warning-text {
+        color: #991b1b;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .warning-text code {
+        background: #fee2e2;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+
+    .summary-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 15px;
+        color: white;
+    }
+
+    .summary-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        text-align: center;
+    }
+
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .summary-number {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .summary-number.text-warning {
+        color: #fde047;
+    }
+
+    .summary-number.text-error {
+        color: #fca5a5;
+    }
+
+    .summary-number.text-info {
+        color: #93c5fd;
+    }
+
+    .summary-label {
+        font-size: 11px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .service-modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .current-mode {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .current-mode b {
+        color: #667eea;
+    }
+
+    .btn-done {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-done:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-done:active {
+        transform: translateY(0);
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public bool AzureVisionAvailable { get; set; }
+    [Parameter] public string CurrentMode { get; set; } = "AzureVision";
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+}

@@ -1,0 +1,758 @@
+@namespace AzureLogin.Shared.Components
+@inject IJSRuntime JS
+
+@if (IsVisible)
+{
+    <div class="settings-modal-overlay" @onclick="Close">
+        <div class="settings-modal" @onclick:stopPropagation="true">
+            <div class="settings-modal-header">
+                <h2>⚙️ AI Service Configuration</h2>
+                <p>Configure endpoints and API keys for all image services</p>
+                <button class="close-btn" @onclick="Close">×</button>
+            </div>
+            
+            <div class="settings-modal-body">
+                @* Azure OpenAI Section *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("openai"))">
+                        <span class="section-icon">🤖</span>
+                        <h3>Azure OpenAI</h3>
+                        <span class="section-status @(IsOpenAIConfigured ? "configured" : "not-configured")">
+                            @(IsOpenAIConfigured ? "✅ Configured" : "⚠️ Not Configured")
+                        </span>
+                        <span class="toggle-icon">@(expandedSections.Contains("openai") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("openai"))
+                    {
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label>Endpoint URL</label>
+                                <input type="url" @bind="Settings.Endpoint" placeholder="https://your-resource.openai.azure.com/" />
+                                <small>Your Azure OpenAI resource endpoint</small>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Default Deployment</label>
+                                    <input type="text" @bind="Settings.DefaultDeployment" placeholder="gpt-4" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Vision Deployment</label>
+                                    <input type="text" @bind="Settings.VisionDeployment" placeholder="gpt-4o" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Image Deployment</label>
+                                    <input type="text" @bind="Settings.ImageDeployment" placeholder="dall-e-3" />
+                                </div>
+                                <div class="form-group">
+                                    <label>DALL-E Deployment</label>
+                                    <input type="text" @bind="Settings.DalleDeployment" placeholder="dall-e-3" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Azure AI Vision Section *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("vision"))">
+                        <span class="section-icon">👁️</span>
+                        <h3>Azure AI Vision (Computer Vision)</h3>
+                        <span class="section-status @(IsVisionConfigured ? "configured" : "not-configured")">
+                            @(IsVisionConfigured ? "✅ Configured" : "⚠️ Not Configured")
+                        </span>
+                        <span class="toggle-icon">@(expandedSections.Contains("vision") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("vision"))
+                    {
+                        <div class="section-content">
+                            @if (!IsVisionConfigured)
+                            {
+                                <div class="setup-help">
+                                    <strong>📋 Setup Instructions:</strong>
+                                    <ol>
+                                        <li>Go to <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesComputerVision" target="_blank">Azure Portal - Create Computer Vision</a></li>
+                                        <li>Select your subscription and resource group</li>
+                                        <li>Choose a region and pricing tier (F0 is free)</li>
+                                        <li>After creation, go to "Keys and Endpoint" to get values below</li>
+                                    </ol>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label>Vision Endpoint URL</label>
+                                <input type="url" @bind="Settings.VisionEndpoint" placeholder="https://your-vision.cognitiveservices.azure.com/" />
+                                <small>Azure AI Vision resource endpoint</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Vision API Key</label>
+                                <div class="input-with-toggle">
+                                    <input type="@(showVisionKey ? "text" : "password")" @bind="Settings.VisionKey" placeholder="Enter your API key" />
+                                    <button type="button" class="toggle-visibility" @onclick="() => showVisionKey = !showVisionKey">
+                                        @(showVisionKey ? "🙈" : "👁️")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Azure Document Intelligence Section *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("docint"))">
+                        <span class="section-icon">📄</span>
+                        <h3>Azure Document Intelligence</h3>
+                        <span class="section-status @(IsDocIntelligenceConfigured ? "configured" : "not-configured")">
+                            @(IsDocIntelligenceConfigured ? "✅ Configured" : "⚠️ Not Configured")
+                        </span>
+                        <span class="toggle-icon">@(expandedSections.Contains("docint") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("docint"))
+                    {
+                        <div class="section-content">
+                            @if (!IsDocIntelligenceConfigured)
+                            {
+                                <div class="setup-help">
+                                    <strong>📋 Setup Instructions:</strong>
+                                    <ol>
+                                        <li>Go to <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesFormRecognizer" target="_blank">Azure Portal - Create Document Intelligence</a></li>
+                                        <li>Select your subscription and resource group</li>
+                                        <li>Choose a region and pricing tier (F0 is free)</li>
+                                        <li>After creation, go to "Keys and Endpoint" to get values below</li>
+                                    </ol>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label>Document Intelligence Endpoint</label>
+                                <input type="url" @bind="Settings.DocumentIntelligenceEndpoint" placeholder="https://your-doc-intel.cognitiveservices.azure.com/" />
+                            </div>
+                            <div class="form-group">
+                                <label>Document Intelligence Key</label>
+                                <div class="input-with-toggle">
+                                    <input type="@(showDocIntKey ? "text" : "password")" @bind="Settings.DocumentIntelligenceKey" placeholder="Enter your API key" />
+                                    <button type="button" class="toggle-visibility" @onclick="() => showDocIntKey = !showDocIntKey">
+                                        @(showDocIntKey ? "🙈" : "👁️")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Azure Custom Vision Section *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("customvision"))">
+                        <span class="section-icon">🎯</span>
+                        <h3>Azure Custom Vision</h3>
+                        <span class="section-status @(IsCustomVisionConfigured ? "configured" : "not-configured")">
+                            @(IsCustomVisionConfigured ? "✅ Configured" : "⚠️ Not Configured")
+                        </span>
+                        <span class="toggle-icon">@(expandedSections.Contains("customvision") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("customvision"))
+                    {
+                        <div class="section-content">
+                            @if (!IsCustomVisionConfigured)
+                            {
+                                <div class="setup-help">
+                                    <strong>📋 Setup Instructions:</strong>
+                                    <ol>
+                                        <li>Go to <a href="https://www.customvision.ai/" target="_blank">Custom Vision Portal</a></li>
+                                        <li>Create a new project (Classification or Object Detection)</li>
+                                        <li>Go to Settings ⚙️ to find your Prediction Key and Endpoint</li>
+                                        <li>Project ID is in the project URL or settings</li>
+                                    </ol>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label>Custom Vision Endpoint</label>
+                                <input type="url" @bind="Settings.CustomVisionEndpoint" placeholder="https://your-customvision.cognitiveservices.azure.com/" />
+                            </div>
+                            <div class="form-group">
+                                <label>Custom Vision Prediction Key</label>
+                                <div class="input-with-toggle">
+                                    <input type="@(showCustomVisionKey ? "text" : "password")" @bind="Settings.CustomVisionKey" placeholder="Enter your prediction key" />
+                                    <button type="button" class="toggle-visibility" @onclick="() => showCustomVisionKey = !showCustomVisionKey">
+                                        @(showCustomVisionKey ? "🙈" : "👁️")
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Project ID</label>
+                                <input type="text" @bind="Settings.CustomVisionProjectId" placeholder="your-project-guid" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Azure Video Indexer Section *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("video"))">
+                        <span class="section-icon">🎬</span>
+                        <h3>Azure Video Indexer</h3>
+                        <span class="section-status @(IsVideoIndexerConfigured ? "configured" : "not-configured")">
+                            @(IsVideoIndexerConfigured ? "✅ Configured" : "⚠️ Not Configured")
+                        </span>
+                        <span class="toggle-icon">@(expandedSections.Contains("video") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("video"))
+                    {
+                        <div class="section-content">
+                            @if (!IsVideoIndexerConfigured)
+                            {
+                                <div class="setup-help">
+                                    <strong>📋 Setup Instructions:</strong>
+                                    <ol>
+                                        <li>Go to <a href="https://www.videoindexer.ai/" target="_blank">Video Indexer Portal</a></li>
+                                        <li>Sign in with your Azure account</li>
+                                        <li>Create a trial account or connect to Azure</li>
+                                        <li>Go to Settings → Account to find Account ID</li>
+                                        <li>API Key is under Profile → Developer portal</li>
+                                    </ol>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label>Video Indexer Account ID</label>
+                                <input type="text" @bind="Settings.VideoIndexerAccountId" placeholder="your-account-id" />
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <select @bind="Settings.VideoIndexerLocation">
+                                        <option value="trial">Trial</option>
+                                        <option value="eastus">East US</option>
+                                        <option value="westus2">West US 2</option>
+                                        <option value="northeurope">North Europe</option>
+                                        <option value="westeurope">West Europe</option>
+                                        <option value="southeastasia">Southeast Asia</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>API Key</label>
+                                    <div class="input-with-toggle">
+                                        <input type="@(showVideoKey ? "text" : "password")" @bind="Settings.VideoIndexerApiKey" placeholder="Enter API key" />
+                                        <button type="button" class="toggle-visibility" @onclick="() => showVideoKey = !showVideoKey">
+                                            @(showVideoKey ? "🙈" : "👁️")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Azure Subscription Info *@
+                <div class="settings-section">
+                    <div class="section-header" @onclick="@(() => ToggleSection("subscription"))">
+                        <span class="section-icon">☁️</span>
+                        <h3>Azure Subscription</h3>
+                        <span class="toggle-icon">@(expandedSections.Contains("subscription") ? "▼" : "▶")</span>
+                    </div>
+                    @if (expandedSections.Contains("subscription"))
+                    {
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label>Subscription ID</label>
+                                <input type="text" @bind="Settings.SubscriptionId" placeholder="your-subscription-guid" />
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Resource Group</label>
+                                    <input type="text" @bind="Settings.ResourceGroup" placeholder="your-resource-group" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Account Name</label>
+                                    <input type="text" @bind="Settings.AccountName" placeholder="your-account-name" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(statusMessage))
+                {
+                    <div class="status-message @statusClass">
+                        @statusMessage
+                    </div>
+                }
+            </div>
+            
+            <div class="settings-modal-footer">
+                <div class="footer-info">
+                    <span class="config-count">
+                        @ConfiguredServicesCount / 5 services configured
+                    </span>
+                </div>
+                <div class="footer-actions">
+                    <button class="btn-secondary" @onclick="ResetToDefaults">Reset</button>
+                    <button class="btn-secondary" @onclick="Close">Cancel</button>
+                    <button class="btn-primary" @onclick="SaveSettings">💾 Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .settings-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        animation: fadeIn 0.2s ease;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .settings-modal {
+        background: white;
+        border-radius: 16px;
+        width: 95%;
+        max-width: 700px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @@keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .settings-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+        position: relative;
+    }
+
+    .settings-modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .settings-modal-header p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+    .close-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    .settings-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .settings-section {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: #f9fafb;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.2s;
+    }
+
+    .section-header:hover {
+        background: #f3f4f6;
+    }
+
+    .section-icon {
+        font-size: 20px;
+        margin-right: 12px;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        flex: 1;
+    }
+
+    .section-status {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-right: 10px;
+    }
+
+    .section-status.configured {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .section-status.not-configured {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .toggle-icon {
+        color: #9ca3af;
+        font-size: 10px;
+    }
+
+    .section-content {
+        padding: 16px;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+    }
+
+    .setup-help {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #1e40af;
+    }
+
+    .setup-help strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #1e3a8a;
+    }
+
+    .setup-help ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .setup-help li {
+        margin-bottom: 4px;
+    }
+
+    .setup-help a {
+        color: #2563eb;
+        text-decoration: underline;
+    }
+
+    .setup-help a:hover {
+        color: #1d4ed8;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group small {
+        display: block;
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .input-with-toggle {
+        position: relative;
+        display: flex;
+    }
+
+    .input-with-toggle input {
+        flex: 1;
+        padding-right: 40px;
+    }
+
+    .toggle-visibility {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+    }
+
+    .status-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-top: 12px;
+        font-size: 13px;
+    }
+
+    .status-message.success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+
+    .status-message.error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .settings-modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .footer-info {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .config-count {
+        background: #e5e7eb;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #f9fafb;
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public AzureLogin.Shared.Services.AzureOpenAISettings Settings { get; set; } = new();
+    [Parameter] public EventCallback<AzureLogin.Shared.Services.AzureOpenAISettings> OnSave { get; set; }
+
+    private HashSet<string> expandedSections = new() { "openai" };
+    private bool showVisionKey;
+    private bool showDocIntKey;
+    private bool showCustomVisionKey;
+    private bool showVideoKey;
+    private string? statusMessage;
+    private string statusClass = "";
+
+    private bool IsOpenAIConfigured => !string.IsNullOrEmpty(Settings?.Endpoint) && !Settings.Endpoint.Contains("YOUR-");
+    private bool IsVisionConfigured => !string.IsNullOrEmpty(Settings?.VisionEndpoint) && !Settings.VisionEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.VisionKey) && !Settings.VisionKey.Contains("YOUR-");
+    private bool IsDocIntelligenceConfigured => !string.IsNullOrEmpty(Settings?.DocumentIntelligenceEndpoint) && !Settings.DocumentIntelligenceEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.DocumentIntelligenceKey) && !Settings.DocumentIntelligenceKey.Contains("YOUR-");
+    private bool IsCustomVisionConfigured => !string.IsNullOrEmpty(Settings?.CustomVisionEndpoint) && !Settings.CustomVisionEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.CustomVisionKey) && !Settings.CustomVisionKey.Contains("YOUR-");
+    private bool IsVideoIndexerConfigured => !string.IsNullOrEmpty(Settings?.VideoIndexerAccountId) && !Settings.VideoIndexerAccountId.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.VideoIndexerApiKey) && !Settings.VideoIndexerApiKey.Contains("YOUR-");
+
+    private int ConfiguredServicesCount =>
+        (IsOpenAIConfigured ? 1 : 0) +
+        (IsVisionConfigured ? 1 : 0) +
+        (IsDocIntelligenceConfigured ? 1 : 0) +
+        (IsCustomVisionConfigured ? 1 : 0) +
+        (IsVideoIndexerConfigured ? 1 : 0);
+
+    private void ToggleSection(string section)
+    {
+        if (expandedSections.Contains(section))
+            expandedSections.Remove(section);
+        else
+            expandedSections.Add(section);
+    }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+        statusMessage = null;
+    }
+
+    private async Task SaveSettings()
+    {
+        try
+        {
+            // Save to localStorage for persistence
+            var json = System.Text.Json.JsonSerializer.Serialize(Settings);
+            await JS.InvokeVoidAsync("localStorage.setItem", "AzureAISettings", json);
+            
+            await OnSave.InvokeAsync(Settings);
+            
+            statusMessage = "✅ Settings saved successfully!";
+            statusClass = "success";
+            
+            // Auto-close after 1.5 seconds
+            await Task.Delay(1500);
+            await Close();
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"❌ Failed to save: {ex.Message}";
+            statusClass = "error";
+        }
+    }
+
+    private void ResetToDefaults()
+    {
+        Settings = new AzureLogin.Shared.Services.AzureOpenAISettings();
+        statusMessage = "Settings reset to defaults. Click Save to apply.";
+        statusClass = "success";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // First, try to load any saved overrides from localStorage
+        try
+        {
+            var json = await JS.InvokeAsync<string>("localStorage.getItem", "AzureAISettings");
+            if (!string.IsNullOrEmpty(json))
+            {
+                var saved = System.Text.Json.JsonSerializer.Deserialize<AzureLogin.Shared.Services.AzureOpenAISettings>(json);
+                if (saved != null)
+                {
+                    // Merge saved settings - only override if the saved value is not empty/placeholder
+                    MergeSettings(saved);
+                }
+            }
+        }
+        catch
+        {
+            // Use parameter settings if localStorage fails
+        }
+    }
+    
+    private void MergeSettings(AzureLogin.Shared.Services.AzureOpenAISettings saved)
+    {
+        // Only override Settings with saved values if they are not empty/placeholder values
+        if (!string.IsNullOrEmpty(saved.Endpoint) && !saved.Endpoint.Contains("YOUR-"))
+            Settings.Endpoint = saved.Endpoint;
+        if (!string.IsNullOrEmpty(saved.SubscriptionId) && !saved.SubscriptionId.Contains("YOUR-"))
+            Settings.SubscriptionId = saved.SubscriptionId;
+        if (!string.IsNullOrEmpty(saved.ResourceGroup) && !saved.ResourceGroup.Contains("YOUR-"))
+            Settings.ResourceGroup = saved.ResourceGroup;
+        if (!string.IsNullOrEmpty(saved.AccountName) && !saved.AccountName.Contains("YOUR-"))
+            Settings.AccountName = saved.AccountName;
+        if (!string.IsNullOrEmpty(saved.DefaultDeployment))
+            Settings.DefaultDeployment = saved.DefaultDeployment;
+        if (!string.IsNullOrEmpty(saved.VisionDeployment))
+            Settings.VisionDeployment = saved.VisionDeployment;
+        if (!string.IsNullOrEmpty(saved.ImageDeployment))
+            Settings.ImageDeployment = saved.ImageDeployment;
+        if (!string.IsNullOrEmpty(saved.DalleDeployment))
+            Settings.DalleDeployment = saved.DalleDeployment;
+        if (!string.IsNullOrEmpty(saved.VisionEndpoint) && !saved.VisionEndpoint.Contains("YOUR-"))
+            Settings.VisionEndpoint = saved.VisionEndpoint;
+        if (!string.IsNullOrEmpty(saved.VisionKey) && !saved.VisionKey.Contains("YOUR-"))
+            Settings.VisionKey = saved.VisionKey;
+        if (!string.IsNullOrEmpty(saved.DocumentIntelligenceEndpoint) && !saved.DocumentIntelligenceEndpoint.Contains("YOUR-"))
+            Settings.DocumentIntelligenceEndpoint = saved.DocumentIntelligenceEndpoint;
+        if (!string.IsNullOrEmpty(saved.DocumentIntelligenceKey) && !saved.DocumentIntelligenceKey.Contains("YOUR-"))
+            Settings.DocumentIntelligenceKey = saved.DocumentIntelligenceKey;
+        if (!string.IsNullOrEmpty(saved.CustomVisionEndpoint) && !saved.CustomVisionEndpoint.Contains("YOUR-"))
+            Settings.CustomVisionEndpoint = saved.CustomVisionEndpoint;
+        if (!string.IsNullOrEmpty(saved.CustomVisionKey) && !saved.CustomVisionKey.Contains("YOUR-"))
+            Settings.CustomVisionKey = saved.CustomVisionKey;
+        if (!string.IsNullOrEmpty(saved.CustomVisionProjectId) && !saved.CustomVisionProjectId.Contains("YOUR-"))
+            Settings.CustomVisionProjectId = saved.CustomVisionProjectId;
+        if (!string.IsNullOrEmpty(saved.VideoIndexerAccountId) && !saved.VideoIndexerAccountId.Contains("YOUR-"))
+            Settings.VideoIndexerAccountId = saved.VideoIndexerAccountId;
+        if (!string.IsNullOrEmpty(saved.VideoIndexerLocation))
+            Settings.VideoIndexerLocation = saved.VideoIndexerLocation;
+        if (!string.IsNullOrEmpty(saved.VideoIndexerApiKey) && !saved.VideoIndexerApiKey.Contains("YOUR-"))
+            Settings.VideoIndexerApiKey = saved.VideoIndexerApiKey;
+    }
+}
