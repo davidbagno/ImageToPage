@@ -33,6 +33,9 @@ builder.Services.AddSingleton<IVisionService, VisionService>();
 // Register Image Extraction service for extracting images from composites
 builder.Services.AddSingleton<IImageExtractionService, ImageExtractionService>();
 
+// Register Dynamic Razor Renderer for live preview of generated Razor components
+builder.Services.AddSingleton<IDynamicRazorRenderer, DynamicRazorRenderer>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

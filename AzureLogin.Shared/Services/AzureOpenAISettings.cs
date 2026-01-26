@@ -12,6 +12,7 @@ public class AzureOpenAISettings
     public string ResourceGroup { get; set; } = string.Empty;
     public string AccountName { get; set; } = string.Empty;
     public string Endpoint { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = string.Empty;  // Optional: Use API key instead of Azure AD auth
     public string DefaultDeployment { get; set; } = string.Empty;
     public string ImageDeployment { get; set; } = "gpt-image-1.5";
     public string VisionDeployment { get; set; } = "gpt-4o";

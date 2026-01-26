@@ -9,6 +9,7 @@
 @inject IImageExtractionService ImageExtraction
 @inject IAzureVisionService? AzureVision
 @inject IAdvancedAIService? AdvancedAI
+@inject IDynamicRazorRenderer? RazorRenderer
 @inject IUrlLauncher UrlLauncher
 @inject IJSRuntime JS
 @inject IOptions<AzureOpenAISettings> AppSettings
@@ -729,13 +730,59 @@
                         }
                         else
                         {
-                            <div class="text-center py-5">
-                                <div class="spinner-border mb-3" style="color: #667eea; width: 3rem; height: 3rem;"></div>
-                                <p style="color: #888; font-size: 1.1rem;">Preparing secure sign-in...</p>
-                                <p style="color: #aaa; font-size: 0.9rem;">Press Esc or click Cancel to exit</p>
-                                <button class="btn btn-outline-secondary mt-3" style="border-radius: 10px;" @onclick="Cancel">
-                                    ❌ Cancel
-                                </button>
+                            @* Loading state while preparing sign-in *@
+                            <div class="text-center py-4">
+                                <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 20px;">
+                                    @* Outer spinning ring *@
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 4px solid #e5e7eb; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                    @* Inner icon *@
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px;">🔐</div>
+                                </div>
+                                
+                                <h4 class="fw-bold mb-3" style="color: #374151;">Connecting to Azure...</h4>
+                                
+                                @* Progress steps *@
+                                <div class="text-start mx-auto mb-4" style="max-width: 300px;">
+                                    <div class="d-flex align-items-center gap-3 mb-2" style="color: #10b981;">
+                                        <span style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">✓</span>
+                                        <span style="font-size: 0.9rem;">Configuration loaded</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3 mb-2" style="color: @(_signInStep >= 2 ? "#10b981" : "#667eea");">
+                                        @if (_signInStep >= 2)
+                                        {
+                                            <span style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">✓</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="width: 24px; height: 24px; border: 2px solid #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                <span class="spinner-border spinner-border-sm" style="width: 14px; height: 14px; border-width: 2px; color: #667eea;"></span>
+                                            </span>
+                                        }
+                                        <span style="font-size: 0.9rem;">Contacting Azure AD...</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3" style="color: @(_signInStep >= 3 ? "#10b981" : "#9ca3af");">
+                                        <span style="width: 24px; height: 24px; border: 2px solid @(_signInStep >= 3 ? "#10b981" : "#d1d5db"); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: @(_signInStep >= 3 ? "#10b981" : "#d1d5db"); font-size: 12px;">3</span>
+                                        <span style="font-size: 0.9rem;">Generating sign-in code</span>
+                                    </div>
+                                </div>
+                                
+                                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 16px;">
+                                    This may take a few seconds depending on your network connection
+                                </p>
+                                
+                                @* Elapsed time indicator *@
+                                <div class="mb-3 p-2" style="background: #f3f4f6; border-radius: 8px; display: inline-block;">
+                                    <span style="color: #6b7280; font-size: 0.85rem;">
+                                        ⏱️ Elapsed: @TimeSpan.FromSeconds(_signInElapsedSeconds).ToString(@"m\:ss")
+                                    </span>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <button class="btn btn-outline-secondary" style="border-radius: 10px; padding: 8px 20px;" @onclick="Cancel">
+                                        ❌ Cancel
+                                    </button>
+                                </div>
+                                <small class="d-block mt-2" style="color: #9ca3af;">Press Esc key to cancel</small>
                             </div>
                         }
                     </div>
@@ -1471,49 +1518,88 @@
                                                 @if (_codeViewMode == "code" || !CanShowPreview())
                                                 {
                                                     @* Code Only View - Full Height *@
-                                                    <div class="code-panel" style="border-radius: 10px; border: 2px solid #e2e8f0;">
-                                                        <div class="code-panel-content">
-                                                            <pre class="code-pre" style="margin: 0; padding: 12px; white-space: pre-wrap; height: 100%; font-size: 12px; line-height: 1.5; background: #1e293b; color: #e2e8f0; border-radius: 8px;">@_generatedCode</pre>
+                                                    <div style="flex: 1; display: flex; flex-direction: column; border-radius: 10px; border: 2px solid #e2e8f0; overflow: hidden; min-height: 0;">
+                                                        <div style="background: #1e293b; color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
+                                                            💻 Generated Code — @_targetFramework
+                                                        </div>
+                                                        <div style="flex: 1; overflow: auto; min-height: 0; background: #1e293b;">
+                                                            <pre class="code-pre" style="margin: 0; padding: 12px; white-space: pre-wrap; min-height: 100%; font-size: 12px; line-height: 1.5; background: #1e293b; color: #e2e8f0;">@_generatedCode</pre>
                                                         </div>
                                                     </div>
                                                 }
                                                 else if (_codeViewMode == "preview")
                                                 {
                                                     @* Preview Only View - Full Height *@
-                                                    <div class="preview-panel" style="border-radius: 10px; border: 2px solid #10b981;">
+                                                    <div style="flex: 1; display: flex; flex-direction: column; border-radius: 10px; border: 2px solid #10b981; overflow: hidden; min-height: 0;">
                                                         <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                                                            <span style="font-weight: 600; font-size: 0.85rem;">👁️ Live Preview — @_targetFramework</span>
-                                                            <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; padding: 3px 10px; font-size: 0.75rem;" @onclick="RefreshPreview">🔄</button>
+                                                            <span style="font-weight: 600; font-size: 0.85rem;">👁️ @GetPreviewTitle()</span>
+                                                            <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; padding: 3px 10px; font-size: 0.75rem;" @onclick="RefreshPreview">🔄 Refresh</button>
                                                         </div>
-                                                        <div class="preview-panel-content" style="background: white;">
-                                                            <div class="preview-iframe-container">
-                                                                <iframe src="@GetPreviewDataUrl()"></iframe>
-                                                            </div>
+                                                        <div style="flex: 1; background: white; position: relative; min-height: 0;">
+                                                            @if (IsRazorFramework())
+                                                            {
+                                                                @* Razor Preview - Dynamic rendering *@
+                                                                @if (_isRenderingRazorPreview)
+                                                                {
+                                                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                                                        <div class="text-center">
+                                                                            <div class="spinner-border mb-3" style="width: 2rem; height: 2rem; color: #8b5cf6;"></div>
+                                                                            <p style="color: #6d28d9; font-weight: 500;">Rendering Razor preview...</p>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <iframe id="razorPreviewFrame" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <iframe id="htmlPreviewFrame" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                                                            }
                                                         </div>
                                                     </div>
                                                 }
                                                 else if (_codeViewMode == "split")
                                                 {
                                                     @* Split View - Code + Preview - Full Height *@
-                                                    <div class="code-split-view">
-                                                        @* Code Panel *@
-                                                        <div class="code-panel" style="border-radius: 10px; border: 2px solid #e2e8f0;">
-                                                            <div style="background: #1e293b; color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; border-radius: 8px 8px 0 0;">
+                                                    <div style="flex: 1; display: flex; gap: 10px; min-height: 0;">
+                                                        @* Code Panel - Full Height *@
+                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 10px; border: 2px solid #e2e8f0; overflow: hidden; min-width: 0; min-height: 0;">
+                                                            <div style="background: #1e293b; color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
                                                                 💻 Code
                                                             </div>
-                                                            <div class="code-panel-content">
-                                                                <pre class="code-pre" style="margin: 0; padding: 10px; white-space: pre-wrap; height: 100%; font-size: 11px; line-height: 1.4; background: #1e293b; color: #e2e8f0;">@_generatedCode</pre>
+                                                            <div style="flex: 1; overflow: auto; min-height: 0; background: #1e293b;">
+                                                                <pre class="code-pre" style="margin: 0; padding: 10px; white-space: pre-wrap; min-height: 100%; font-size: 11px; line-height: 1.4; background: #1e293b; color: #e2e8f0;">@_generatedCode</pre>
                                                             </div>
                                                         </div>
-                                                        @* Preview Panel *@
-                                                        <div class="preview-panel" style="border-radius: 10px; border: 2px solid #10b981;">
-                                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; border-radius: 8px 8px 0 0;">
-                                                                👁️ Live Preview
+                                                        @* Preview Panel - Full Height *@
+                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 10px; border: 2px solid #10b981; overflow: hidden; min-width: 0; min-height: 0;">
+                                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
+                                                                👁️ @GetPreviewTitle()
                                                             </div>
-                                                            <div class="preview-panel-content" style="background: white;">
-                                                                <div class="preview-iframe-container">
-                                                                    <iframe src="@GetPreviewDataUrl()"></iframe>
-                                                                </div>
+                                                            <div style="flex: 1; background: white; position: relative; min-height: 0;">
+                                                                @if (IsRazorFramework())
+                                                                {
+                                                                    @* Razor Preview - Dynamic rendering *@
+                                                                    @if (_isRenderingRazorPreview)
+                                                                    {
+                                                                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                                                            <div class="text-center">
+                                                                                <div class="spinner-border spinner-border-sm mb-2" style="color: #8b5cf6;"></div>
+                                                                                <p style="color: #6d28d9; font-size: 0.75rem; margin: 0;">Rendering...</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <iframe id="razorPreviewFrameSplit" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <iframe id="htmlPreviewFrameSplit" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>
@@ -2139,6 +2225,11 @@
     private System.Timers.Timer? _countdownTimer;
     private DotNetObjectReference<Home>? _dotNetRef;
     
+    // Sign-in progress tracking
+    private int _signInStep = 1; // 1=loading config, 2=contacting Azure, 3=generating code
+    private int _signInElapsedSeconds = 0;
+    private System.Timers.Timer? _signInElapsedTimer;
+    
     [JSInvokable]
     public void CancelLoginFromJs()
     {
@@ -2226,6 +2317,11 @@
 
     // Code Preview Mode
     private string _codeViewMode = "code"; // code, preview, split
+    
+    // Dynamic Razor Preview
+    private bool _isRenderingRazorPreview;
+    private string _razorPreviewHtml = "";
+    private RenderResult? _lastRazorRenderResult;
 
     private async Task StartSignIn()
     {
@@ -2236,6 +2332,21 @@
         _copied = false;
         _loginTimedOut = false;
         _remainingSeconds = LoginTimeoutSeconds;
+        
+        // Reset sign-in progress
+        _signInStep = 1;
+        _signInElapsedSeconds = 0;
+        
+        // Start elapsed time timer for the loading state
+        _signInElapsedTimer?.Stop();
+        _signInElapsedTimer?.Dispose();
+        _signInElapsedTimer = new System.Timers.Timer(1000);
+        _signInElapsedTimer.Elapsed += async (s, e) =>
+        {
+            _signInElapsedSeconds++;
+            await InvokeAsync(StateHasChanged);
+        };
+        _signInElapsedTimer.Start();
         
         // Setup escape key handler
         _dotNetRef?.Dispose();
@@ -2267,6 +2378,10 @@
         
         try
         {
+            // Step 2: Contacting Azure AD
+            _signInStep = 2;
+            StateHasChanged();
+            
             var authTask = AzureOpenAI.GetAuthenticationStatusAsync();
             
             // Poll for the device code with cancellation check
@@ -2277,7 +2392,19 @@
                     throw new OperationCanceledException("Login was cancelled or timed out");
                 }
                 await Task.Delay(100);
+                
+                // Update to step 3 after a couple seconds
+                if (i == 20)
+                {
+                    _signInStep = 3;
+                    StateHasChanged();
+                }
             }
+            
+            // Stop elapsed timer once we have the code
+            _signInElapsedTimer?.Stop();
+            _signInElapsedTimer?.Dispose();
+            _signInElapsedTimer = null;
             
             if (!string.IsNullOrEmpty(AzureOpenAI.UserCode))
             {
@@ -2334,6 +2461,10 @@
             _countdownTimer?.Stop();
             _countdownTimer?.Dispose();
             _countdownTimer = null;
+            
+            _signInElapsedTimer?.Stop();
+            _signInElapsedTimer?.Dispose();
+            _signInElapsedTimer = null;
             
             // Cleanup escape handler
             try
@@ -2860,8 +2991,8 @@
                 _generatedCode = result.Code ?? "";
                 _codeLanguage = result.Language ?? GetLanguageHint(_targetFramework);
                 
-                // Auto-switch to split view for HTML-based frameworks
-                if (_targetFramework is "HTML/CSS" or "Tailwind CSS")
+                // Auto-switch to split view for previewable frameworks
+                if (CanShowPreview())
                 {
                     _codeViewMode = "split";
                 }
@@ -2878,6 +3009,19 @@
         
         _isConvertingToCode = false;
         StateHasChanged();
+        
+        // Load preview if HTML-based framework or Razor framework
+        if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview())
+        {
+            if (IsHtmlFramework())
+            {
+                await LoadPreviewIframeAsync();
+            }
+            else if (IsRazorFramework())
+            {
+                await LoadRazorPreviewAsync();
+            }
+        }
     }
     
     private async Task RunAnalysis()
@@ -3610,8 +3754,33 @@
     
     private bool CanShowPreview()
     {
-        // Only HTML-based frameworks can be previewed
+        // HTML-based and Razor frameworks can show preview panel
+        return _targetFramework is "HTML/CSS" or "Tailwind CSS" or "Blazor Razor" or "Blazor MAUI" or "ASP.NET Razor";
+    }
+    
+    private bool IsRazorFramework()
+    {
+        // Check if the current framework is a Razor-based framework
+        return _targetFramework is "Blazor Razor" or "Blazor MAUI" or "ASP.NET Razor";
+    }
+    
+    private bool IsHtmlFramework()
+    {
+        // Check if the current framework outputs pure HTML
         return _targetFramework is "HTML/CSS" or "Tailwind CSS";
+    }
+    
+    private string GetPreviewTitle()
+    {
+        return _targetFramework switch
+        {
+            "HTML/CSS" => "Live HTML Preview",
+            "Tailwind CSS" => "Live Tailwind Preview",
+            "Blazor Razor" => "Blazor Component Preview",
+            "Blazor MAUI" => "MAUI Blazor Preview",
+            "ASP.NET Razor" => "Razor Page Preview",
+            _ => "Preview"
+        };
     }
     
     private void RefreshPreview()
@@ -3619,6 +3788,14 @@
         // Force re-render by triggering state change
         _previewKey = Guid.NewGuid().ToString();
         StateHasChanged();
+        if (IsHtmlFramework())
+        {
+            _ = LoadPreviewIframeAsync();
+        }
+        else if (IsRazorFramework())
+        {
+            _ = LoadRazorPreviewAsync();
+        }
     }
     
     private string _previewKey = "";
@@ -3635,6 +3812,37 @@
         return $"data:text/html;charset=utf-8;base64,{base64}#{_previewKey}";
     }
     
+    private async Task LoadPreviewIframeAsync()
+    {
+        // Only load iframe for HTML-based frameworks (not Razor)
+        if (string.IsNullOrEmpty(_generatedCode) || !IsHtmlFramework()) return;
+        
+        try
+        {
+            await Task.Delay(50); // Allow DOM to update
+            var htmlContent = GetPreviewHtml();
+            var escapedHtml = System.Text.Json.JsonSerializer.Serialize(htmlContent);
+            
+            await JS.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    var iframes = document.querySelectorAll('#htmlPreviewFrame, #htmlPreviewFrameSplit');
+                    iframes.forEach(function(iframe) {{
+                        if (iframe) {{
+                            var doc = iframe.contentDocument || iframe.contentWindow.document;
+                            doc.open();
+                            doc.write({escapedHtml});
+                            doc.close();
+                        }}
+                    }});
+                }})();
+            ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load preview: {ex.Message}");
+        }
+    }
+    
     private void SetCodeViewMode()
     {
         _codeViewMode = "code";
@@ -3644,12 +3852,71 @@
     {
         _codeViewMode = "preview";
         StateHasChanged();
+        if (IsHtmlFramework())
+        {
+            _ = LoadPreviewIframeAsync();
+        }
+        else if (IsRazorFramework())
+        {
+            _ = LoadRazorPreviewAsync();
+        }
     }
     
     private void SetSplitViewMode()
     {
         _codeViewMode = "split";
         StateHasChanged();
+        if (IsHtmlFramework())
+        {
+            _ = LoadPreviewIframeAsync();
+        }
+        else if (IsRazorFramework())
+        {
+            _ = LoadRazorPreviewAsync();
+        }
+    }
+    
+    private async Task LoadRazorPreviewAsync()
+    {
+        if (string.IsNullOrEmpty(_generatedCode) || RazorRenderer == null) return;
+        
+        try
+        {
+            _isRenderingRazorPreview = true;
+            StateHasChanged();
+            
+            await Task.Delay(50); // Allow DOM to update
+            
+            // Generate preview HTML from Razor markup
+            _razorPreviewHtml = await RazorRenderer.GeneratePreviewPageAsync(_generatedCode, _targetFramework);
+            _lastRazorRenderResult = await RazorRenderer.RenderToHtmlAsync(_generatedCode, _targetFramework);
+            
+            // Load into iframe(s)
+            var escapedHtml = System.Text.Json.JsonSerializer.Serialize(_razorPreviewHtml);
+            
+            await JS.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    var iframes = document.querySelectorAll('#razorPreviewFrame, #razorPreviewFrameSplit');
+                    iframes.forEach(function(iframe) {{
+                        if (iframe) {{
+                            var doc = iframe.contentDocument || iframe.contentWindow.document;
+                            doc.open();
+                            doc.write({escapedHtml});
+                            doc.close();
+                        }}
+                    }});
+                }})();
+            ");
+            
+            _isRenderingRazorPreview = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load Razor preview: {ex.Message}");
+            _isRenderingRazorPreview = false;
+            StateHasChanged();
+        }
     }
     
     private async Task OpenPreviewPopup()
@@ -3658,7 +3925,15 @@
         
         try
         {
-            var htmlContent = GetPreviewHtml();
+            string htmlContent;
+            if (IsRazorFramework() && RazorRenderer != null)
+            {
+                htmlContent = await RazorRenderer.GeneratePreviewPageAsync(_generatedCode, _targetFramework);
+            }
+            else
+            {
+                htmlContent = GetPreviewHtml();
+            }
             var escapedHtml = System.Text.Json.JsonSerializer.Serialize(htmlContent);
             
             // Use JavaScript to open a new window and write content directly
@@ -3717,7 +3992,15 @@
         
         try
         {
-            var htmlContent = GetPreviewHtml();
+            string htmlContent;
+            if (IsRazorFramework() && RazorRenderer != null)
+            {
+                htmlContent = await RazorRenderer.GeneratePreviewPageAsync(_generatedCode, _targetFramework);
+            }
+            else
+            {
+                htmlContent = GetPreviewHtml();
+            }
             var bytes = System.Text.Encoding.UTF8.GetBytes(htmlContent);
             var base64 = Convert.ToBase64String(bytes);
             
@@ -4144,9 +4427,20 @@ Return ONLY the complete Razor page code.";
     #region Splitter Drag Functionality
     
     private bool _splitterInitialized = false;
+    private string _lastLoadedPreviewCode = "";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // Load preview iframe when in preview/split mode and code has changed (HTML frameworks only)
+        if (!string.IsNullOrEmpty(_generatedCode) && 
+            IsHtmlFramework() && 
+            (_codeViewMode == "preview" || _codeViewMode == "split") &&
+            _generatedCode != _lastLoadedPreviewCode)
+        {
+            _lastLoadedPreviewCode = _generatedCode;
+            await LoadPreviewIframeAsync();
+        }
+        
         if (firstRender && !_splitterInitialized)
         {
             _splitterInitialized = true;

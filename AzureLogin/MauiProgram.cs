@@ -55,6 +55,9 @@ public static class MauiProgram
         
         // Register Advanced AI Service for Document Intelligence, Custom Vision, Video Analysis, etc.
         builder.Services.AddSingleton<IAdvancedAIService, AdvancedAIService>();
+        
+        // Register Dynamic Razor Renderer for live preview of generated Razor components
+        builder.Services.AddSingleton<IDynamicRazorRenderer, DynamicRazorRenderer>();
 
         builder.Services.AddMauiBlazorWebView();
 
