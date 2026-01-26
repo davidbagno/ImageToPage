@@ -106,25 +106,95 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     
+    /* Premium Toolbar Navigation - Light Theme */
+    .toolbar-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 16px;
+        padding: 6px;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .toolbar-inner {
+        display: flex;
+        gap: 6px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 5px;
+    }
+    
     .tab-btn {
-        border-radius: 8px !important;
-        padding: 10px 20px !important;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border: 1px solid #e2e4e8 !important;
-        background: white;
-        color: #667eea;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tab-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.25s ease;
     }
     
     .tab-btn:hover:not(.active) {
-        background: #f0f4ff;
-        border-color: #667eea !important;
+        color: #475569;
+        background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .tab-btn:hover:not(.active)::before {
+        opacity: 1;
     }
     
     .tab-btn.active {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border-color: #667eea !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+        transform: translateY(-1px);
+    }
+    
+    .tab-btn .tab-icon {
+        font-size: 1.3rem;
+        line-height: 1;
+    }
+    
+    .tab-btn .tab-label {
+        font-weight: 600;
+        letter-spacing: -0.3px;
+    }
+    
+    .tab-btn .tab-badge {
+        background: rgba(102, 126, 234, 0.15);
+        color: #667eea;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .tab-btn.active .tab-badge {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
     }
     
     .extraction-mode-btn:hover {
@@ -142,7 +212,7 @@
         display: flex;
         flex-direction: row;
         height: 100%;
-        min-height: 700px;
+        min-height: 900px;
         gap: 0;
         width: 100%;
     }
@@ -332,6 +402,144 @@
         max-height: 550px;
         overflow: auto;
     }
+    
+    .analysis-action-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .analysis-action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .analysis-action-btn:hover::before {
+        left: 100%;
+    }
+    
+    .analysis-action-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
+    }
+    
+    .analysis-action-btn:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    .analysis-action-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+        box-shadow: none !important;
+    }
+    
+    /* Premium Action Button Styles */
+    .premium-action-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .premium-action-btn .btn-shimmer {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        transition: left 0.6s ease;
+    }
+    
+    .premium-action-btn:hover:not(:disabled) .btn-shimmer {
+        left: 100%;
+    }
+    
+    .premium-action-btn:hover:not(:disabled) {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 10px 35px rgba(102, 126, 234, 0.5), 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    .premium-action-btn:active:not(:disabled) {
+        transform: translateY(-1px) scale(1);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    .premium-action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    }
+    
+    .premium-action-btn.processing {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+    }
+    
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Analysis Select Styling - Enhanced for visibility */
+    .analysis-select {
+        border: 2px solid #e0e7ff;
+        transition: all 0.2s ease;
+        font-size: 1rem !important;
+        padding: 12px 14px !important;
+        line-height: 1.5;
+        min-height: 52px;
+    }
+    
+    .analysis-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .analysis-select optgroup {
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        padding: 12px 10px !important;
+        margin-top: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .analysis-select option {
+        font-weight: 500;
+        font-size: 0.95rem !important;
+        color: #1f2937;
+        padding: 12px 16px !important;
+        line-height: 1.6;
+        background: #ffffff;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .analysis-select option:hover {
+        background: #f0f4ff !important;
+    }
+    
+    .analysis-select option:checked {
+        background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%) !important;
+        font-weight: 600;
+    }
+    
+    /* API Detail Card Animation */
+    .api-detail-card {
+        transition: all 0.3s ease;
+    }
+    
+    .api-detail-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
 </style>
 
 @* Inline script fallback for clipboard *@
@@ -373,20 +581,48 @@
                         
                         @if (!string.IsNullOrEmpty(_error))
                         {
-                            <div class="alert mb-4 mx-auto" style="background: rgba(255,255,255,0.95); border: none; border-radius: 12px; max-width: 400px; color: #c53030;">
-                                <strong>⚠️</strong> @_error
+                            <div class="alert mb-4 mx-auto" style="background: rgba(255,255,255,0.95); border: none; border-radius: 12px; max-width: 450px; color: #c53030;">
+                                <div class="mb-2"><strong>⚠️ @(_loginTimedOut ? "Login Timed Out" : "Sign In Failed")</strong></div>
+                                <p class="mb-2" style="font-size: 0.95rem;">@_error</p>
+                                @if (_loginTimedOut)
+                                {
+                                    <p class="mb-0" style="font-size: 0.85rem; color: #666;">
+                                        You can try again or check your Azure settings.
+                                    </p>
+                                }
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+                                <button class="btn btn-light px-4 py-2 fw-bold" 
+                                        style="border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" 
+                                        @onclick="StartSignIn">
+                                    <span style="color: #667eea;">🔄 Try Again</span>
+                                </button>
+                                <button class="btn btn-outline-light px-4 py-2 fw-semibold" 
+                                        style="border-radius: 25px;" 
+                                        @onclick="ShowServiceSettingsFromLogin">
+                                    <span>⚙️ Check Settings</span>
+                                </button>
                             </div>
                         }
-                        
-                        <button class="btn btn-light btn-lg px-5 py-3 fw-bold" 
-                                style="border-radius: 50px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); font-size: 1.1rem;" 
-                                @onclick="StartSignIn">
-                            <span style="color: #667eea;">🔐 Sign In with Microsoft</span>
-                        </button>
+                        else
+                        {
+                            <button class="btn btn-light btn-lg px-5 py-3 fw-bold" 
+                                    style="border-radius: 50px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); font-size: 1.1rem;" 
+                                    @onclick="StartSignIn">
+                                <span style="color: #667eea;">🔐 Sign In with Microsoft</span>
+                            </button>
+                        }
                         
                         <p class="mt-4 mb-0" style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
                             Secure authentication via Azure AD
                         </p>
+                        
+                        @* Settings shortcut *@
+                        <button class="btn btn-link mt-2" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem;" 
+                                @onclick="ShowServiceSettingsFromLogin">
+                            ⚙️ Configure Service Settings
+                        </button>
                     </div>
                 </div>
                 break;
@@ -427,13 +663,32 @@
                             </div>
                             
                             <div class="text-center py-3" style="border-top: 1px solid #eee;">
-                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
                                     <div class="spinner-border spinner-border-sm" style="color: #667eea;"></div>
                                     <span style="color: #888;">Waiting for authentication...</span>
                                 </div>
-                                <button class="btn btn-link mt-2" style="color: #999; text-decoration: none;" @onclick="Cancel">
-                                    Cancel
-                                </button>
+                                
+                                @* Timeout countdown *@
+                                <div class="mb-3 p-2" style="background: @(_remainingSeconds <= 30 ? "#fff3cd" : "#f0f4ff"); border-radius: 8px;">
+                                    <span style="color: @(_remainingSeconds <= 30 ? "#856404" : "#667eea"); font-weight: 500;">
+                                        ⏱️ Time remaining: @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"m\:ss")
+                                    </span>
+                                    @if (_remainingSeconds <= 30)
+                                    {
+                                        <br/>
+                                        <small style="color: #856404;">Login will timeout soon. Press Cancel or Esc to exit.</small>
+                                    }
+                                </div>
+                                
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-outline-secondary" style="border-radius: 10px;" @onclick="Cancel">
+                                        ❌ Cancel (Esc)
+                                    </button>
+                                    <button class="btn btn-outline-primary" style="border-radius: 10px;" @onclick="ShowServiceSettingsFromLogin">
+                                        ⚙️ Settings
+                                    </button>
+                                </div>
+                                <small class="d-block mt-2" style="color: #aaa;">Press Esc key to cancel and return to settings</small>
                             </div>
                         }
                         else
@@ -441,6 +696,10 @@
                             <div class="text-center py-5">
                                 <div class="spinner-border mb-3" style="color: #667eea; width: 3rem; height: 3rem;"></div>
                                 <p style="color: #888; font-size: 1.1rem;">Preparing secure sign-in...</p>
+                                <p style="color: #aaa; font-size: 0.9rem;">Press Esc or click Cancel to exit</p>
+                                <button class="btn btn-outline-secondary mt-3" style="border-radius: 10px;" @onclick="Cancel">
+                                    ❌ Cancel
+                                </button>
                             </div>
                         }
                     </div>
@@ -472,20 +731,25 @@
                     </div>
                 </div>
                 
-                @* Tab Navigation *@
-                <div class="d-flex gap-2 mb-3 flex-wrap">
-                    <button class="tab-btn flex-fill @(_activeTab == "chat" ? "active" : "")" 
-                            @onclick="SetChatTab">
-                        💬 Chat
-                    </button>
-                    <button class="tab-btn flex-fill @(_activeTab == "image" ? "active" : "")"
-                            @onclick="SetImageTab">
-                        🎨 Image
-                    </button>
-                    <button class="tab-btn flex-fill @(_activeTab == "code" ? "active" : "")"
-                            @onclick="SetCodeTab">
-                        🖼️→💻 Image to Code
-                    </button>
+                @* Premium Toolbar Navigation *@
+                <div class="toolbar-container">
+                    <div class="toolbar-inner">
+                        <button class="tab-btn @(_activeTab == "chat" ? "active" : "")" @onclick="SetChatTab">
+                            <span class="tab-icon">💬</span>
+                            <span class="tab-label">Chat</span>
+                            <span class="tab-badge">GPT-4o</span>
+                        </button>
+                        <button class="tab-btn @(_activeTab == "image" ? "active" : "")" @onclick="SetImageTab">
+                            <span class="tab-icon">🎨</span>
+                            <span class="tab-label">Image Studio</span>
+                            <span class="tab-badge">DALL-E</span>
+                        </button>
+                        <button class="tab-btn @(_activeTab == "code" ? "active" : "")" @onclick="SetCodeTab">
+                            <span class="tab-icon">✨</span>
+                            <span class="tab-label">Vision AI</span>
+                            <span class="tab-badge">64 APIs</span>
+                        </button>
+                    </div>
                 </div>
                 
                 @if (_activeTab == "chat")
@@ -681,28 +945,54 @@
                 }
                 else if (_activeTab == "code")
                 {
-                    <div class="card glass-card border-0 shadow-sm" style="border-radius: 12px; height: 850px;">
+                    <div class="card glass-card border-0 shadow-sm" style="border-radius: 12px; min-height: 1200px;">
                         <div class="card-body p-4" style="height: 100%; display: flex; flex-direction: column;">
-                            @* Test Banner - Remove after confirming changes work *@
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                                <span>🚀 <strong>Updated UI</strong> - Click buttons below to test</span>
-                                <button type="button" class="btn btn-sm" style="background: white; color: #667eea; border: none; border-radius: 6px; padding: 4px 12px; font-weight: 600;" @onclick="TestPopupButton">
-                                    🧪 Test Popup
+                            @* Premium Header Banner *@
+                            <div class="vision-header-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 12px; backdrop-filter: blur(10px);">
+                                        <span style="font-size: 1.5rem;">🧠</span>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px;">Vision Analysis Studio</div>
+                                        <div style="font-size: 0.75rem; opacity: 0.9;">Powered by Azure OpenAI GPT-4o & Azure AI Vision 4.0</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn" style="background: rgba(255,255,255,0.95); color: #667eea; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px;" @onclick="ShowApiCoverage">
+                                    <span style="font-size: 1rem;">📊</span>
+                                    <span>64 APIs</span>
+                                    <span class="badge" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 0.65rem; padding: 2px 6px; margin-left: 4px;">95%</span>
                                 </button>
                             </div>
                             
-                            <div class="d-flex align-items-center gap-2 mb-3" style="flex-shrink: 0;">
-                                <span style="font-size: 22px;">🖼️→💻</span>
-                                <h5 class="mb-0 fw-semibold" style="color: #374151;">Vision Analysis & Code Generation</h5>
-                                <span class="badge ms-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-weight: 500; padding: 6px 12px; font-size: 0.75rem;">GPT-4o Vision</span>
+                            @* Section Title with Gradient *@
+                            <div class="d-flex align-items-center gap-3 mb-3" style="flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 100%); padding: 8px 14px; border-radius: 10px; border: 1px solid #e0e7ff;">
+                                    <span style="font-size: 1.4rem;">🖼️</span>
+                                    <span style="font-size: 1.1rem; color: #6366f1;">→</span>
+                                    <span style="font-size: 1.4rem;">💻</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem;">Image to Code & AI Analysis</h5>
+                                    <div style="font-size: 0.7rem; color: #6b7280; margin-top: 2px;">Upload any UI screenshot • Generate production code • Extract assets</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); font-weight: 600; padding: 6px 10px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;">
+                                        <span>🤖</span> GPT-4o
+                                    </span>
+                                    <span class="badge" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); font-weight: 600; padding: 6px 10px; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;">
+                                        <span>👁️</span> Vision
+                                    </span>
+                                </div>
                             </div>
                             
                             <div class="split-container" id="splitContainer" style="flex: 1;">
                                 @* Left Pane - Upload & Analysis Options *@
                                 <div class="split-pane-left" id="leftPane" style="width: 35%;">
-                                    <div class="h-100 p-3" style="background: #f9fafb; border-radius: 10px; border: 1px solid #e5e7eb; height: 100%; overflow: auto;">
-                                            <h6 class="fw-semibold mb-3" style="color: #667eea;">
-                                                <span class="me-2">📤</span>Upload UI Design
+                                    <div class="h-100 p-3" style="background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 12px; border: 1px solid #e5e7eb; height: 100%; overflow: auto;">
+                                            <h6 class="fw-bold mb-3" style="color: #4f46e5; display: flex; align-items: center; gap: 8px;">
+                                                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">📤</span>
+                                                Upload UI Design
                                             </h6>
                                             
                                             <div class="upload-zone p-3 text-center mb-3 @(_isDragOver ? "drag-over" : "")" 
@@ -740,62 +1030,111 @@
                                             </button>
                                         }
                                         
-                                        @* Analysis Type Selection *@
+                                        @* Analysis Type Selection - Enhanced with API Details *@
                                         <div class="mb-3">
-                                            <label class="section-title mb-2">Analysis Type</label>
-                                            <select class="form-select form-control-modern" @bind="_selectedAnalysis">
-                                                <optgroup label="🔷 Code Generation">
-                                                    <option value="code">💻 Generate Code</option>
-                                                    <option value="codeWithViewModel">📋 Generate Code + ViewModel</option>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="section-title mb-0" style="font-size: 0.9rem;">
+                                                    <span style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 1rem;">🎯 Analysis Type</span>
+                                                </label>
+                                                <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.75rem; padding: 5px 10px; font-weight: 600;">64 APIs</span>
+                                            </div>
+                                            <select class="form-select form-control-modern analysis-select" @bind="_selectedAnalysis" style="font-size: 1rem; padding: 14px 16px; font-weight: 500;">
+                                                <optgroup label="💻 CODE GENERATION — GPT-4o Vision">
+                                                    <option value="code">💻 Generate Code → HTML/CSS/React/Vue/Blazor</option>
+                                                    <option value="codeWithViewModel">📋 Code + ViewModel → Complete with data binding</option>
                                                 </optgroup>
-                                                <optgroup label="🖼️ Image Extraction">
-                                                    <option value="extractImages">🖼️ Extract Images</option>
-                                                    <option value="extractIcons">🎯 Extract Icons Only</option>
-                                                    <option value="extractLogos">🏷️ Extract Logos/Brands</option>
+                                                <optgroup label="🖼️ IMAGE EXTRACTION — AI + SkiaSharp">
+                                                    <option value="extractImages">🖼️ Extract All → Detect & crop all images</option>
+                                                    <option value="extractIcons">🎯 Icons Only → Small graphics & symbols</option>
+                                                    <option value="extractLogos">🏷️ Logos/Brands → Brand elements</option>
+                                                    <option value="extractPhotos">📷 Photos Only → Photographs & images</option>
+                                                    <option value="extractAvatars">👤 Avatars → Profile pictures & people</option>
+                                                    <option value="extractCharts">📊 Charts → Graphs & diagrams</option>
+                                                    <option value="extractBackgrounds">🖼️ Backgrounds → Background images</option>
                                                 </optgroup>
-                                                <optgroup label="📝 Text & OCR">
-                                                    <option value="text">📜 Extract Text (OCR)</option>
-                                                    <option value="handwriting">✍️ Read Handwriting</option>
-                                                    <option value="table">📊 Extract Table Data</option>
-                                                    <option value="math">🔢 Parse Math Equations</option>
+                                                <optgroup label="📝 TEXT & OCR — Vision + GPT-4o">
+                                                    <option value="text">📜 Extract Text → OCR all visible text</option>
+                                                    <option value="handwriting">✍️ Handwriting → Transcribe handwritten text</option>
+                                                    <option value="table">📊 Table Data → Extract rows & columns</option>
+                                                    <option value="math">🔢 Math Equations → Convert to LaTeX</option>
+                                                    <option value="denseCaptions">💬 Dense Captions → Multiple region descriptions</option>
+                                                    <option value="singleCaption">📝 Single Caption → One sentence description</option>
                                                 </optgroup>
-                                                <optgroup label="📄 Document Analysis">
-                                                    <option value="document">📄 Parse Document</option>
-                                                    <option value="invoice">🧾 Parse Invoice</option>
-                                                    <option value="receipt">🧾 Parse Receipt</option>
-                                                    <option value="chart">📈 Extract Chart Data</option>
+                                                <optgroup label="📄 DOCUMENT INTELLIGENCE — Azure AI">
+                                                    <option value="document">📄 Parse Document → Extract structured data</option>
+                                                    <option value="invoice">🧾 Invoice → Vendor, items, totals</option>
+                                                    <option value="receipt">🧾 Receipt → Merchant, items, total</option>
+                                                    <option value="idDocument">🪪 ID Document → Name, DOB, ID number</option>
+                                                    <option value="businessCard">💼 Business Card → Contact info</option>
+                                                    <option value="chart">📈 Chart Data → Extract graph values</option>
                                                 </optgroup>
-                                                <optgroup label="🎨 Design Analysis">
-                                                    <option value="describe">📝 Describe Design</option>
-                                                    <option value="colors">🎨 Extract Colors</option>
-                                                    <option value="typography">🔤 Extract Typography</option>
-                                                    <option value="layout">📐 Analyze Layout</option>
-                                                    <option value="components">🧩 Extract Components</option>
-                                                    <option value="icons">🎯 Identify Icons</option>
+                                                <optgroup label="🎨 DESIGN ANALYSIS — GPT-4o Vision">
+                                                    <option value="describe">📝 Describe → Full UI description</option>
+                                                    <option value="colors">🎨 Colors → Extract color palette</option>
+                                                    <option value="typography">🔤 Typography → Fonts & text styles</option>
+                                                    <option value="layout">📐 Layout → Grid, spacing, structure</option>
+                                                    <option value="components">🧩 Components → UI elements & hierarchy</option>
+                                                    <option value="icons">🎯 Icons → Identify icon library matches</option>
+                                                    <option value="smartCrops">✂️ Smart Crops → AI crop suggestions</option>
+                                                    <option value="tags">🏷️ Tags → Content categorization</option>
                                                 </optgroup>
-                                                <optgroup label="🔍 Advanced Analysis">
-                                                    <option value="accessibility">♿ Accessibility Audit</option>
-                                                    <option value="improvements">💡 Suggest Improvements</option>
-                                                    <option value="compare">🔄 Compare Images</option>
-                                                    <option value="askQuestion">❓ Ask About Image</option>
-                                                    <option value="comprehensive">🔬 Full Analysis</option>
+                                                <optgroup label="🔍 ADVANCED ANALYSIS — GPT-4o + Vision">
+                                                    <option value="accessibility">♿ Accessibility → WCAG audit & issues</option>
+                                                    <option value="improvements">💡 Improvements → UX suggestions</option>
+                                                    <option value="compare">🔄 Compare 2 → Diff two images</option>
+                                                    <option value="compareMultiple">🔄 Compare Multiple → Multi-image diff</option>
+                                                    <option value="imageDiff">🔍 Image Diff → Highlight changes</option>
+                                                    <option value="askQuestion">❓ Ask Question → Custom image Q&A</option>
+                                                    <option value="spatialQuestion">📍 Spatial Q&A → "What's left of X?"</option>
+                                                    <option value="comprehensive">🔬 Full Analysis → Complete UI breakdown</option>
                                                 </optgroup>
-                                                <optgroup label="🖼️ Image Processing">
-                                                    <option value="removeBackground">🗑️ Remove Background</option>
-                                                    <option value="upscale">⬆️ Upscale Image</option>
-                                                    <option value="styleTransfer">🎭 Apply Style</option>
-                                                    <option value="segment">✂️ Segment Image</option>
-                                                    <option value="depthMap">🗺️ Depth Map</option>
+                                                <optgroup label="🖼️ IMAGE PROCESSING — Azure + DALL-E">
+                                                    <option value="removeBackground">🗑️ Remove Background → Transparent PNG</option>
+                                                    <option value="upscale">⬆️ Upscale → 2x/4x resolution</option>
+                                                    <option value="styleTransfer">🎭 Style Transfer → Apply artistic style</option>
+                                                    <option value="segment">✂️ Segment → Split into regions</option>
+                                                    <option value="depthMap">🗺️ Depth Map → 3D depth estimation</option>
+                                                    <option value="editImage">✏️ Edit (DALL-E) → Modify image regions</option>
+                                                    <option value="imageVariations">🔄 Variations (DALL-E) → Similar images</option>
+                                                    <option value="generateImage">🎨 Generate (DALL-E) → Create from text</option>
                                                 </optgroup>
-                                                <optgroup label="👤 Detection">
-                                                    <option value="detectObjects">📦 Detect Objects</option>
-                                                    <option value="detectFaces">👤 Detect Faces</option>
-                                                    <option value="detectPeople">🚶 Detect People</option>
-                                                    <option value="detectBrands">🏷️ Detect Brands</option>
-                                                    <option value="imageType">🖼️ Detect Image Type</option>
-                                                    <option value="adultContent">🔞 Check Adult Content</option>
+                                                <optgroup label="👁️ AZURE VISION 4.0 — Computer Vision">
+                                                    <option value="detectObjects">📦 Objects → Detect with bounding boxes</option>
+                                                    <option value="detectFaces">👤 Faces → Age, gender, emotion</option>
+                                                    <option value="detectPeople">🚶 People → Person detection</option>
+                                                    <option value="detectBrands">🏷️ Brands → Logo recognition</option>
+                                                    <option value="imageType">🖼️ Image Type → Photo/clipart/drawing</option>
+                                                    <option value="adultContent">🔞 Content Check → Adult/racy/gore</option>
+                                                    <option value="imageCategory">📁 Category → Scene classification</option>
+                                                    <option value="analyzeComprehensive">🔬 Vision Full → All features combined</option>
+                                                </optgroup>
+                                                <optgroup label="🤖 CHAT & CUSTOM — GPT-4o">
+                                                    <option value="chat">💬 Chat → Conversation with AI</option>
+                                                    <option value="customPrompt">📝 Custom Prompt → Your own question</option>
                                                 </optgroup>
                                             </select>
+                                            
+                                            @* API Details Card - Enhanced *@
+                                            <div class="api-detail-card mt-3 p-3" style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%); border-radius: 12px; border: 2px solid #e0e7ff;">
+                                                <div class="d-flex align-items-start gap-3">
+                                                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 12px; display: flex; align-items: center; justify-content: center;">
+                                                        <span style="font-size: 1.6rem;">@GetAnalysisButtonIcon()</span>
+                                                    </div>
+                                                    <div style="flex: 1;">
+                                                        <div class="fw-bold" style="color: #4c1d95; font-size: 1.05rem; margin-bottom: 4px;">@GetAnalysisDisplayName()</div>
+                                                        <div style="color: #6b7280; font-size: 0.85rem; line-height: 1.45;">@GetAnalysisDescription()</div>
+                                                        <div class="mt-2 d-flex flex-wrap gap-2">
+                                                            <span class="badge" style="background: @GetServiceBadgeColor(); font-size: 0.75rem; padding: 5px 10px; font-weight: 600;">@GetServiceName()</span>
+                                                            @if (IsAzureVisionRequired())
+                                                            {
+                                                                <span class="badge" style="background: @(AzureVision?.IsConfigured == true ? "#10b981" : "#ef4444"); font-size: 0.75rem; padding: 5px 10px; font-weight: 600;">
+                                                                    @(AzureVision?.IsConfigured == true ? "✓ Vision Ready" : "⚠ Vision Required")
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                         @* Image Extraction Options *@
@@ -937,36 +1276,84 @@
                                         
                                         @if (_selectedAnalysis == "code" || _selectedAnalysis == "codeWithViewModel")
                                         {
-                                            <div class="mb-3">
-                                                <label class="section-title">Target Framework</label>
-                                                <select class="form-select form-control-modern" @bind="_targetFramework">
-                                                    <option value="HTML/CSS">🌐 HTML/CSS</option>
-                                                    <option value="Tailwind CSS">🎨 Tailwind CSS</option>
-                                                    <option value="React">⚛️ React</option>
-                                                    <option value="Vue">💚 Vue.js</option>
-                                                    <option value="Blazor Razor">🔷 Blazor Razor (.razor)</option>
-                                                    <option value="Razor Pages">📄 Razor Pages (.cshtml)</option>
-                                                    <option value="SwiftUI">🍎 SwiftUI</option>
-                                                    <option value="MAUI XAML">📱 .NET MAUI XAML</option>
-                                                    <option value="Angular">🅰️ Angular</option>
+                                            <div class="mb-4">
+                                                <label class="section-title" style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; margin-bottom: 10px;">
+                                                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">🎯</span>
+                                                    <span style="font-weight: 700; color: #4f46e5;">Target Framework</span>
+                                                </label>
+                                                <select class="form-select form-control-modern" @bind="_targetFramework" style="font-size: 1rem; padding: 12px 14px; font-weight: 500; border: 2px solid #e0e7ff;">
+                                                    <option value="HTML/CSS">🌐 HTML/CSS — Vanilla web</option>
+                                                    <option value="Tailwind CSS">🎨 Tailwind CSS — Utility-first</option>
+                                                    <option value="React">⚛️ React — JSX Component</option>
+                                                    <option value="Vue">💚 Vue.js — SFC Component</option>
+                                                    <option value="Blazor Razor">🔷 Blazor Razor — .razor file</option>
+                                                    <option value="Razor Pages">📄 Razor Pages — .cshtml file</option>
+                                                    <option value="SwiftUI">🍎 SwiftUI — iOS/macOS</option>
+                                                    <option value="MAUI XAML">📱 .NET MAUI — Cross-platform</option>
+                                                    <option value="Angular">🅰️ Angular — TypeScript</option>
                                                 </select>
                                             </div>
                                         }
                                         
-                                        <button class="btn w-100 py-2 fw-medium" 
-                                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px;" 
-                                                @onclick="RunAnalysis" 
-                                                disabled="@(_isAnalyzing || _isConvertingToCode || string.IsNullOrEmpty(_codeImageUrl))">
-                                            @if (_isAnalyzing || _isConvertingToCode)
+                                        @* ========== GIANT GENERATE BUTTON - ALWAYS VISIBLE ========== *@
+                                        <div class="generate-button-section" style="background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 100%); border-radius: 16px; padding: 16px; margin-top: 16px; border: 2px solid #e0e7ff;">
+                                            @if (string.IsNullOrEmpty(_codeImageUrl))
                                             {
-                                                <span class="spinner-border spinner-border-sm me-2"></span>
-                                                <span>Analyzing...</span>
+                                                @* Upload Required Message *@
+                                                <div class="text-center p-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border: 2px dashed #f59e0b;">
+                                                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">📤</span>
+                                                    <p class="mb-1 fw-bold" style="color: #92400e; font-size: 1.1rem;">Upload an Image First</p>
+                                                    <p class="mb-0" style="color: #b45309; font-size: 0.9rem;">Drop or click the upload zone above to get started</p>
+                                                </div>
                                             }
                                             else
                                             {
-                                                <span>@GetAnalysisButtonText()</span>
+                                                @* GIANT GENERATE BUTTON *@
+                                                <button class="btn w-100 premium-action-btn @(_isAnalyzing || _isConvertingToCode ? "processing" : "")" 
+                                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 40%, #ec4899 100%); color: white; border: none; border-radius: 16px; padding: 24px 28px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(102, 126, 234, 0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1.2rem; position: relative; overflow: hidden; min-height: 90px;" 
+                                                        @onclick="RunAnalysis" 
+                                                        disabled="@(_isAnalyzing || _isConvertingToCode)">
+                                                    @* Animated Background Shimmer *@
+                                                    <div class="btn-shimmer" style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transition: left 0.6s ease;"></div>
+                                                    
+                                                    @if (_isAnalyzing || _isConvertingToCode)
+                                                    {
+                                                        <div class="d-flex align-items-center justify-content-center gap-4">
+                                                            <div class="processing-spinner" style="width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                                                            <div style="text-align: left;">
+                                                                <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px;">Processing with AI...</div>
+                                                                <div style="font-size: 0.9rem; opacity: 0.9;">@GetServiceName() is analyzing your image</div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="d-flex align-items-center justify-content-center gap-4">
+                                                            <div style="background: rgba(255,255,255,0.25); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(8px);">
+                                                                <span style="font-size: 2rem;">@GetAnalysisButtonIcon()</span>
+                                                            </div>
+                                                            <div style="text-align: left; flex: 1;">
+                                                                <div style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">@GetAnalysisButtonText()</div>
+                                                                <div style="font-size: 0.95rem; opacity: 0.95; margin-top: 2px;">
+                                                                    @GetServiceName() • <span style="font-weight: 600;">@_targetFramework</span>
+                                                                </div>
+                                                            </div>
+                                                            <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 6px;">
+                                                                <span style="font-size: 1.5rem;">▶</span>
+                                                                <span style="font-weight: 700; font-size: 1rem;">GO</span>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </button>
+                                                
+                                                @* Keyboard Shortcut Hint *@
+                                                <div class="text-center mt-3" style="font-size: 0.8rem; color: #6b7280;">
+                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">⌘</kbd> + 
+                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">Enter</kbd> 
+                                                    to generate
+                                                </div>
                                             }
-                                        </button>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -974,53 +1361,135 @@
                                 <div class="vertical-splitter" id="splitter" @onmousedown="StartSplitterDrag"></div>
                             
                                 @* Right Pane - Results *@
-                                <div class="split-pane-right" id="rightPane" style="display: flex; flex-direction: column;">
+                                <div class="split-pane-right" id="rightPane" style="display: flex; flex-direction: column; min-height: 800px;">
                                     @if (_selectedAnalysis == "code")
                                     {
-                                        @* Code Generation Output - Lighter theme *@
-                                        <div class="p-3 code-output-panel" style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                                        @* Code Generation Output with Inline Preview *@
+                                        <div class="p-3 code-output-panel" style="flex: 1; display: flex; flex-direction: column; height: 100%; min-height: 750px;">
+                                            @* Header *@
                                             <div class="d-flex align-items-center justify-content-between mb-2" style="flex-shrink: 0;">
-                                                <h6 class="fw-medium mb-0" style="color: #667eea; font-size: 0.9rem;">
-                                                    <span class="me-2">💻</span>Generated Code
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <h6 class="fw-bold mb-0" style="color: #667eea; font-size: 1rem;">
+                                                        <span class="me-2">💻</span>Generated Code
+                                                    </h6>
                                                     @if (!string.IsNullOrEmpty(_codeLanguage))
                                                     {
-                                                        <span class="badge ms-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.65rem;">@_codeLanguage.ToUpper()</span>
+                                                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.7rem; padding: 4px 8px;">@_codeLanguage.ToUpper()</span>
                                                     }
-                                                </h6>
+                                                </div>
                                                 <div class="d-flex gap-2 align-items-center">
                                                     @if (!string.IsNullOrEmpty(_generatedCode))
                                                     {
+                                                        <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;" @onclick="CopyCodeToClipboard">
+                                                            @(_codeCopied ? "✓ Copied!" : "📋 Copy Code")
+                                                        </button>
                                                         @if (CanShowPreview())
                                                         {
-                                                            <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem;" @onclick="OpenPreviewPopup">👁️ Preview</button>
-                                                            <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem;" @onclick="DownloadPreviewHtml">📥 HTML</button>
+                                                            <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;" @onclick="DownloadPreviewHtml">
+                                                                📥 Download
+                                                            </button>
                                                         }
-                                                        <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem;" @onclick="CopyCodeToClipboard">@(_codeCopied ? "✓ Copied!" : "📋 Copy")</button>
                                                     }
                                                 </div>
                                             </div>
                                             
+                                            @* View Mode Tabs - ALWAYS SHOW for HTML/Tailwind *@
+                                            @if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview())
+                                            {
+                                                <div class="d-flex gap-2 mb-3" style="flex-shrink: 0; background: #f8fafc; padding: 8px; border-radius: 10px;">
+                                                    <button class="btn btn-sm @(_codeViewMode == "code" ? "" : "btn-outline-secondary")" 
+                                                            style="@(_codeViewMode == "code" ? "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 600; display: flex; align-items: center; gap: 6px;"
+                                                            @onclick="SetCodeViewMode">
+                                                        <span>💻</span> Code Only
+                                                    </button>
+                                                    <button class="btn btn-sm @(_codeViewMode == "preview" ? "" : "btn-outline-secondary")" 
+                                                            style="@(_codeViewMode == "preview" ? "background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 600; display: flex; align-items: center; gap: 6px;"
+                                                            @onclick="SetPreviewViewMode">
+                                                        <span>👁️</span> Preview Only
+                                                    </button>
+                                                    <button class="btn btn-sm @(_codeViewMode == "split" ? "" : "btn-outline-secondary")" 
+                                                            style="@(_codeViewMode == "split" ? "background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 700; display: flex; align-items: center; gap: 6px;"
+                                                            @onclick="SetSplitViewMode">
+                                                        <span>◧</span> Code + Preview
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" 
+                                                            style="border-radius: 8px; padding: 10px 14px; font-weight: 600;"
+                                                            @onclick="OpenPreviewPopup" title="Open in new window">
+                                                        🔗 New Window
+                                                    </button>
+                                                </div>
+                                            }
+
                                             @if (_isConvertingToCode)
                                             {
                                                 <div class="text-center py-5" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                                                     <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: #667eea;"></div>
-                                                    <p class="fw-semibold" style="color: #667eea;">Generating code...</p>
+                                                    <p class="fw-semibold" style="color: #667eea;">Generating @_targetFramework code...</p>
+                                                    <p class="small text-muted">GPT-4o Vision is analyzing your UI</p>
                                                 </div>
                                             }
                                             else if (!string.IsNullOrEmpty(_generatedCode))
                                             {
-                                                <div style="flex: 1; overflow: auto; border-radius: 10px;">
-                                                    <pre class="code-pre" style="margin: 0; padding: 16px; white-space: pre-wrap; height: 100%;">@_generatedCode</pre>
-                                                </div>
+                                                @if (_codeViewMode == "code" || !CanShowPreview())
+                                                {
+                                                    @* Code Only View *@
+                                                    <div style="flex: 1; overflow: auto; border-radius: 12px; border: 2px solid #e2e8f0; min-height: 500px;">
+                                                        <pre class="code-pre" style="margin: 0; padding: 16px; white-space: pre-wrap; height: 100%; font-size: 13px; line-height: 1.6;">@_generatedCode</pre>
+                                                    </div>
+                                                }
+                                                else if (_codeViewMode == "preview")
+                                                {
+                                                    @* Preview Only View *@
+                                                    <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 3px solid #10b981; overflow: hidden; min-height: 600px;">
+                                                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                                                            <span style="font-weight: 700; font-size: 1rem;">👁️ Live HTML Preview — @_targetFramework</span>
+                                                            <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem;" @onclick="LoadPreviewFrame">🔄 Refresh</button>
+                                                        </div>
+                                                        <div style="flex: 1; background: white;">
+                                                            <iframe id="previewFrameSingle" style="width: 100%; height: 100%; border: none; min-height: 550px;"></iframe>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (_codeViewMode == "split")
+                                                {
+                                                    @* Split View - Code + Preview Side by Side *@
+                                                    <div style="flex: 1; display: flex; gap: 12px; min-height: 600px;">
+                                                        @* Code Panel *@
+                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 2px solid #e2e8f0; overflow: hidden; min-width: 0;">
+                                                            <div style="background: #1e293b; color: white; padding: 10px 16px; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">
+                                                                💻 Generated Code
+                                                            </div>
+                                                            <div style="flex: 1; overflow: auto;">
+                                                                <pre class="code-pre" style="margin: 0; padding: 12px; white-space: pre-wrap; height: 100%; font-size: 12px; line-height: 1.5;">@_generatedCode</pre>
+                                                            </div>
+                                                        </div>
+                                                        @* Preview Panel *@
+                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 3px solid #10b981; overflow: hidden; min-width: 0;">
+                                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 16px; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">
+                                                                👁️ Live HTML Preview
+                                                            </div>
+                                                            <div style="flex: 1; background: white; overflow: hidden;">
+                                                                <iframe id="previewFrameSplit" style="width: 100%; height: 100%; border: none;"></iframe>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
                                             }
                                             else
                                             {
                                                 <div class="text-center py-5" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-                                                        <span style="font-size: 32px;">💻</span>
+                                                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);">
+                                                        <span style="font-size: 48px;">💻</span>
                                                     </div>
-                                                    <p class="mt-2 fw-medium" style="color: #667eea;">Upload an image and generate code</p>
-                                                    <p class="small text-muted">Select your target framework and click the button</p>
+                                                    <p class="mt-2 fw-bold" style="color: #667eea; font-size: 1.1rem;">Ready to Generate Code</p>
+                                                    <p class="text-muted" style="max-width: 300px;">Upload a UI screenshot, select <strong>@_targetFramework</strong> framework, and click Generate</p>
+                                                    <div class="mt-3 d-flex gap-2 flex-wrap justify-content-center">
+                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">HTML/CSS</span>
+                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Tailwind</span>
+                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">React</span>
+                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Vue</span>
+                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Blazor</span>
+                                                    </div>
                                                 </div>
                                             }
                                         </div>
@@ -1624,6 +2093,27 @@
     private bool _sending = false;
     private bool _copied = false;
     
+    // Login timeout and cancellation
+    private CancellationTokenSource? _loginCancellation;
+    private const int LoginTimeoutSeconds = 120; // 2 minutes timeout
+    private bool _loginTimedOut = false;
+    private int _remainingSeconds = 0;
+    private System.Timers.Timer? _countdownTimer;
+    private DotNetObjectReference<Home>? _dotNetRef;
+    
+    [JSInvokable]
+    public void CancelLoginFromJs()
+    {
+        InvokeAsync(() =>
+        {
+            if (_state == AppState.SigningIn)
+            {
+                Cancel();
+                StateHasChanged();
+            }
+        });
+    }
+    
     // Tab navigation
     private string _activeTab = "chat";
     
@@ -1696,6 +2186,9 @@
     private string _generatedRazorWithParams = "";
     private string _viewModelPreviewHtml = "";
 
+    // Code Preview Mode
+    private string _codeViewMode = "code"; // code, preview, split
+
     private async Task StartSignIn()
     {
         _error = "";
@@ -1703,15 +2196,48 @@
         _userCode = "";
         _verificationUrl = "";
         _copied = false;
+        _loginTimedOut = false;
+        _remainingSeconds = LoginTimeoutSeconds;
+        
+        // Setup escape key handler
+        _dotNetRef?.Dispose();
+        _dotNetRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("setupLoginEscapeHandler", _dotNetRef);
+        
+        // Create cancellation token for timeout
+        _loginCancellation?.Cancel();
+        _loginCancellation?.Dispose();
+        _loginCancellation = new CancellationTokenSource();
+        
+        // Start countdown timer
+        _countdownTimer?.Stop();
+        _countdownTimer?.Dispose();
+        _countdownTimer = new System.Timers.Timer(1000);
+        _countdownTimer.Elapsed += async (s, e) =>
+        {
+            _remainingSeconds--;
+            if (_remainingSeconds <= 0)
+            {
+                _countdownTimer?.Stop();
+                _loginCancellation?.Cancel();
+            }
+            await InvokeAsync(StateHasChanged);
+        };
+        _countdownTimer.Start();
+        
         StateHasChanged();
         
         try
         {
             var authTask = AzureOpenAI.GetAuthenticationStatusAsync();
             
-            // Poll for the device code
+            // Poll for the device code with cancellation check
             for (int i = 0; i < 100 && string.IsNullOrEmpty(AzureOpenAI.UserCode); i++)
             {
+                if (_loginCancellation?.Token.IsCancellationRequested == true)
+                {
+                    throw new OperationCanceledException("Login was cancelled or timed out");
+                }
                 await Task.Delay(100);
             }
             
@@ -1726,23 +2252,59 @@
                 await CopyToClipboard(_userCode);
             }
             
-            var status = await authTask;
+            // Wait for auth with timeout
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(LoginTimeoutSeconds), _loginCancellation.Token);
+            var completedTask = await Task.WhenAny(authTask, timeoutTask);
             
-            if (status.IsAuthenticated)
+            if (completedTask == timeoutTask || _loginCancellation.Token.IsCancellationRequested)
             {
-                _userName = status.UserName ?? "User";
-                _state = AppState.SignedIn;
+                _loginTimedOut = true;
+                _error = "Login timed out. Please try again or check your settings.";
+                _state = AppState.NotSignedIn;
+                AzureOpenAI.SignOut();
             }
             else
             {
-                _error = status.ErrorMessage ?? "Sign in failed";
-                _state = AppState.NotSignedIn;
+                var status = await authTask;
+                
+                if (status.IsAuthenticated)
+                {
+                    _userName = status.UserName ?? "User";
+                    _state = AppState.SignedIn;
+                }
+                else
+                {
+                    _error = status.ErrorMessage ?? "Sign in failed";
+                    _state = AppState.NotSignedIn;
+                }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            _loginTimedOut = true;
+            _error = "Login was cancelled or timed out. Please try again.";
+            _state = AppState.NotSignedIn;
+            AzureOpenAI.SignOut();
         }
         catch (Exception ex)
         {
             _error = ex.Message;
             _state = AppState.NotSignedIn;
+        }
+        finally
+        {
+            _countdownTimer?.Stop();
+            _countdownTimer?.Dispose();
+            _countdownTimer = null;
+            
+            // Cleanup escape handler
+            try
+            {
+                await JS.InvokeVoidAsync("removeLoginEscapeHandler");
+                _dotNetRef?.Dispose();
+                _dotNetRef = null;
+            }
+            catch { /* Ignore JS errors during cleanup */ }
         }
         
         StateHasChanged();
@@ -1809,12 +2371,34 @@
         return _verificationUrl;
     }
     
-    private void Cancel()
+    private async Task CancelAsync()
     {
+        // Remove escape key handler
+        await JS.InvokeVoidAsync("removeLoginEscapeHandler");
+        _dotNetRef?.Dispose();
+        _dotNetRef = null;
+        
+        // Cancel ongoing login
+        _loginCancellation?.Cancel();
+        _loginCancellation?.Dispose();
+        _loginCancellation = null;
+        
+        // Stop countdown timer
+        _countdownTimer?.Stop();
+        _countdownTimer?.Dispose();
+        _countdownTimer = null;
+        
         AzureOpenAI.SignOut();
         _state = AppState.NotSignedIn;
         _userCode = "";
         _verificationUrl = "";
+        _loginTimedOut = false;
+        _remainingSeconds = 0;
+    }
+    
+    private void Cancel()
+    {
+        _ = CancelAsync();
     }
     
     private void SignOut()
@@ -2222,6 +2806,7 @@
         _generatedCode = "";
         _codeError = "";
         _codeCopied = false;
+        _lastPreviewCode = ""; // Reset to trigger preview reload
         StateHasChanged();
         
         try
@@ -2237,6 +2822,12 @@
             {
                 _generatedCode = result.Code ?? "";
                 _codeLanguage = result.Language ?? GetLanguageHint(_targetFramework);
+                
+                // Auto-switch to split view for HTML-based frameworks
+                if (_targetFramework is "HTML/CSS" or "Tailwind CSS")
+                {
+                    _codeViewMode = "split";
+                }
             }
             else
             {
@@ -2545,7 +3136,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "extractIcons":
                 case "extractLogos":
                     await RunImageExtractionAsync();
@@ -2844,6 +3435,80 @@
         };
     }
 
+    private string GetAnalysisButtonIcon() => _selectedAnalysis switch
+    {
+        "code" => "💻",
+        "codeWithViewModel" => "📋",
+        "extractImages" => "🖼️",
+        "describe" => "📝",
+        "colors" => "🎨",
+        "typography" => "🔤",
+        "layout" => "📐",
+        "components" => "🧩",
+        "icons" => "🎯",
+        "accessibility" => "♿",
+        "improvements" => "💡",
+        "text" => "📜",
+        "comprehensive" => "🔬",
+        _ => "🚀"
+    };
+
+    private string GetAnalysisDisplayName() => _selectedAnalysis switch
+    {
+        "code" => "Generate Code",
+        "codeWithViewModel" => "Generate Code + ViewModel",
+        "extractImages" => "Extract All Images",
+        "describe" => "Describe Design",
+        "colors" => "Extract Color Palette",
+        "typography" => "Extract Typography",
+        "layout" => "Analyze Layout",
+        "components" => "Extract UI Components",
+        "icons" => "Identify Icons",
+        "accessibility" => "Accessibility Audit",
+        "improvements" => "Suggest Improvements",
+        "text" => "Extract Text (OCR)",
+        "comprehensive" => "Full UI Analysis",
+        _ => "Analysis"
+    };
+
+    private string GetAnalysisDescription() => _selectedAnalysis switch
+    {
+        "code" => "Convert UI screenshot to production-ready code. Supports HTML/CSS, React, Vue, Blazor, SwiftUI, MAUI XAML, Angular.",
+        "codeWithViewModel" => "Generate code with data binding. Extracts text content into a ViewModel/Model class for dynamic content.",
+        "extractImages" => "Detect and extract all images, icons, logos, and graphics from a composite screenshot with AI precision.",
+        "describe" => "Get a comprehensive description of UI design including layout, colors, components, and style.",
+        "colors" => "Extract complete color palette: primary, secondary, accent, background, text colors and gradients.",
+        "typography" => "Identify fonts, sizes, weights, line heights, and text styles used in the design.",
+        "layout" => "Analyze layout structure: grid system, spacing, sections, breakpoints, and responsive patterns.",
+        "components" => "Extract all UI components with their properties, styles, and hierarchy as structured data.",
+        "icons" => "Identify icons and suggest matches from popular libraries: Heroicons, Material, Font Awesome.",
+        "accessibility" => "WCAG accessibility audit: contrast ratios, text sizes, touch targets, and recommendations.",
+        "improvements" => "Get AI suggestions to improve the UI design: UX, accessibility, visual hierarchy.",
+        "text" => "OCR: Extract all visible text with position info. Supports multiple languages and fonts.",
+        "comprehensive" => "Complete UI analysis: colors, typography, layout, components, icons, and accessibility combined.",
+        _ => "Select an analysis type to see details."
+    };
+
+    private string GetServiceName() => _selectedAnalysis switch
+    {
+        "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "GPT-4o Vision",
+        "extractImages" => "GPT-4o + SkiaSharp",
+        _ => "Azure AI"
+    };
+
+    private string GetServiceBadgeColor() => _selectedAnalysis switch
+    {
+        "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "#8b5cf6",
+        "extractImages" => "#10b981",
+        _ => "#667eea"
+    };
+
+    private bool IsAzureVisionRequired() => _selectedAnalysis switch
+    {
+        "denseCaptions" or "singleCaption" or "smartCrops" or "tags" or "removeBackground" or "detectObjects" or "detectPeople" or "analyzeComprehensive" or "detectFaces" or "detectBrands" or "imageType" or "adultContent" or "imageCategory" => true,
+        _ => false
+    };
+
     private async Task CopyCodeToClipboard()
     {
         if (!string.IsNullOrEmpty(_generatedCode))
@@ -2910,6 +3575,72 @@
     {
         // Only HTML-based frameworks can be previewed
         return _targetFramework is "HTML/CSS" or "Tailwind CSS";
+    }
+    
+    private void RefreshPreview()
+    {
+        // Force re-render of the preview iframe by triggering state change
+        StateHasChanged();
+        _ = LoadPreviewFrameAsync();
+    }
+    
+    private void SetCodeViewMode()
+    {
+        _codeViewMode = "code";
+    }
+    
+    private async Task SetPreviewViewMode()
+    {
+        _codeViewMode = "preview";
+        _lastPreviewCode = ""; // Reset to force reload
+        StateHasChanged();
+        await Task.Delay(50); // Allow DOM to update
+        await LoadPreviewFrameAsync();
+    }
+    
+    private async Task SetSplitViewMode()
+    {
+        _codeViewMode = "split";
+        _lastPreviewCode = ""; // Reset to force reload
+        StateHasChanged();
+        await Task.Delay(50); // Allow DOM to update
+        await LoadPreviewFrameAsync();
+    }
+    
+    private async Task LoadPreviewFrame()
+    {
+        await LoadPreviewFrameAsync();
+    }
+    
+    private async Task LoadPreviewFrameAsync()
+    {
+        if (string.IsNullOrEmpty(_generatedCode) || !CanShowPreview()) return;
+        
+        try
+        {
+            var htmlContent = GetPreviewHtml();
+            var escapedHtml = System.Text.Json.JsonSerializer.Serialize(htmlContent);
+            
+            // Load content into whichever iframe is visible
+            await JS.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    var frames = ['previewFrameSingle', 'previewFrameSplit'];
+                    frames.forEach(function(id) {{
+                        var frame = document.getElementById(id);
+                        if (frame) {{
+                            var doc = frame.contentDocument || frame.contentWindow.document;
+                            doc.open();
+                            doc.write({escapedHtml});
+                            doc.close();
+                        }}
+                    }});
+                }})();
+            ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load preview: {ex.Message}");
+        }
     }
     
     private async Task OpenPreviewPopup()
@@ -3013,23 +3744,43 @@
     
     private string GetPreviewHtml()
     {
-        if (string.IsNullOrEmpty(_generatedCode)) return "";
+        if (string.IsNullOrEmpty(_generatedCode)) return "<html><body><p>No code generated yet</p></body></html>";
         
-        var htmlContent = _generatedCode;
+        var htmlContent = _generatedCode.Trim();
+        
+        // Clean up code block markers if present
+        if (htmlContent.StartsWith("```html", StringComparison.OrdinalIgnoreCase))
+        {
+            htmlContent = htmlContent.Substring(7);
+        }
+        else if (htmlContent.StartsWith("```"))
+        {
+            var firstNewline = htmlContent.IndexOf('\n');
+            if (firstNewline > 0)
+            {
+                htmlContent = htmlContent.Substring(firstNewline + 1);
+            }
+        }
+        if (htmlContent.EndsWith("```"))
+        {
+            htmlContent = htmlContent.Substring(0, htmlContent.Length - 3);
+        }
+        htmlContent = htmlContent.Trim();
         
         // If it already has a full HTML structure, return as-is
-        if (htmlContent.Contains("<!DOCTYPE") || htmlContent.Contains("<html"))
+        if (htmlContent.Contains("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) || 
+            htmlContent.Contains("<html", StringComparison.OrdinalIgnoreCase))
         {
             return htmlContent;
         }
         
         // Otherwise wrap it in a proper HTML document
         return $@"<!DOCTYPE html>
-<html lang='en'>
+<html lang=""en"">
 <head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <script src='https://cdn.tailwindcss.com'></script>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <script src=""https://cdn.tailwindcss.com""></script>
     <style>
         * {{ box-sizing: border-box; }}
         body {{ 
@@ -3377,16 +4128,27 @@ Return ONLY the complete Razor page code.";
     
     private void ShowExtractionModeInfo() => _showServiceInfoModal = true;
     
-    private void TestPopupButton() => _showServiceInfoModal = true;
+    private void ShowApiCoverage() => _showServiceInfoModal = true;
 
     #endregion
 
     #region Splitter Drag Functionality
     
     private bool _splitterInitialized = false;
+    private string _lastPreviewCode = "";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // Load preview iframe content when code changes or view mode is preview/split
+        if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview() && 
+            (_codeViewMode == "preview" || _codeViewMode == "split") &&
+            _generatedCode != _lastPreviewCode)
+        {
+            _lastPreviewCode = _generatedCode;
+            await Task.Delay(100); // Small delay to ensure DOM is ready
+            await LoadPreviewFrameAsync();
+        }
+        
         if (firstRender && !_splitterInitialized)
         {
             _splitterInitialized = true;
@@ -3482,6 +4244,26 @@ Return ONLY the complete Razor page code.";
                         reader.readAsDataURL(file);
                     });
                 };
+                
+                // Escape key handler for login cancellation
+                window.loginEscapeHandler = null;
+                window.setupLoginEscapeHandler = function(dotNetRef) {
+                    if (window.loginEscapeHandler) {
+                        document.removeEventListener('keydown', window.loginEscapeHandler);
+                    }
+                    window.loginEscapeHandler = function(e) {
+                        if (e.key === 'Escape') {
+                            dotNetRef.invokeMethodAsync('CancelLoginFromJs');
+                        }
+                    };
+                    document.addEventListener('keydown', window.loginEscapeHandler);
+                };
+                window.removeLoginEscapeHandler = function() {
+                    if (window.loginEscapeHandler) {
+                        document.removeEventListener('keydown', window.loginEscapeHandler);
+                        window.loginEscapeHandler = null;
+                    }
+                };
             ");
         }
     }
@@ -3497,6 +4279,14 @@ Return ONLY the complete Razor page code.";
     #region Service Settings Dialog
     
     private void ShowServiceSettings() => _showServiceSettingsDialog = true;
+    
+    private void ShowServiceSettingsFromLogin()
+    {
+        // Cancel any ongoing login first
+        Cancel();
+        // Then show settings
+        _showServiceSettingsDialog = true;
+    }
     
     private async Task HandleServiceSettingsSaved(AzureOpenAISettings settings)
     {

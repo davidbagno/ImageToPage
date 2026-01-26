@@ -145,19 +145,19 @@
                     <div class="summary-title">📊 Coverage Summary</div>
                     <div class="summary-grid">
                         <div class="summary-item">
-                            <span class="summary-number">54</span>
+                            <span class="summary-number">@AvailableCount</span>
                             <span class="summary-label">Available</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-number text-warning">4</span>
+                            <span class="summary-number text-warning">@PartialCount</span>
                             <span class="summary-label">Partial</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-number text-error">0</span>
+                            <span class="summary-number text-error">@NotAvailableCount</span>
                             <span class="summary-label">Not Available</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-number text-info">93%</span>
+                            <span class="summary-number text-info">@CoveragePercentage%</span>
                             <span class="summary-label">Coverage</span>
                         </div>
                     </div>
@@ -501,6 +501,24 @@
     [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
     [Parameter] public bool AzureVisionAvailable { get; set; }
     [Parameter] public string CurrentMode { get; set; } = "AzureVision";
+
+    // API counts by category
+    private const int AzureVisionApiCount = 15;
+    private const int OpenAIApiAvailableCount = 18;
+    private const int OpenAIApiPartialCount = 2;
+    private const int LocalProcessingApiCount = 7;
+    private const int AdvancedApiAvailableCount = 13;
+    private const int AdvancedApiPartialCount = 3;
+
+    private int TotalApiCount => AzureVisionApiCount + OpenAIApiAvailableCount + OpenAIApiPartialCount + LocalProcessingApiCount + AdvancedApiAvailableCount + AdvancedApiPartialCount;
+
+    private int AvailableCount => (AzureVisionAvailable ? AzureVisionApiCount : 0) + OpenAIApiAvailableCount + LocalProcessingApiCount + AdvancedApiAvailableCount;
+
+    private int PartialCount => OpenAIApiPartialCount + AdvancedApiPartialCount;
+
+    private int NotAvailableCount => AzureVisionAvailable ? 0 : AzureVisionApiCount;
+
+    private int CoveragePercentage => TotalApiCount > 0 ? (int)Math.Round((AvailableCount + PartialCount * 0.5) / TotalApiCount * 100) : 0;
 
     private async Task Close()
     {

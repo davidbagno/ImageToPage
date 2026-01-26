@@ -976,4 +976,339 @@ public class VisionService : IVisionService
     }
 
     #endregion
+
+    #region New Interface Implementations
+
+    public async Task<ImageComparisonResult> CompareMultipleImagesAsync(List<string> base64Images, string mimeType)
+    {
+        try
+        {
+            if (base64Images == null || base64Images.Count < 2)
+                return new ImageComparisonResult { Success = false, ErrorMessage = "At least 2 images required for comparison" };
+
+            // For now, compare first two images using existing method
+            var comparison = await CompareImagesAsync(base64Images[0], base64Images[1], mimeType);
+            
+            return new ImageComparisonResult
+            {
+                Success = comparison.Success,
+                ErrorMessage = comparison.ErrorMessage,
+                Content = comparison.Content,
+                Differences = new List<ImageDifference>()
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Multiple image comparison failed");
+            return new ImageComparisonResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<VisionResult> AskAboutImageAsync(string base64Image, string mimeType, string question)
+    {
+        var prompt = $"""
+            Answer the following question about this image:
+            
+            Question: {question}
+            
+            Provide a detailed and accurate answer based on what you can see in the image.
+            """;
+        
+        return await AnalyzeImageAsync(base64Image, mimeType, prompt);
+    }
+
+    public async Task<DocumentParseResult> ParseDocumentAsync(string base64Image, string mimeType)
+    {
+        var prompt = """
+            Parse this document image and extract structured data. If it's an invoice, receipt, or form,
+            extract all relevant fields. Return as JSON:
+            {
+                "documentType": "invoice|receipt|form|other",
+                "fields": [
+                    { "name": "field_name", "value": "extracted_value", "confidence": 0.95 }
+                ],
+                "tables": [
+                    { "headers": ["col1", "col2"], "rows": [["val1", "val2"]] }
+                ],
+                "summary": "Brief description of the document"
+            }
+            """;
+        
+        try
+        {
+            var response = await AnalyzeImageAsync(base64Image, mimeType, prompt);
+            if (!response.Success)
+                return new DocumentParseResult { Success = false, ErrorMessage = response.ErrorMessage };
+
+            return ParseDocumentResultJson(response.Content ?? "{}");
+        }
+        catch (Exception ex)
+        {
+            return new DocumentParseResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<ChartDataResult> ExtractChartDataAsync(string base64Image, string mimeType)
+    {
+        var prompt = """
+            Analyze this chart/graph image and extract the data. Return as JSON:
+            {
+                "chartType": "bar|line|pie|scatter|other",
+                "title": "Chart title if visible",
+                "labels": ["label1", "label2"],
+                "datasets": [
+                    { "name": "Series 1", "values": [10, 20, 30] }
+                ],
+                "axes": { "x": "X axis label", "y": "Y axis label" }
+            }
+            """;
+        
+        try
+        {
+            var response = await AnalyzeImageAsync(base64Image, mimeType, prompt);
+            if (!response.Success)
+                return new ChartDataResult { Success = false, ErrorMessage = response.ErrorMessage };
+
+            return new ChartDataResult 
+            { 
+                Success = true, 
+                Content = response.Content
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ChartDataResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<MathOcrResult> ParseMathEquationAsync(string base64Image, string mimeType)
+    {
+        var prompt = """
+            Parse the mathematical equation(s) in this image. Return as JSON:
+            {
+                "equations": [
+                    { "latex": "\\frac{a}{b}", "text": "a/b", "description": "fraction" }
+                ],
+                "variables": ["a", "b", "x"],
+                "operators": ["+", "-", "="]
+            }
+            """;
+        
+        try
+        {
+            var response = await AnalyzeImageAsync(base64Image, mimeType, prompt);
+            if (!response.Success)
+                return new MathOcrResult { Success = false, ErrorMessage = response.ErrorMessage };
+
+            return new MathOcrResult 
+            { 
+                Success = true, 
+                Content = response.Content
+            };
+        }
+        catch (Exception ex)
+        {
+            return new MathOcrResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<HandwritingResult> ReadHandwritingAsync(string base64Image, string mimeType)
+    {
+        var prompt = """
+            Read and transcribe the handwritten text in this image. Return as JSON:
+            {
+                "text": "The full transcribed text",
+                "lines": ["line 1", "line 2"],
+                "confidence": 0.85,
+                "language": "en"
+            }
+            """;
+        
+        try
+        {
+            var response = await AnalyzeImageAsync(base64Image, mimeType, prompt);
+            if (!response.Success)
+                return new HandwritingResult { Success = false, ErrorMessage = response.ErrorMessage };
+
+            return new HandwritingResult 
+            { 
+                Success = true, 
+                RecognizedText = response.Content
+            };
+        }
+        catch (Exception ex)
+        {
+            return new HandwritingResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<TableExtractionResult> ExtractTableAsync(string base64Image, string mimeType)
+    {
+        var prompt = """
+            Extract table data from this image. Return as JSON:
+            {
+                "headers": ["Column 1", "Column 2", "Column 3"],
+                "rows": [
+                    ["row1col1", "row1col2", "row1col3"],
+                    ["row2col1", "row2col2", "row2col3"]
+                ],
+                "rowCount": 2,
+                "columnCount": 3
+            }
+            """;
+        
+        try
+        {
+            var response = await AnalyzeImageAsync(base64Image, mimeType, prompt);
+            if (!response.Success)
+                return new TableExtractionResult { Success = false, ErrorMessage = response.ErrorMessage };
+
+            return ParseTableResultJson(response.Content ?? "{}");
+        }
+        catch (Exception ex)
+        {
+            return new TableExtractionResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    public async Task<VisionResult> AnswerSpatialQuestionAsync(string base64Image, string mimeType, string question)
+    {
+        var prompt = $"""
+            Answer this spatial question about the image:
+            
+            Question: {question}
+            
+            Consider positions, relationships, and relative locations of objects in the image.
+            Be specific about spatial relationships (left, right, above, below, near, etc.)
+            """;
+        
+        return await AnalyzeImageAsync(base64Image, mimeType, prompt);
+    }
+
+    public async Task<ImageDiffResult> GetImageDiffAsync(string base64Image1, string base64Image2, string mimeType)
+    {
+        try
+        {
+            var comparison = await CompareImagesAsync(base64Image1, base64Image2, mimeType);
+            
+            return new ImageDiffResult
+            {
+                Success = comparison.Success,
+                ErrorMessage = comparison.ErrorMessage,
+                Content = comparison.Content,
+                ModifiedRegions = new List<DiffRegion>()
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Image diff failed");
+            return new ImageDiffResult { Success = false, ErrorMessage = ex.Message };
+        }
+    }
+
+    private DocumentParseResult ParseDocumentResultJson(string json)
+    {
+        var result = new DocumentParseResult { Success = true, Fields = new Dictionary<string, string>() };
+        try
+        {
+            var cleanJson = ExtractJsonFromResponse(json);
+            using var doc = JsonDocument.Parse(cleanJson);
+            var root = doc.RootElement;
+            
+            result.DocumentType = root.TryGetProperty("documentType", out var dt) ? dt.GetString() : "unknown";
+            result.RawText = root.TryGetProperty("summary", out var sum) ? sum.GetString() : null;
+            
+            if (root.TryGetProperty("fields", out var fields))
+            {
+                foreach (var field in fields.EnumerateArray())
+                {
+                    var name = field.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                    var value = field.TryGetProperty("value", out var v) ? v.GetString() ?? "" : "";
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        result.Fields[name] = value;
+                    }
+                }
+            }
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse document result JSON");
+            result.RawText = json; // Store raw response if parsing fails
+        }
+        return result;
+    }
+
+    private TableExtractionResult ParseTableResultJson(string json)
+    {
+        var result = new TableExtractionResult { Success = true, Headers = new List<string>(), Rows = new List<List<string>>() };
+        try
+        {
+            var cleanJson = ExtractJsonFromResponse(json);
+            using var doc = JsonDocument.Parse(cleanJson);
+            var root = doc.RootElement;
+            
+            if (root.TryGetProperty("headers", out var headers))
+                result.Headers = headers.EnumerateArray().Select(h => h.GetString() ?? "").ToList();
+            
+            if (root.TryGetProperty("rows", out var rows))
+            {
+                result.Rows = rows.EnumerateArray().Select(row =>
+                    row.EnumerateArray().Select(cell => cell.GetString() ?? "").ToList()
+                ).ToList();
+            }
+            
+            result.RowCount = root.TryGetProperty("rowCount", out var rc) ? rc.GetInt32() : result.Rows.Count;
+            result.ColumnCount = root.TryGetProperty("columnCount", out var cc) ? cc.GetInt32() : result.Headers.Count;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse table result JSON");
+        }
+        return result;
+    }
+
+    private static string ExtractJsonFromResponse(string response)
+    {
+        if (string.IsNullOrWhiteSpace(response))
+            return "{}";
+        
+        // Try to extract JSON from markdown code blocks
+        var jsonStart = response.IndexOf("```json", StringComparison.OrdinalIgnoreCase);
+        if (jsonStart >= 0)
+        {
+            jsonStart = response.IndexOf('\n', jsonStart) + 1;
+            var jsonEnd = response.IndexOf("```", jsonStart);
+            if (jsonEnd > jsonStart)
+                return response.Substring(jsonStart, jsonEnd - jsonStart).Trim();
+        }
+        
+        // Try to find JSON object or array
+        var firstBrace = response.IndexOf('{');
+        var firstBracket = response.IndexOf('[');
+        
+        if (firstBrace >= 0 || firstBracket >= 0)
+        {
+            int start;
+            char endChar;
+            if (firstBracket >= 0 && (firstBrace < 0 || firstBracket < firstBrace))
+            {
+                start = firstBracket;
+                endChar = ']';
+            }
+            else
+            {
+                start = firstBrace;
+                endChar = '}';
+            }
+            
+            var lastEnd = response.LastIndexOf(endChar);
+            if (lastEnd > start)
+                return response.Substring(start, lastEnd - start + 1);
+        }
+        
+        return response;
+    }
+
+    #endregion
 }

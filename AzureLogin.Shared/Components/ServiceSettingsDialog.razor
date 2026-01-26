@@ -13,7 +13,7 @@
             
             <div class="settings-modal-body">
                 @* Azure OpenAI Section *@
-                <div class="settings-section">
+                <div class="settings-section @(!IsOpenAIConfigured ? "needs-config" : "")">
                     <div class="section-header" @onclick="@(() => ToggleSection("openai"))">
                         <span class="section-icon">🤖</span>
                         <h3>Azure OpenAI</h3>
@@ -25,9 +25,48 @@
                     @if (expandedSections.Contains("openai"))
                     {
                         <div class="section-content">
+                            @if (!IsOpenAIConfigured)
+                            {
+                                <div class="missing-config-alert">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">❌</span>
+                                        <strong>Configuration Required</strong>
+                                    </div>
+                                    <div class="alert-body">
+                                        <p><strong>What's missing:</strong></p>
+                                        <ul class="missing-list">
+                                            @if (string.IsNullOrEmpty(Settings?.Endpoint) || Settings.Endpoint.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Endpoint URL</strong> - Required to connect to Azure OpenAI</li>
+                                            }
+                                        </ul>
+                                        <p class="service-description">
+                                            <strong>What this service provides:</strong><br/>
+                                            Azure OpenAI powers <em>GPT-4o chat</em>, <em>image-to-code conversion</em>, <em>DALL-E image generation</em>, 
+                                            and all AI-powered analysis features. This is the core service required for the app to function.
+                                        </p>
+                                    </div>
+                                    <div class="setup-help">
+                                        <strong>📋 How to fix:</strong>
+                                        <ol>
+                                            <li>Go to <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI" target="_blank">Azure Portal - Create Azure OpenAI</a></li>
+                                            <li>Create a resource (requires approval for new accounts)</li>
+                                            <li>Deploy models: <code>gpt-4o</code>, <code>dall-e-3</code></li>
+                                            <li>Copy the endpoint URL from "Keys and Endpoint"</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="config-ok-banner">
+                                    ✅ Azure OpenAI is configured and ready to use
+                                </div>
+                            }
                             <div class="form-group">
-                                <label>Endpoint URL</label>
-                                <input type="url" @bind="Settings.Endpoint" placeholder="https://your-resource.openai.azure.com/" />
+                                <label>Endpoint URL <span class="required">*</span></label>
+                                <input type="url" @bind="Settings.Endpoint" placeholder="https://your-resource.openai.azure.com/" 
+                                       class="@(string.IsNullOrEmpty(Settings?.Endpoint) || Settings.Endpoint.Contains("YOUR-") ? "field-missing" : "")" />
                                 <small>Your Azure OpenAI resource endpoint</small>
                             </div>
                             <div class="form-row">
@@ -50,12 +89,18 @@
                                     <input type="text" @bind="Settings.DalleDeployment" placeholder="dall-e-3" />
                                 </div>
                             </div>
+                            @if (!IsOpenAIConfigured)
+                            {
+                                <button class="btn-test" @onclick='() => ValidateAndHighlight("openai")'>
+                                    🔍 Validate Configuration
+                                </button>
+                            }
                         </div>
                     }
                 </div>
 
                 @* Azure AI Vision Section *@
-                <div class="settings-section">
+                <div class="settings-section @(!IsVisionConfigured ? "needs-config" : "")">
                     <div class="section-header" @onclick="@(() => ToggleSection("vision"))">
                         <span class="section-icon">👁️</span>
                         <h3>Azure AI Vision (Computer Vision)</h3>
@@ -69,8 +114,33 @@
                         <div class="section-content">
                             @if (!IsVisionConfigured)
                             {
+                                <div class="missing-config-alert">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">❌</span>
+                                        <strong>Configuration Required</strong>
+                                    </div>
+                                    <div class="alert-body">
+                                        <p><strong>What's missing:</strong></p>
+                                        <ul class="missing-list">
+                                            @if (string.IsNullOrEmpty(Settings?.VisionEndpoint) || Settings.VisionEndpoint.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Vision Endpoint URL</strong> - The Computer Vision API endpoint</li>
+                                            }
+                                            @if (string.IsNullOrEmpty(Settings?.VisionKey) || Settings.VisionKey.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Vision API Key</strong> - Authentication key for the service</li>
+                                            }
+                                        </ul>
+                                        <p class="service-description">
+                                            <strong>What this service provides:</strong><br/>
+                                            Enables <em>pixel-accurate object detection</em>, <em>dense captioning</em>, <em>people detection</em>, 
+                                            <em>smart crops</em>, <em>OCR text extraction</em>, and <em>background removal</em>. 
+                                            Required for the "Azure Vision" extraction modes.
+                                        </p>
+                                    </div>
+                                </div>
                                 <div class="setup-help">
-                                    <strong>📋 Setup Instructions:</strong>
+                                    <strong>📋 How to fix:</strong>
                                     <ol>
                                         <li>Go to <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesComputerVision" target="_blank">Azure Portal - Create Computer Vision</a></li>
                                         <li>Select your subscription and resource group</li>
@@ -79,26 +149,40 @@
                                     </ol>
                                 </div>
                             }
+                            else
+                            {
+                                <div class="config-ok-banner">
+                                    ✅ Azure AI Vision is configured - pixel-accurate detection available
+                                </div>
+                            }
                             <div class="form-group">
-                                <label>Vision Endpoint URL</label>
-                                <input type="url" @bind="Settings.VisionEndpoint" placeholder="https://your-vision.cognitiveservices.azure.com/" />
+                                <label>Vision Endpoint URL <span class="required">*</span></label>
+                                <input type="url" @bind="Settings.VisionEndpoint" placeholder="https://your-vision.cognitiveservices.azure.com/"
+                                       class="@(string.IsNullOrEmpty(Settings?.VisionEndpoint) || Settings.VisionEndpoint.Contains("YOUR-") ? "field-missing" : "")" />
                                 <small>Azure AI Vision resource endpoint</small>
                             </div>
                             <div class="form-group">
-                                <label>Vision API Key</label>
+                                <label>Vision API Key <span class="required">*</span></label>
                                 <div class="input-with-toggle">
-                                    <input type="@(showVisionKey ? "text" : "password")" @bind="Settings.VisionKey" placeholder="Enter your API key" />
+                                    <input type="@(showVisionKey ? "text" : "password")" @bind="Settings.VisionKey" placeholder="Enter your API key"
+                                           class="@(string.IsNullOrEmpty(Settings?.VisionKey) || Settings.VisionKey.Contains("YOUR-") ? "field-missing" : "")" />
                                     <button type="button" class="toggle-visibility" @onclick="() => showVisionKey = !showVisionKey">
                                         @(showVisionKey ? "🙈" : "👁️")
                                     </button>
                                 </div>
                             </div>
+                            @if (!IsVisionConfigured)
+                            {
+                                <button class="btn-test" @onclick='() => ValidateAndHighlight("vision")'>
+                                    🔍 Validate Configuration
+                                </button>
+                            }
                         </div>
                     }
                 </div>
 
                 @* Azure Document Intelligence Section *@
-                <div class="settings-section">
+                <div class="settings-section @(!IsDocIntelligenceConfigured ? "needs-config" : "")">
                     <div class="section-header" @onclick="@(() => ToggleSection("docint"))">
                         <span class="section-icon">📄</span>
                         <h3>Azure Document Intelligence</h3>
@@ -112,8 +196,33 @@
                         <div class="section-content">
                             @if (!IsDocIntelligenceConfigured)
                             {
+                                <div class="missing-config-alert">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">❌</span>
+                                        <strong>Configuration Required</strong>
+                                    </div>
+                                    <div class="alert-body">
+                                        <p><strong>What's missing:</strong></p>
+                                        <ul class="missing-list">
+                                            @if (string.IsNullOrEmpty(Settings?.DocumentIntelligenceEndpoint) || Settings.DocumentIntelligenceEndpoint.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Document Intelligence Endpoint</strong> - The Form Recognizer API endpoint</li>
+                                            }
+                                            @if (string.IsNullOrEmpty(Settings?.DocumentIntelligenceKey) || Settings.DocumentIntelligenceKey.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Document Intelligence Key</strong> - Authentication key for the service</li>
+                                            }
+                                        </ul>
+                                        <p class="service-description">
+                                            <strong>What this service provides:</strong><br/>
+                                            Enables <em>invoice parsing</em>, <em>receipt extraction</em>, <em>ID document reading</em>, 
+                                            <em>business card scanning</em>, and <em>general document analysis</em>. 
+                                            Used by the "Parse Document", "Analyze Invoice", and "Analyze Receipt" features.
+                                        </p>
+                                    </div>
+                                </div>
                                 <div class="setup-help">
-                                    <strong>📋 Setup Instructions:</strong>
+                                    <strong>📋 How to fix:</strong>
                                     <ol>
                                         <li>Go to <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesFormRecognizer" target="_blank">Azure Portal - Create Document Intelligence</a></li>
                                         <li>Select your subscription and resource group</li>
@@ -122,25 +231,39 @@
                                     </ol>
                                 </div>
                             }
+                            else
+                            {
+                                <div class="config-ok-banner">
+                                    ✅ Document Intelligence is configured - document analysis available
+                                </div>
+                            }
                             <div class="form-group">
-                                <label>Document Intelligence Endpoint</label>
-                                <input type="url" @bind="Settings.DocumentIntelligenceEndpoint" placeholder="https://your-doc-intel.cognitiveservices.azure.com/" />
+                                <label>Document Intelligence Endpoint <span class="required">*</span></label>
+                                <input type="url" @bind="Settings.DocumentIntelligenceEndpoint" placeholder="https://your-doc-intel.cognitiveservices.azure.com/"
+                                       class="@(string.IsNullOrEmpty(Settings?.DocumentIntelligenceEndpoint) || Settings.DocumentIntelligenceEndpoint.Contains("YOUR-") ? "field-missing" : "")" />
                             </div>
                             <div class="form-group">
-                                <label>Document Intelligence Key</label>
+                                <label>Document Intelligence Key <span class="required">*</span></label>
                                 <div class="input-with-toggle">
-                                    <input type="@(showDocIntKey ? "text" : "password")" @bind="Settings.DocumentIntelligenceKey" placeholder="Enter your API key" />
+                                    <input type="@(showDocIntKey ? "text" : "password")" @bind="Settings.DocumentIntelligenceKey" placeholder="Enter your API key"
+                                           class="@(string.IsNullOrEmpty(Settings?.DocumentIntelligenceKey) || Settings.DocumentIntelligenceKey.Contains("YOUR-") ? "field-missing" : "")" />
                                     <button type="button" class="toggle-visibility" @onclick="() => showDocIntKey = !showDocIntKey">
                                         @(showDocIntKey ? "🙈" : "👁️")
                                     </button>
                                 </div>
                             </div>
+                            @if (!IsDocIntelligenceConfigured)
+                            {
+                                <button class="btn-test" @onclick='() => ValidateAndHighlight("docint")'>
+                                    🔍 Validate Configuration
+                                </button>
+                            }
                         </div>
                     }
                 </div>
 
                 @* Azure Custom Vision Section *@
-                <div class="settings-section">
+                <div class="settings-section @(!IsCustomVisionConfigured ? "needs-config" : "")">
                     <div class="section-header" @onclick="@(() => ToggleSection("customvision"))">
                         <span class="section-icon">🎯</span>
                         <h3>Azure Custom Vision</h3>
@@ -154,8 +277,33 @@
                         <div class="section-content">
                             @if (!IsCustomVisionConfigured)
                             {
+                                <div class="missing-config-alert">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">❌</span>
+                                        <strong>Configuration Required</strong>
+                                    </div>
+                                    <div class="alert-body">
+                                        <p><strong>What's missing:</strong></p>
+                                        <ul class="missing-list">
+                                            @if (string.IsNullOrEmpty(Settings?.CustomVisionEndpoint) || Settings.CustomVisionEndpoint.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Custom Vision Endpoint</strong> - The prediction API endpoint</li>
+                                            }
+                                            @if (string.IsNullOrEmpty(Settings?.CustomVisionKey) || Settings.CustomVisionKey.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Custom Vision Key</strong> - Prediction key for authentication</li>
+                                            }
+                                        </ul>
+                                        <p class="service-description">
+                                            <strong>What this service provides:</strong><br/>
+                                            Enables <em>custom image classification</em> and <em>custom object detection</em> 
+                                            using your own trained models. Use this to detect specific objects or classify images 
+                                            based on your custom training data.
+                                        </p>
+                                    </div>
+                                </div>
                                 <div class="setup-help">
-                                    <strong>📋 Setup Instructions:</strong>
+                                    <strong>📋 How to fix:</strong>
                                     <ol>
                                         <li>Go to <a href="https://www.customvision.ai/" target="_blank">Custom Vision Portal</a></li>
                                         <li>Create a new project (Classification or Object Detection)</li>
@@ -164,14 +312,22 @@
                                     </ol>
                                 </div>
                             }
+                            else
+                            {
+                                <div class="config-ok-banner">
+                                    ✅ Custom Vision is configured - custom models available
+                                </div>
+                            }
                             <div class="form-group">
-                                <label>Custom Vision Endpoint</label>
-                                <input type="url" @bind="Settings.CustomVisionEndpoint" placeholder="https://your-customvision.cognitiveservices.azure.com/" />
+                                <label>Custom Vision Endpoint <span class="required">*</span></label>
+                                <input type="url" @bind="Settings.CustomVisionEndpoint" placeholder="https://your-customvision.cognitiveservices.azure.com/"
+                                       class="@(string.IsNullOrEmpty(Settings?.CustomVisionEndpoint) || Settings.CustomVisionEndpoint.Contains("YOUR-") ? "field-missing" : "")" />
                             </div>
                             <div class="form-group">
-                                <label>Custom Vision Prediction Key</label>
+                                <label>Custom Vision Prediction Key <span class="required">*</span></label>
                                 <div class="input-with-toggle">
-                                    <input type="@(showCustomVisionKey ? "text" : "password")" @bind="Settings.CustomVisionKey" placeholder="Enter your prediction key" />
+                                    <input type="@(showCustomVisionKey ? "text" : "password")" @bind="Settings.CustomVisionKey" placeholder="Enter your prediction key"
+                                           class="@(string.IsNullOrEmpty(Settings?.CustomVisionKey) || Settings.CustomVisionKey.Contains("YOUR-") ? "field-missing" : "")" />
                                     <button type="button" class="toggle-visibility" @onclick="() => showCustomVisionKey = !showCustomVisionKey">
                                         @(showCustomVisionKey ? "🙈" : "👁️")
                                     </button>
@@ -180,13 +336,20 @@
                             <div class="form-group">
                                 <label>Project ID</label>
                                 <input type="text" @bind="Settings.CustomVisionProjectId" placeholder="your-project-guid" />
+                                <small>Optional - specify if using a specific project</small>
                             </div>
+                            @if (!IsCustomVisionConfigured)
+                            {
+                                <button class="btn-test" @onclick='() => ValidateAndHighlight("customvision")'>
+                                    🔍 Validate Configuration
+                                </button>
+                            }
                         </div>
                     }
                 </div>
 
                 @* Azure Video Indexer Section *@
-                <div class="settings-section">
+                <div class="settings-section @(!IsVideoIndexerConfigured ? "needs-config" : "")">
                     <div class="section-header" @onclick="@(() => ToggleSection("video"))">
                         <span class="section-icon">🎬</span>
                         <h3>Azure Video Indexer</h3>
@@ -200,8 +363,32 @@
                         <div class="section-content">
                             @if (!IsVideoIndexerConfigured)
                             {
+                                <div class="missing-config-alert">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">❌</span>
+                                        <strong>Configuration Required</strong>
+                                    </div>
+                                    <div class="alert-body">
+                                        <p><strong>What's missing:</strong></p>
+                                        <ul class="missing-list">
+                                            @if (string.IsNullOrEmpty(Settings?.VideoIndexerAccountId) || Settings.VideoIndexerAccountId.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>Account ID</strong> - Your Video Indexer account identifier</li>
+                                            }
+                                            @if (string.IsNullOrEmpty(Settings?.VideoIndexerApiKey) || Settings.VideoIndexerApiKey.Contains("YOUR-"))
+                                            {
+                                                <li>🔴 <strong>API Key</strong> - Authentication key for the service</li>
+                                            }
+                                        </ul>
+                                        <p class="service-description">
+                                            <strong>What this service provides:</strong><br/>
+                                            Enables <em>video analysis</em> and <em>frame extraction</em> for video content.
+                                            Use this to analyze videos, extract key frames, and get insights about video content.
+                                        </p>
+                                    </div>
+                                </div>
                                 <div class="setup-help">
-                                    <strong>📋 Setup Instructions:</strong>
+                                    <strong>📋 How to fix:</strong>
                                     <ol>
                                         <li>Go to <a href="https://www.videoindexer.ai/" target="_blank">Video Indexer Portal</a></li>
                                         <li>Sign in with your Azure account</li>
@@ -211,9 +398,16 @@
                                     </ol>
                                 </div>
                             }
+                            else
+                            {
+                                <div class="config-ok-banner">
+                                    ✅ Video Indexer is configured - video analysis available
+                                </div>
+                            }
                             <div class="form-group">
-                                <label>Video Indexer Account ID</label>
-                                <input type="text" @bind="Settings.VideoIndexerAccountId" placeholder="your-account-id" />
+                                <label>Video Indexer Account ID <span class="required">*</span></label>
+                                <input type="text" @bind="Settings.VideoIndexerAccountId" placeholder="your-account-id"
+                                       class="@(string.IsNullOrEmpty(Settings?.VideoIndexerAccountId) || Settings.VideoIndexerAccountId.Contains("YOUR-") ? "field-missing" : "")" />
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
@@ -228,15 +422,22 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>API Key</label>
+                                    <label>API Key <span class="required">*</span></label>
                                     <div class="input-with-toggle">
-                                        <input type="@(showVideoKey ? "text" : "password")" @bind="Settings.VideoIndexerApiKey" placeholder="Enter API key" />
+                                        <input type="@(showVideoKey ? "text" : "password")" @bind="Settings.VideoIndexerApiKey" placeholder="Enter API key"
+                                               class="@(string.IsNullOrEmpty(Settings?.VideoIndexerApiKey) || Settings.VideoIndexerApiKey.Contains("YOUR-") ? "field-missing" : "")" />
                                         <button type="button" class="toggle-visibility" @onclick="() => showVideoKey = !showVideoKey">
                                             @(showVideoKey ? "🙈" : "👁️")
                                         </button>
                                     </div>
                                 </div>
                             </div>
+                            @if (!IsVideoIndexerConfigured)
+                            {
+                                <button class="btn-test" @onclick='() => ValidateAndHighlight("video")'>
+                                    🔍 Validate Configuration
+                                </button>
+                            }
                         </div>
                     }
                 </div>
@@ -279,9 +480,15 @@
             
             <div class="settings-modal-footer">
                 <div class="footer-info">
-                    <span class="config-count">
+                    <span class="config-count @(ConfiguredServicesCount < 5 ? "incomplete" : "complete")">
                         @ConfiguredServicesCount / 5 services configured
                     </span>
+                    @if (ConfiguredServicesCount < 5)
+                    {
+                        <button class="btn-expand-all" @onclick="ExpandUnconfiguredSections" title="Show all services that need configuration">
+                            🔧 Show Missing
+                        </button>
+                    }
                 </div>
                 <div class="footer-actions">
                     <button class="btn-secondary" @onclick="ResetToDefaults">Reset</button>
@@ -475,6 +682,126 @@
         color: #1d4ed8;
     }
 
+    .missing-config-alert {
+        background: linear-gradient(135deg, #fef2f2 0%, #fef7f0 100%);
+        border: 1px solid #fecaca;
+        border-left: 4px solid #ef4444;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+
+    .missing-config-alert .alert-header {
+        background: rgba(239, 68, 68, 0.1);
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid #fecaca;
+    }
+
+    .missing-config-alert .alert-icon {
+        font-size: 18px;
+    }
+
+    .missing-config-alert .alert-header strong {
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+    .missing-config-alert .alert-body {
+        padding: 12px 14px;
+    }
+
+    .missing-config-alert .alert-body p {
+        margin: 0 0 8px 0;
+        font-size: 12px;
+        color: #7f1d1d;
+    }
+
+    .missing-list {
+        margin: 0 0 12px 0;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .missing-list li {
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 6px;
+        margin-bottom: 4px;
+        font-size: 12px;
+        color: #991b1b;
+    }
+
+    .service-description {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 12px !important;
+        color: #374151 !important;
+        line-height: 1.5;
+    }
+
+    .service-description em {
+        color: #7c3aed;
+        font-style: normal;
+        font-weight: 500;
+    }
+
+    .config-ok-banner {
+        background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+        border: 1px solid #86efac;
+        color: #166534;
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .settings-section.needs-config {
+        border-color: #fecaca;
+    }
+
+    .settings-section.needs-config .section-header {
+        background: #fef7f0;
+    }
+
+    .field-missing {
+        border-color: #f87171 !important;
+        background: #fef2f2 !important;
+    }
+
+    .field-missing:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+
+    .required {
+        color: #ef4444;
+        font-weight: bold;
+    }
+
+    .btn-test {
+        width: 100%;
+        padding: 10px 16px;
+        margin-top: 12px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #7dd3fc;
+        border-radius: 8px;
+        color: #0369a1;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-test:hover {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        border-color: #38bdf8;
+    }
+
     .form-group {
         margin-bottom: 14px;
     }
@@ -575,12 +902,42 @@
     .footer-info {
         font-size: 12px;
         color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .config-count {
         background: #e5e7eb;
         padding: 4px 10px;
         border-radius: 12px;
+    }
+
+    .config-count.incomplete {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .config-count.complete {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .btn-expand-all {
+        padding: 4px 10px;
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        color: #92400e;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-expand-all:hover {
+        background: #fde68a;
+        border-color: #f59e0b;
     }
 
     .footer-actions {
@@ -690,6 +1047,72 @@
     {
         Settings = new AzureLogin.Shared.Services.AzureOpenAISettings();
         statusMessage = "Settings reset to defaults. Click Save to apply.";
+        statusClass = "success";
+    }
+
+    private void ValidateAndHighlight(string section)
+    {
+        // Ensure the section is expanded
+        if (!expandedSections.Contains(section))
+        {
+            expandedSections.Add(section);
+        }
+
+        // Show validation message based on section
+        var missingFields = new List<string>();
+        
+        switch (section)
+        {
+            case "openai":
+                if (string.IsNullOrEmpty(Settings?.Endpoint) || Settings.Endpoint.Contains("YOUR-"))
+                    missingFields.Add("Endpoint URL");
+                break;
+            case "vision":
+                if (string.IsNullOrEmpty(Settings?.VisionEndpoint) || Settings.VisionEndpoint.Contains("YOUR-"))
+                    missingFields.Add("Vision Endpoint");
+                if (string.IsNullOrEmpty(Settings?.VisionKey) || Settings.VisionKey.Contains("YOUR-"))
+                    missingFields.Add("Vision API Key");
+                break;
+            case "docint":
+                if (string.IsNullOrEmpty(Settings?.DocumentIntelligenceEndpoint) || Settings.DocumentIntelligenceEndpoint.Contains("YOUR-"))
+                    missingFields.Add("Document Intelligence Endpoint");
+                if (string.IsNullOrEmpty(Settings?.DocumentIntelligenceKey) || Settings.DocumentIntelligenceKey.Contains("YOUR-"))
+                    missingFields.Add("Document Intelligence Key");
+                break;
+            case "customvision":
+                if (string.IsNullOrEmpty(Settings?.CustomVisionEndpoint) || Settings.CustomVisionEndpoint.Contains("YOUR-"))
+                    missingFields.Add("Custom Vision Endpoint");
+                if (string.IsNullOrEmpty(Settings?.CustomVisionKey) || Settings.CustomVisionKey.Contains("YOUR-"))
+                    missingFields.Add("Custom Vision Key");
+                break;
+            case "video":
+                if (string.IsNullOrEmpty(Settings?.VideoIndexerAccountId) || Settings.VideoIndexerAccountId.Contains("YOUR-"))
+                    missingFields.Add("Account ID");
+                if (string.IsNullOrEmpty(Settings?.VideoIndexerApiKey) || Settings.VideoIndexerApiKey.Contains("YOUR-"))
+                    missingFields.Add("API Key");
+                break;
+        }
+
+        if (missingFields.Count > 0)
+        {
+            statusMessage = $"⚠️ Missing required fields: {string.Join(", ", missingFields)}. Please fill in the highlighted fields above.";
+            statusClass = "error";
+        }
+        else
+        {
+            statusMessage = $"✅ All required fields are filled. Don't forget to click Save!";
+            statusClass = "success";
+        }
+    }
+
+    private void ExpandUnconfiguredSections()
+    {
+        if (!IsOpenAIConfigured) expandedSections.Add("openai");
+        if (!IsVisionConfigured) expandedSections.Add("vision");
+        if (!IsDocIntelligenceConfigured) expandedSections.Add("docint");
+        if (!IsCustomVisionConfigured) expandedSections.Add("customvision");
+        if (!IsVideoIndexerConfigured) expandedSections.Add("video");
+        statusMessage = "Expanded all unconfigured services. Fill in the required fields highlighted in red.";
         statusClass = "success";
     }
 
