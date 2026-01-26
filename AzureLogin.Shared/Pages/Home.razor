@@ -106,22 +106,22 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     
-    /* Premium Toolbar Navigation - Light Theme */
+    /* Premium Toolbar Navigation - Dark Gray/Purple Theme */
     .toolbar-container {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 16px;
-        padding: 6px;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-        margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        border-radius: 14px;
+        padding: 5px;
+        box-shadow: 0 4px 15px rgba(55, 65, 81, 0.3);
+        margin-bottom: 16px;
+        border: 1px solid #4b5563;
     }
     
     .toolbar-inner {
         display: flex;
-        gap: 6px;
-        background: #f1f5f9;
-        border-radius: 12px;
-        padding: 5px;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        padding: 4px;
     }
     
     .tab-btn {
@@ -130,13 +130,13 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        padding: 14px 24px;
-        border-radius: 10px;
+        padding: 12px 20px;
+        border-radius: 8px;
         border: none;
         background: transparent;
-        color: #64748b;
+        color: rgba(255, 255, 255, 0.75);
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         position: relative;
@@ -150,14 +150,14 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
         opacity: 0;
         transition: opacity 0.25s ease;
     }
     
     .tab-btn:hover:not(.active) {
-        color: #475569;
-        background: rgba(255, 255, 255, 0.8);
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
     }
     
     .tab-btn:hover:not(.active)::before {
@@ -167,12 +167,11 @@
     .tab-btn.active {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
-        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
     
     .tab-btn .tab-icon {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         line-height: 1;
     }
     
@@ -182,18 +181,18 @@
     }
     
     .tab-btn .tab-badge {
-        background: rgba(102, 126, 234, 0.15);
-        color: #667eea;
-        padding: 3px 10px;
-        border-radius: 6px;
-        font-size: 0.7rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 0.65rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
     .tab-btn.active .tab-badge {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.3);
         color: white;
     }
     
@@ -219,16 +218,16 @@
     
     .split-pane-left {
         overflow: auto;
-        min-width: 250px;
-        max-width: 60%;
+        min-width: 280px;
+        max-width: 50%;
         height: 100%;
         flex-shrink: 0;
     }
     
     .split-pane-right {
         flex: 1;
-        overflow: auto;
-        min-width: 300px;
+        overflow: hidden;
+        min-width: 400px;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -236,25 +235,62 @@
     
     .split-pane-right > * {
         flex: 1;
-        height: 100%;
-    }
-    
-    .split-pane-right .h-100 {
-        height: 100% !important;
-        display: flex;
-        flex-direction: column;
+        min-height: 0;
     }
     
     .split-pane-right .code-output-panel {
         flex: 1;
         display: flex;
         flex-direction: column;
-        height: 100% !important;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
     }
     
-    .split-pane-right .code-output-panel > div:last-of-type {
+    .code-view-container {
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .code-split-view {
+        flex: 1;
+        display: flex;
+        gap: 10px;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .code-panel, .preview-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .code-panel-content, .preview-panel-content {
+        flex: 1;
+        min-height: 0;
         overflow: auto;
+        position: relative;
+    }
+    
+    .preview-iframe-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    
+    .preview-iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
     }
     
     .vertical-splitter {
@@ -945,10 +981,10 @@
                 }
                 else if (_activeTab == "code")
                 {
-                    <div class="card glass-card border-0 shadow-sm" style="border-radius: 12px; min-height: 1200px;">
-                        <div class="card-body p-4" style="height: 100%; display: flex; flex-direction: column;">
-                            @* Premium Header Banner *@
-                            <div class="vision-header-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);">
+                    <div class="card glass-card border-0 shadow-sm" style="border-radius: 12px; height: calc(100vh - 220px); min-height: 800px;">
+                        <div class="card-body p-3" style="height: 100%; display: flex; flex-direction: column; overflow: hidden;">
+                            @* Premium Header Banner - Compact *@
+                            <div class="vision-header-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%); color: white; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);">
                                 <div class="d-flex align-items-center gap-3">
                                     <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 12px; backdrop-filter: blur(10px);">
                                         <span style="font-size: 1.5rem;">🧠</span>
@@ -1360,32 +1396,32 @@
                                 @* Draggable Vertical Splitter *@
                                 <div class="vertical-splitter" id="splitter" @onmousedown="StartSplitterDrag"></div>
                             
-                                @* Right Pane - Results *@
-                                <div class="split-pane-right" id="rightPane" style="display: flex; flex-direction: column; min-height: 800px;">
+                                @* Right Pane - Results - Full Height *@
+                                <div class="split-pane-right" id="rightPane">
                                     @if (_selectedAnalysis == "code")
                                     {
                                         @* Code Generation Output with Inline Preview *@
-                                        <div class="p-3 code-output-panel" style="flex: 1; display: flex; flex-direction: column; height: 100%; min-height: 750px;">
-                                            @* Header *@
+                                        <div class="code-output-panel p-2">
+                                            @* Header - Compact *@
                                             <div class="d-flex align-items-center justify-content-between mb-2" style="flex-shrink: 0;">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <h6 class="fw-bold mb-0" style="color: #667eea; font-size: 1rem;">
-                                                        <span class="me-2">💻</span>Generated Code
+                                                    <h6 class="fw-bold mb-0" style="color: #667eea; font-size: 0.95rem;">
+                                                        <span class="me-1">💻</span>Generated Code
                                                     </h6>
                                                     @if (!string.IsNullOrEmpty(_codeLanguage))
                                                     {
-                                                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.7rem; padding: 4px 8px;">@_codeLanguage.ToUpper()</span>
+                                                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.65rem; padding: 3px 7px;">@_codeLanguage.ToUpper()</span>
                                                     }
                                                 </div>
                                                 <div class="d-flex gap-2 align-items-center">
                                                     @if (!string.IsNullOrEmpty(_generatedCode))
                                                     {
-                                                        <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;" @onclick="CopyCodeToClipboard">
-                                                            @(_codeCopied ? "✓ Copied!" : "📋 Copy Code")
+                                                        <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 600;" @onclick="CopyCodeToClipboard">
+                                                            @(_codeCopied ? "✓ Copied!" : "📋 Copy")
                                                         </button>
                                                         @if (CanShowPreview())
                                                         {
-                                                            <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;" @onclick="DownloadPreviewHtml">
+                                                            <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 600;" @onclick="DownloadPreviewHtml">
                                                                 📥 Download
                                                             </button>
                                                         }
@@ -1393,36 +1429,38 @@
                                                 </div>
                                             </div>
                                             
-                                            @* View Mode Tabs - ALWAYS SHOW for HTML/Tailwind *@
+                                            @* View Mode Tabs - Compact *@
                                             @if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview())
                                             {
-                                                <div class="d-flex gap-2 mb-3" style="flex-shrink: 0; background: #f8fafc; padding: 8px; border-radius: 10px;">
+                                                <div class="d-flex gap-2 mb-2" style="flex-shrink: 0; background: #f1f5f9; padding: 6px; border-radius: 8px;">
                                                     <button class="btn btn-sm @(_codeViewMode == "code" ? "" : "btn-outline-secondary")" 
-                                                            style="@(_codeViewMode == "code" ? "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 600; display: flex; align-items: center; gap: 6px;"
+                                                            style="@(_codeViewMode == "code" ? "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;" : "") border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;"
                                                             @onclick="SetCodeViewMode">
-                                                        <span>💻</span> Code Only
+                                                        <span>💻</span> Code
                                                     </button>
                                                     <button class="btn btn-sm @(_codeViewMode == "preview" ? "" : "btn-outline-secondary")" 
-                                                            style="@(_codeViewMode == "preview" ? "background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 600; display: flex; align-items: center; gap: 6px;"
+                                                            style="@(_codeViewMode == "preview" ? "background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;" : "") border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;"
                                                             @onclick="SetPreviewViewMode">
-                                                        <span>👁️</span> Preview Only
+                                                        <span>👁️</span> Preview
                                                     </button>
                                                     <button class="btn btn-sm @(_codeViewMode == "split" ? "" : "btn-outline-secondary")" 
-                                                            style="@(_codeViewMode == "split" ? "background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none;" : "") border-radius: 8px; padding: 10px 20px; font-weight: 700; display: flex; align-items: center; gap: 6px;"
+                                                            style="@(_codeViewMode == "split" ? "background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none;" : "") border-radius: 6px; padding: 6px 14px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;"
                                                             @onclick="SetSplitViewMode">
-                                                        <span>◧</span> Code + Preview
+                                                        <span>◧</span> Split
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" 
-                                                            style="border-radius: 8px; padding: 10px 14px; font-weight: 600;"
+                                                            style="border-radius: 6px; padding: 6px 10px; font-weight: 600; font-size: 0.8rem;"
                                                             @onclick="OpenPreviewPopup" title="Open in new window">
-                                                        🔗 New Window
+                                                        🔗
                                                     </button>
                                                 </div>
                                             }
 
+                                            @* Content Area - Fills Remaining Space *@
+                                            <div class="code-view-container">
                                             @if (_isConvertingToCode)
                                             {
-                                                <div class="text-center py-5" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                                <div class="text-center" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                                                     <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: #667eea;"></div>
                                                     <p class="fw-semibold" style="color: #667eea;">Generating @_targetFramework code...</p>
                                                     <p class="small text-muted">GPT-4o Vision is analyzing your UI</p>
@@ -1432,44 +1470,50 @@
                                             {
                                                 @if (_codeViewMode == "code" || !CanShowPreview())
                                                 {
-                                                    @* Code Only View *@
-                                                    <div style="flex: 1; overflow: auto; border-radius: 12px; border: 2px solid #e2e8f0; min-height: 500px;">
-                                                        <pre class="code-pre" style="margin: 0; padding: 16px; white-space: pre-wrap; height: 100%; font-size: 13px; line-height: 1.6;">@_generatedCode</pre>
+                                                    @* Code Only View - Full Height *@
+                                                    <div class="code-panel" style="border-radius: 10px; border: 2px solid #e2e8f0;">
+                                                        <div class="code-panel-content">
+                                                            <pre class="code-pre" style="margin: 0; padding: 12px; white-space: pre-wrap; height: 100%; font-size: 12px; line-height: 1.5; background: #1e293b; color: #e2e8f0; border-radius: 8px;">@_generatedCode</pre>
+                                                        </div>
                                                     </div>
                                                 }
                                                 else if (_codeViewMode == "preview")
                                                 {
-                                                    @* Preview Only View *@
-                                                    <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 3px solid #10b981; overflow: hidden; min-height: 600px;">
-                                                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                                                            <span style="font-weight: 700; font-size: 1rem;">👁️ Live HTML Preview — @_targetFramework</span>
-                                                            <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem;" @onclick="LoadPreviewFrame">🔄 Refresh</button>
+                                                    @* Preview Only View - Full Height *@
+                                                    <div class="preview-panel" style="border-radius: 10px; border: 2px solid #10b981;">
+                                                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                                                            <span style="font-weight: 600; font-size: 0.85rem;">👁️ Live Preview — @_targetFramework</span>
+                                                            <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; padding: 3px 10px; font-size: 0.75rem;" @onclick="RefreshPreview">🔄</button>
                                                         </div>
-                                                        <div style="flex: 1; background: white;">
-                                                            <iframe id="previewFrameSingle" style="width: 100%; height: 100%; border: none; min-height: 550px;"></iframe>
+                                                        <div class="preview-panel-content" style="background: white;">
+                                                            <div class="preview-iframe-container">
+                                                                <iframe src="@GetPreviewDataUrl()"></iframe>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 }
                                                 else if (_codeViewMode == "split")
                                                 {
-                                                    @* Split View - Code + Preview Side by Side *@
-                                                    <div style="flex: 1; display: flex; gap: 12px; min-height: 600px;">
+                                                    @* Split View - Code + Preview - Full Height *@
+                                                    <div class="code-split-view">
                                                         @* Code Panel *@
-                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 2px solid #e2e8f0; overflow: hidden; min-width: 0;">
-                                                            <div style="background: #1e293b; color: white; padding: 10px 16px; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">
-                                                                💻 Generated Code
+                                                        <div class="code-panel" style="border-radius: 10px; border: 2px solid #e2e8f0;">
+                                                            <div style="background: #1e293b; color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; border-radius: 8px 8px 0 0;">
+                                                                💻 Code
                                                             </div>
-                                                            <div style="flex: 1; overflow: auto;">
-                                                                <pre class="code-pre" style="margin: 0; padding: 12px; white-space: pre-wrap; height: 100%; font-size: 12px; line-height: 1.5;">@_generatedCode</pre>
+                                                            <div class="code-panel-content">
+                                                                <pre class="code-pre" style="margin: 0; padding: 10px; white-space: pre-wrap; height: 100%; font-size: 11px; line-height: 1.4; background: #1e293b; color: #e2e8f0;">@_generatedCode</pre>
                                                             </div>
                                                         </div>
                                                         @* Preview Panel *@
-                                                        <div style="flex: 1; display: flex; flex-direction: column; border-radius: 12px; border: 3px solid #10b981; overflow: hidden; min-width: 0;">
-                                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 10px 16px; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">
-                                                                👁️ Live HTML Preview
+                                                        <div class="preview-panel" style="border-radius: 10px; border: 2px solid #10b981;">
+                                                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; border-radius: 8px 8px 0 0;">
+                                                                👁️ Live Preview
                                                             </div>
-                                                            <div style="flex: 1; background: white; overflow: hidden;">
-                                                                <iframe id="previewFrameSplit" style="width: 100%; height: 100%; border: none;"></iframe>
+                                                            <div class="preview-panel-content" style="background: white;">
+                                                                <div class="preview-iframe-container">
+                                                                    <iframe src="@GetPreviewDataUrl()"></iframe>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1477,21 +1521,15 @@
                                             }
                                             else
                                             {
-                                                <div class="text-center py-5" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);">
-                                                        <span style="font-size: 48px;">💻</span>
+                                                <div class="text-center" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);">
+                                                        <span style="font-size: 36px;">💻</span>
                                                     </div>
-                                                    <p class="mt-2 fw-bold" style="color: #667eea; font-size: 1.1rem;">Ready to Generate Code</p>
-                                                    <p class="text-muted" style="max-width: 300px;">Upload a UI screenshot, select <strong>@_targetFramework</strong> framework, and click Generate</p>
-                                                    <div class="mt-3 d-flex gap-2 flex-wrap justify-content-center">
-                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">HTML/CSS</span>
-                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Tailwind</span>
-                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">React</span>
-                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Vue</span>
-                                                        <span class="badge" style="background: #f3f4f6; color: #374151; padding: 6px 12px;">Blazor</span>
-                                                    </div>
+                                                    <p class="mt-2 fw-bold" style="color: #667eea; font-size: 1rem;">Ready to Generate Code</p>
+                                                    <p class="text-muted small" style="max-width: 280px;">Upload a UI screenshot and click Generate</p>
                                                 </div>
                                             }
+                                            </div>
                                         </div>
                                     }
                                     else if (_selectedAnalysis == "codeWithViewModel")
@@ -2806,7 +2844,6 @@
         _generatedCode = "";
         _codeError = "";
         _codeCopied = false;
-        _lastPreviewCode = ""; // Reset to trigger preview reload
         StateHasChanged();
         
         try
@@ -3579,9 +3616,23 @@
     
     private void RefreshPreview()
     {
-        // Force re-render of the preview iframe by triggering state change
+        // Force re-render by triggering state change
+        _previewKey = Guid.NewGuid().ToString();
         StateHasChanged();
-        _ = LoadPreviewFrameAsync();
+    }
+    
+    private string _previewKey = "";
+    
+    private string GetPreviewDataUrl()
+    {
+        if (string.IsNullOrEmpty(_generatedCode)) 
+            return "data:text/html,<html><body style='font-family:sans-serif;padding:20px;color:#666;'><h2>No preview available</h2><p>Generate HTML or Tailwind CSS code to see preview</p></body></html>";
+        
+        var html = GetPreviewHtml();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(html);
+        var base64 = Convert.ToBase64String(bytes);
+        // Add cache-busting parameter using preview key
+        return $"data:text/html;charset=utf-8;base64,{base64}#{_previewKey}";
     }
     
     private void SetCodeViewMode()
@@ -3589,58 +3640,16 @@
         _codeViewMode = "code";
     }
     
-    private async Task SetPreviewViewMode()
+    private void SetPreviewViewMode()
     {
         _codeViewMode = "preview";
-        _lastPreviewCode = ""; // Reset to force reload
         StateHasChanged();
-        await Task.Delay(50); // Allow DOM to update
-        await LoadPreviewFrameAsync();
     }
     
-    private async Task SetSplitViewMode()
+    private void SetSplitViewMode()
     {
         _codeViewMode = "split";
-        _lastPreviewCode = ""; // Reset to force reload
         StateHasChanged();
-        await Task.Delay(50); // Allow DOM to update
-        await LoadPreviewFrameAsync();
-    }
-    
-    private async Task LoadPreviewFrame()
-    {
-        await LoadPreviewFrameAsync();
-    }
-    
-    private async Task LoadPreviewFrameAsync()
-    {
-        if (string.IsNullOrEmpty(_generatedCode) || !CanShowPreview()) return;
-        
-        try
-        {
-            var htmlContent = GetPreviewHtml();
-            var escapedHtml = System.Text.Json.JsonSerializer.Serialize(htmlContent);
-            
-            // Load content into whichever iframe is visible
-            await JS.InvokeVoidAsync("eval", $@"
-                (function() {{
-                    var frames = ['previewFrameSingle', 'previewFrameSplit'];
-                    frames.forEach(function(id) {{
-                        var frame = document.getElementById(id);
-                        if (frame) {{
-                            var doc = frame.contentDocument || frame.contentWindow.document;
-                            doc.open();
-                            doc.write({escapedHtml});
-                            doc.close();
-                        }}
-                    }});
-                }})();
-            ");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to load preview: {ex.Message}");
-        }
     }
     
     private async Task OpenPreviewPopup()
@@ -4135,20 +4144,9 @@ Return ONLY the complete Razor page code.";
     #region Splitter Drag Functionality
     
     private bool _splitterInitialized = false;
-    private string _lastPreviewCode = "";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Load preview iframe content when code changes or view mode is preview/split
-        if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview() && 
-            (_codeViewMode == "preview" || _codeViewMode == "split") &&
-            _generatedCode != _lastPreviewCode)
-        {
-            _lastPreviewCode = _generatedCode;
-            await Task.Delay(100); // Small delay to ensure DOM is ready
-            await LoadPreviewFrameAsync();
-        }
-        
         if (firstRender && !_splitterInitialized)
         {
             _splitterInitialized = true;
