@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Microsoft.Extensions.Logging;
+﻿﻿﻿﻿﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using AzureLogin.Shared.Services;
 using AzureLogin.Services;
@@ -38,7 +38,10 @@ public static class MauiProgram
         // Register URL launcher for opening browser
         builder.Services.AddSingleton<IUrlLauncher, MauiUrlLauncher>();
         
-        // Register Azure OpenAI service with Bearer token authentication
+        // Register secure storage service for API keys and sensitive data
+        builder.Services.AddSingleton<ISecureStorageService, MauiSecureStorageService>();
+        
+        // Register Azure OpenAI service with API key from secure storage
         builder.Services.AddSingleton<IAzureOpenAIService, AzureOpenAIService>();
         
         // Register Azure Vision service for pixel-accurate image detection

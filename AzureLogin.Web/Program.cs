@@ -14,12 +14,15 @@ builder.Services.AddSingleton<IFormFactor, FormFactor>();
 // Register URL launcher for opening browser
 builder.Services.AddScoped<IUrlLauncher, WebUrlLauncher>();
 
+// Register secure storage service for API keys
+builder.Services.AddScoped<ISecureStorageService, WebSecureStorageService>();
+
 // Configure Azure OpenAI settings from configuration
 builder.Services.Configure<AzureOpenAISettings>(
     builder.Configuration.GetSection(AzureOpenAISettings.SectionName));
 
-// Register Azure OpenAI service
-builder.Services.AddSingleton<IAzureOpenAIService, AzureOpenAIService>();
+// Register Azure OpenAI service (uses secure storage for API key)
+builder.Services.AddScoped<IAzureOpenAIService, AzureOpenAIService>();
 
 // Register Azure Vision service for pixel-accurate image detection
 builder.Services.AddSingleton<IAzureVisionService, AzureVisionService>();

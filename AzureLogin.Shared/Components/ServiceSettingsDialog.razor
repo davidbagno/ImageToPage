@@ -69,6 +69,17 @@
                                        class="@(string.IsNullOrEmpty(Settings?.Endpoint) || Settings.Endpoint.Contains("YOUR-") ? "field-missing" : "")" />
                                 <small>Your Azure OpenAI resource endpoint</small>
                             </div>
+                            <div class="form-group">
+                                <label>API Key <span class="required">*</span></label>
+                                <div class="input-with-toggle">
+                                    <input type="@(showOpenAIKey ? "text" : "password")" @bind="_openAIApiKey" placeholder="Enter your Azure OpenAI API key"
+                                           class="@(string.IsNullOrEmpty(_openAIApiKey) ? "field-missing" : "")" />
+                                    <button type="button" class="toggle-visibility" @onclick="() => showOpenAIKey = !showOpenAIKey">
+                                        @(showOpenAIKey ? "🙈" : "👁️")
+                                    </button>
+                                </div>
+                                <small>🔒 Stored securely in platform keychain/keystore</small>
+                            </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Default Deployment</label>
@@ -982,20 +993,53 @@
     [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
     [Parameter] public AzureLogin.Shared.Services.AzureOpenAISettings Settings { get; set; } = new();
     [Parameter] public EventCallback<AzureLogin.Shared.Services.AzureOpenAISettings> OnSave { get; set; }
+    [Parameter] public AzureLogin.Shared.Services.ISecureStorageService? SecureStorage { get; set; }
 
     private HashSet<string> expandedSections = new() { "openai" };
+    private bool showOpenAIKey;
     private bool showVisionKey;
     private bool showDocIntKey;
     private bool showCustomVisionKey;
     private bool showVideoKey;
     private string? statusMessage;
     private string statusClass = "";
+    
+    // API key stored in secure storage, not in settings
+    private string _openAIApiKey = "";
+    private bool _apiKeyLoaded;
 
-    private bool IsOpenAIConfigured => !string.IsNullOrEmpty(Settings?.Endpoint) && !Settings.Endpoint.Contains("YOUR-");
+    private bool IsOpenAIConfigured => !string.IsNullOrEmpty(Settings?.Endpoint) && !Settings.Endpoint.Contains("YOUR-") && !string.IsNullOrEmpty(_openAIApiKey);
     private bool IsVisionConfigured => !string.IsNullOrEmpty(Settings?.VisionEndpoint) && !Settings.VisionEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.VisionKey) && !Settings.VisionKey.Contains("YOUR-");
     private bool IsDocIntelligenceConfigured => !string.IsNullOrEmpty(Settings?.DocumentIntelligenceEndpoint) && !Settings.DocumentIntelligenceEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.DocumentIntelligenceKey) && !Settings.DocumentIntelligenceKey.Contains("YOUR-");
     private bool IsCustomVisionConfigured => !string.IsNullOrEmpty(Settings?.CustomVisionEndpoint) && !Settings.CustomVisionEndpoint.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.CustomVisionKey) && !Settings.CustomVisionKey.Contains("YOUR-");
     private bool IsVideoIndexerConfigured => !string.IsNullOrEmpty(Settings?.VideoIndexerAccountId) && !Settings.VideoIndexerAccountId.Contains("YOUR-") && !string.IsNullOrEmpty(Settings?.VideoIndexerApiKey) && !Settings.VideoIndexerApiKey.Contains("YOUR-");
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Load API key from secure storage when dialog opens
+        if (IsVisible && !_apiKeyLoaded && SecureStorage != null)
+        {
+            try
+            {
+                var storedKey = await SecureStorage.GetAsync(AzureLogin.Shared.Services.SecureStorageKeys.AzureOpenAIApiKey);
+                if (!string.IsNullOrEmpty(storedKey))
+                {
+                    _openAIApiKey = storedKey;
+                }
+                _apiKeyLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load API key: {ex.Message}");
+            }
+        }
+        
+        // Reset loaded flag when dialog closes
+        if (!IsVisible)
+        {
+            _apiKeyLoaded = false;
+        }
+    }
 
     private int ConfiguredServicesCount =>
         (IsOpenAIConfigured ? 1 : 0) +
@@ -1023,13 +1067,19 @@
     {
         try
         {
-            // Save to localStorage for persistence
+            // Save API key to secure storage (not in localStorage)
+            if (SecureStorage != null && !string.IsNullOrEmpty(_openAIApiKey))
+            {
+                await SecureStorage.SetAsync(AzureLogin.Shared.Services.SecureStorageKeys.AzureOpenAIApiKey, _openAIApiKey);
+            }
+            
+            // Save other settings to localStorage for persistence (excluding sensitive data)
             var json = System.Text.Json.JsonSerializer.Serialize(Settings);
             await JS.InvokeVoidAsync("localStorage.setItem", "AzureAISettings", json);
             
             await OnSave.InvokeAsync(Settings);
             
-            statusMessage = "✅ Settings saved successfully!";
+            statusMessage = "✅ Settings saved successfully! API key stored securely.";
             statusClass = "success";
             
             // Auto-close after 1.5 seconds
@@ -1046,6 +1096,7 @@
     private void ResetToDefaults()
     {
         Settings = new AzureLogin.Shared.Services.AzureOpenAISettings();
+        _openAIApiKey = "";
         statusMessage = "Settings reset to defaults. Click Save to apply.";
         statusClass = "success";
     }

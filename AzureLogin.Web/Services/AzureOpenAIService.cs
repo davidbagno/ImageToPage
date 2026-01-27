@@ -1,7 +1,5 @@
 using Azure;
 using Azure.AI.OpenAI;
-using Azure.Core;
-using Azure.Identity;
 using AzureLogin.Shared.Services;
 using Microsoft.Extensions.Options;
 using OpenAI.Chat;
@@ -10,135 +8,111 @@ using OpenAI.Images;
 namespace AzureLogin.Web.Services;
 
 /// <summary>
-/// Azure OpenAI service using Device Code Flow authentication.
+/// Azure OpenAI service using API Key authentication from appsettings.json
 /// </summary>
 public class AzureOpenAIService : IAzureOpenAIService
 {
     private readonly AzureOpenAISettings _settings;
     private readonly ILogger<AzureOpenAIService> _logger;
-    private TokenCredential? _credential;
     private AzureOpenAIClient? _client;
     private string? _userName;
-    private DateTime? _tokenExpiry;
     private bool _isAuthenticated;
-    private string? _userCode;
-    private string? _verificationUrl;
 
     public AzureOpenAIService(IOptions<AzureOpenAISettings> settings, ILogger<AzureOpenAIService> logger)
     {
         _settings = settings.Value ?? new AzureOpenAISettings();
         _logger = logger;
+        
+        // Auto-initialize with API key if available
+        InitializeClient();
+    }
+
+    private void InitializeClient()
+    {
+        if (!string.IsNullOrEmpty(_settings.Endpoint) && !string.IsNullOrEmpty(_settings.ApiKey))
+        {
+            try
+            {
+                var credential = new AzureKeyCredential(_settings.ApiKey);
+                _client = new AzureOpenAIClient(new Uri(_settings.Endpoint), credential);
+                _isAuthenticated = true;
+                _userName = "API Key User";
+                _logger.LogInformation("Azure OpenAI client initialized with API key");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialize Azure OpenAI client with API key");
+                _isAuthenticated = false;
+            }
+        }
     }
 
     public string Endpoint => _settings.Endpoint ?? "Not configured";
     public string DeploymentName => _settings.DefaultDeployment ?? "Not configured";
-    public string? UserCode => _userCode;
-    public string? VerificationUrl => _verificationUrl;
+    
+    // These are no longer used with API key auth, but kept for interface compatibility
+    public string? UserCode => null;
+    public string? VerificationUrl => null;
 
-    public async Task<AuthenticationStatus> GetAuthenticationStatusAsync()
+    public Task<AuthenticationStatus> GetAuthenticationStatusAsync()
     {
         var status = new AuthenticationStatus();
         
         if (string.IsNullOrEmpty(_settings.Endpoint))
         {
             status.IsAuthenticated = false;
-            status.ErrorMessage = "Azure OpenAI endpoint not configured.";
-            return status;
+            status.ErrorMessage = "Azure OpenAI endpoint not configured in appsettings.json";
+            return Task.FromResult(status);
+        }
+
+        if (string.IsNullOrEmpty(_settings.ApiKey))
+        {
+            status.IsAuthenticated = false;
+            status.ErrorMessage = "Azure OpenAI API key not configured in appsettings.json";
+            return Task.FromResult(status);
         }
 
         if (_isAuthenticated && _client != null)
         {
             status.IsAuthenticated = true;
             status.UserName = _userName;
-            status.TokenExpiresOn = _tokenExpiry;
-            status.AuthenticationMethod = "Device Code Flow";
-            return status;
+            status.AuthenticationMethod = "API Key";
+            return Task.FromResult(status);
         }
 
-        try
+        // Try to initialize if not already done
+        InitializeClient();
+        
+        if (_isAuthenticated && _client != null)
         {
-            var credential = new DeviceCodeCredential(new DeviceCodeCredentialOptions
-            {
-                DeviceCodeCallback = (info, cancel) =>
-                {
-                    _userCode = info.UserCode;
-                    _verificationUrl = info.VerificationUri.ToString();
-                    _logger.LogInformation("Device code: {Code}, URL: {Url}", _userCode, _verificationUrl);
-                    return Task.CompletedTask;
-                }
-            });
-
-            var tokenRequest = new TokenRequestContext(["https://cognitiveservices.azure.com/.default"]);
-            var token = await credential.GetTokenAsync(tokenRequest, default);
-            
-            _credential = credential;
-            _tokenExpiry = token.ExpiresOn.DateTime;
-            _client = new AzureOpenAIClient(new Uri(_settings.Endpoint), credential);
-            _isAuthenticated = true;
-            
-            ExtractUserInfo(token.Token);
-            
             status.IsAuthenticated = true;
             status.UserName = _userName;
-            status.TokenExpiresOn = _tokenExpiry;
-            status.AuthenticationMethod = "Device Code Flow";
-            
-            _userCode = null;
-            _verificationUrl = null;
+            status.AuthenticationMethod = "API Key";
         }
-        catch (AuthenticationFailedException ex)
+        else
         {
             status.IsAuthenticated = false;
-            status.ErrorMessage = "Authentication cancelled or failed.";
-            _logger.LogError(ex, "Auth failed");
-        }
-        catch (Exception ex)
-        {
-            status.IsAuthenticated = false;
-            status.ErrorMessage = ex.Message;
-            _logger.LogError(ex, "Auth error");
+            status.ErrorMessage = "Failed to initialize Azure OpenAI client";
         }
         
-        return status;
-    }
-    
-    private void ExtractUserInfo(string token)
-    {
-        try
-        {
-            var parts = token.Split('.');
-            if (parts.Length >= 2)
-            {
-                var payload = parts[1].PadRight(parts[1].Length + (4 - parts[1].Length % 4) % 4, '=');
-                var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
-                var doc = System.Text.Json.JsonDocument.Parse(json);
-                
-                if (doc.RootElement.TryGetProperty("name", out var name))
-                    _userName = name.GetString();
-                else if (doc.RootElement.TryGetProperty("unique_name", out var unique))
-                    _userName = unique.GetString();
-                else if (doc.RootElement.TryGetProperty("upn", out var upn))
-                    _userName = upn.GetString();
-            }
-        }
-        catch { _userName = "User"; }
+        return Task.FromResult(status);
     }
 
     public void SignOut()
     {
         _isAuthenticated = false;
         _client = null;
-        _credential = null;
         _userName = null;
-        _tokenExpiry = null;
-        _userCode = null;
-        _verificationUrl = null;
     }
 
     public async Task<string> GetChatCompletionAsync(string userMessage, string? systemPrompt = null)
     {
         if (_client == null)
-            throw new InvalidOperationException("Please sign in first.");
+        {
+            InitializeClient();
+            if (_client == null)
+                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json");
+        }
         
         var chatClient = _client.GetChatClient(_settings.DefaultDeployment);
         
@@ -154,14 +128,15 @@ public class AzureOpenAIService : IAzureOpenAIService
     public async Task<string> GetVisionCompletionAsync(string imageBase64, string mimeType, string userPrompt, string? systemPrompt = null)
     {
         if (_client == null)
-            throw new InvalidOperationException("Please sign in first.");
+        {
+            InitializeClient();
+            if (_client == null)
+                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json");
+        }
         
-        // Use gpt-4o for vision tasks
         var visionDeployment = !string.IsNullOrEmpty(_settings.VisionDeployment) 
             ? _settings.VisionDeployment 
             : "gpt-4o";
-        
-        _logger.LogInformation("Using vision deployment: {Deployment}", visionDeployment);
         
         var chatClient = _client.GetChatClient(visionDeployment);
         
@@ -189,7 +164,11 @@ public class AzureOpenAIService : IAzureOpenAIService
     public async Task<ImageGenerationResult> GenerateImageAsync(string prompt, string size = "1024x1024")
     {
         if (_client == null)
-            return new ImageGenerationResult { Success = false, ErrorMessage = "Please sign in first." };
+        {
+            InitializeClient();
+            if (_client == null)
+                return new ImageGenerationResult { Success = false, ErrorMessage = "Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json" };
+        }
 
         try
         {
@@ -208,7 +187,6 @@ public class AzureOpenAIService : IAzureOpenAIService
             var response = await imageClient.GenerateImageAsync(prompt, options);
             var image = response.Value;
 
-            // Handle both URL and base64 responses
             string? imageUrl = null;
             if (image.ImageUri != null)
             {
@@ -216,7 +194,6 @@ public class AzureOpenAIService : IAzureOpenAIService
             }
             else if (image.ImageBytes != null && image.ImageBytes.ToArray().Length > 0)
             {
-                // Convert base64 bytes to data URL for display
                 var base64 = Convert.ToBase64String(image.ImageBytes.ToArray());
                 imageUrl = $"data:image/png;base64,{base64}";
             }
