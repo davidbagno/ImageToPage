@@ -20,6 +20,8 @@ public class AzureVisionService : AzureLogin.Shared.Services.IAzureVisionService
 
     public bool IsConfigured => !string.IsNullOrEmpty(_endpoint) && !string.IsNullOrEmpty(_apiKey);
 
+    private readonly HttpClient _httpClient = new HttpClient();
+
     public AzureVisionService(
         IOptions<AzureLogin.Shared.Services.AzureOpenAISettings> settings,
         ILogger<AzureVisionService>? logger = null)
@@ -45,6 +47,12 @@ public class AzureVisionService : AzureLogin.Shared.Services.IAzureVisionService
         else
         {
             _logger?.LogWarning("Azure AI Vision not configured. Set VisionEndpoint and VisionKey in appsettings.json");
+        }
+
+        _httpClient.DefaultRequestHeaders.Remove("Ocp-Apim-Subscription-Key");
+        if (!string.IsNullOrEmpty(_apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _apiKey);
         }
     }
 
@@ -651,25 +659,25 @@ public class AzureVisionService : AzureLogin.Shared.Services.IAzureVisionService
     public async Task<AzureLogin.Shared.Services.ImageCaptionResult> GetImageCaptionAsync(byte[] imageBytes)
     {
         if (!IsConfigured || _client == null)
-            return new AzureLogin.Shared.Services.ImageCaptionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
+            return new AzureLogin.Shared.Services.ImageCaptionResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
 
         try
         {
-            var result = await _client.AnalyzeAsync(
-                BinaryData.FromBytes(imageBytes),
-                VisualFeatures.Caption);
-
+            var options = new ImageAnalysisOptions { GenderNeutralCaption = true };
+            var result = await _client.AnalyzeAsync(BinaryData.FromBytes(imageBytes), VisualFeatures.Caption, options);
+            var caption = result.Value.Caption;
             return new AzureLogin.Shared.Services.ImageCaptionResult
             {
-                Success = true,
-                Caption = result.Value.Caption?.Text,
-                Confidence = result.Value.Caption?.Confidence ?? 0
+                Success = caption != null,
+                Caption = caption?.Text,
+                Confidence = caption?.Confidence ?? 0,
+                ErrorMessage = caption == null ? "No caption returned" : null
             };
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Image captioning failed");
-            return new AzureLogin.Shared.Services.ImageCaptionResult { Success = false, ErrorMessage = ex.Message };
+            _logger?.LogError(ex, "Caption failed");
+            return new AzureLogin.Shared.Services.ImageCaptionResult { Success = false, ErrorMessage = $"Caption failed: {ex.Message}" };
         }
     }
 
@@ -677,325 +685,180 @@ public class AzureVisionService : AzureLogin.Shared.Services.IAzureVisionService
     public async Task<AzureLogin.Shared.Services.ImageTagsResult> GetImageTagsAsync(byte[] imageBytes)
     {
         if (!IsConfigured || _client == null)
-            return new AzureLogin.Shared.Services.ImageTagsResult { Success = false, ErrorMessage = "Azure Vision not configured" };
+            return new AzureLogin.Shared.Services.ImageTagsResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
 
         try
         {
-            var result = await _client.AnalyzeAsync(
-                BinaryData.FromBytes(imageBytes),
-                VisualFeatures.Tags);
-
-            var tags = result.Value.Tags?.Values?.Select(t => new AzureLogin.Shared.Services.ImageTag
-            {
-                Name = t.Name,
-                Confidence = t.Confidence
-            }).ToList();
-
+            var result = await _client.AnalyzeAsync(BinaryData.FromBytes(imageBytes), VisualFeatures.Tags);
+            var tags = result.Value.Tags?.Values?.Select(t => new AzureLogin.Shared.Services.ImageTag { Name = t.Name, Confidence = t.Confidence }).ToList();
             return new AzureLogin.Shared.Services.ImageTagsResult
             {
                 Success = true,
-                Tags = tags
+                Tags = tags ?? new List<AzureLogin.Shared.Services.ImageTag>()
             };
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Image tagging failed");
-            return new AzureLogin.Shared.Services.ImageTagsResult { Success = false, ErrorMessage = ex.Message };
+            _logger?.LogError(ex, "Tags failed");
+            return new AzureLogin.Shared.Services.ImageTagsResult { Success = false, ErrorMessage = $"Tags failed: {ex.Message}" };
         }
     }
 
     /// <summary>Detects brands/logos in the image using Computer Vision 3.2 API</summary>
     public async Task<AzureLogin.Shared.Services.BrandDetectionResult> DetectBrandsAsync(byte[] imageBytes)
     {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.BrandDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
+        var doc = await AnalyzeWithV32Async(imageBytes, "Brands");
+        if (doc == null) return new AzureLogin.Shared.Services.BrandDetectionResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
         try
         {
-            var result = await CallComputerVision32Async(imageBytes, "brands");
-            
-            var brandResult = new AzureLogin.Shared.Services.BrandDetectionResult
+            var brands = doc.RootElement.GetProperty("brands");
+            var list = new List<AzureLogin.Shared.Services.DetectedBrand>();
+            foreach (var b in brands.EnumerateArray())
             {
-                Success = true,
-                Brands = new List<AzureLogin.Shared.Services.DetectedBrand>()
-            };
-
-            if (result.RootElement.TryGetProperty("brands", out var brands))
-            {
-                foreach (var brand in brands.EnumerateArray())
+                list.Add(new AzureLogin.Shared.Services.DetectedBrand
                 {
-                    var detectedBrand = new AzureLogin.Shared.Services.DetectedBrand
-                    {
-                        Name = brand.GetProperty("name").GetString(),
-                        Confidence = brand.GetProperty("confidence").GetDouble()
-                    };
-
-                    if (brand.TryGetProperty("rectangle", out var rect))
-                    {
-                        detectedBrand.X = rect.GetProperty("x").GetInt32();
-                        detectedBrand.Y = rect.GetProperty("y").GetInt32();
-                        detectedBrand.Width = rect.GetProperty("w").GetInt32();
-                        detectedBrand.Height = rect.GetProperty("h").GetInt32();
-                    }
-
-                    brandResult.Brands.Add(detectedBrand);
-                }
+                    Name = b.GetProperty("name").GetString(),
+                    Confidence = b.GetProperty("confidence").GetDouble(),
+                    X = b.GetProperty("rectangle").GetProperty("x").GetInt32(),
+                    Y = b.GetProperty("rectangle").GetProperty("y").GetInt32(),
+                    Width = b.GetProperty("rectangle").GetProperty("w").GetInt32(),
+                    Height = b.GetProperty("rectangle").GetProperty("h").GetInt32()
+                });
             }
-
-            _logger?.LogInformation("Brand detection found {Count} brands", brandResult.Brands.Count);
-            return brandResult;
+            return new AzureLogin.Shared.Services.BrandDetectionResult { Success = true, Brands = list };
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Brand detection failed");
-            return new AzureLogin.Shared.Services.BrandDetectionResult { Success = false, ErrorMessage = ex.Message };
+            return new AzureLogin.Shared.Services.BrandDetectionResult { Success = false, ErrorMessage = $"Brand parse failed: {ex.Message}" };
         }
     }
 
-    /// <summary>Gets image category using Computer Vision 3.2 API</summary>
     public async Task<AzureLogin.Shared.Services.CategoryResult> GetImageCategoryAsync(byte[] imageBytes)
     {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.CategoryResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
+        var doc = await AnalyzeWithV32Async(imageBytes, "Categories");
+        if (doc == null) return new AzureLogin.Shared.Services.CategoryResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
         try
         {
-            var result = await CallComputerVision32Async(imageBytes, "categories");
-            
-            var categoryResult = new AzureLogin.Shared.Services.CategoryResult
+            var categories = doc.RootElement.GetProperty("categories");
+            var list = new List<AzureLogin.Shared.Services.ImageCategory>();
+            foreach (var c in categories.EnumerateArray())
+            {
+                list.Add(new AzureLogin.Shared.Services.ImageCategory { Name = c.GetProperty("name").GetString(), Confidence = c.GetProperty("score").GetDouble() });
+            }
+            return new AzureLogin.Shared.Services.CategoryResult
             {
                 Success = true,
-                Categories = new List<AzureLogin.Shared.Services.ImageCategory>()
+                PrimaryCategory = list.FirstOrDefault()?.Name,
+                Categories = list
             };
-
-            if (result.RootElement.TryGetProperty("categories", out var categories))
-            {
-                double maxScore = 0;
-                foreach (var cat in categories.EnumerateArray())
-                {
-                    var category = new AzureLogin.Shared.Services.ImageCategory
-                    {
-                        Name = cat.GetProperty("name").GetString(),
-                        Confidence = cat.GetProperty("score").GetDouble()
-                    };
-                    categoryResult.Categories.Add(category);
-
-                    if (category.Confidence > maxScore)
-                    {
-                        maxScore = category.Confidence;
-                        categoryResult.PrimaryCategory = category.Name;
-                    }
-                }
-            }
-
-            _logger?.LogInformation("Category detection found {Count} categories, primary: {Primary}", 
-                categoryResult.Categories?.Count ?? 0, categoryResult.PrimaryCategory);
-            return categoryResult;
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Category detection failed");
-            return new AzureLogin.Shared.Services.CategoryResult { Success = false, ErrorMessage = ex.Message };
+            return new AzureLogin.Shared.Services.CategoryResult { Success = false, ErrorMessage = $"Category parse failed: {ex.Message}" };
         }
     }
 
-    /// <summary>Detects adult/racy/gory content using Computer Vision 3.2 API</summary>
     public async Task<AzureLogin.Shared.Services.AdultContentResult> DetectAdultContentAsync(byte[] imageBytes)
     {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.AdultContentResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
+        var doc = await AnalyzeWithV32Async(imageBytes, "Adult");
+        if (doc == null) return new AzureLogin.Shared.Services.AdultContentResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
         try
         {
-            var result = await CallComputerVision32Async(imageBytes, "adult");
-            
-            var adultResult = new AzureLogin.Shared.Services.AdultContentResult { Success = true };
-
-            if (result.RootElement.TryGetProperty("adult", out var adult))
-            {
-                adultResult.IsAdultContent = adult.GetProperty("isAdultContent").GetBoolean();
-                adultResult.IsRacyContent = adult.GetProperty("isRacyContent").GetBoolean();
-                adultResult.IsGoryContent = adult.TryGetProperty("isGoryContent", out var gory) && gory.GetBoolean();
-                adultResult.AdultScore = adult.GetProperty("adultScore").GetDouble();
-                adultResult.RacyScore = adult.GetProperty("racyScore").GetDouble();
-                adultResult.GoreScore = adult.TryGetProperty("goreScore", out var gore) ? gore.GetDouble() : 0;
-            }
-
-            _logger?.LogInformation("Adult content detection: Adult={Adult}, Racy={Racy}, Gory={Gory}", 
-                adultResult.IsAdultContent, adultResult.IsRacyContent, adultResult.IsGoryContent);
-            return adultResult;
-        }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Adult content detection failed");
-            return new AzureLogin.Shared.Services.AdultContentResult { Success = false, ErrorMessage = ex.Message };
-        }
-    }
-
-    /// <summary>Detects faces using Computer Vision 3.2 API (basic detection, no detailed attributes)</summary>
-    public async Task<AzureLogin.Shared.Services.FaceDetectionResult> DetectFacesAsync(byte[] imageBytes)
-    {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.FaceDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-        try
-        {
-            var result = await CallComputerVision32Async(imageBytes, "faces");
-            
-            var faceResult = new AzureLogin.Shared.Services.FaceDetectionResult
+            var adult = doc.RootElement.GetProperty("adult");
+            return new AzureLogin.Shared.Services.AdultContentResult
             {
                 Success = true,
-                Faces = new List<AzureLogin.Shared.Services.DetectedFace>()
+                IsAdultContent = adult.GetProperty("isAdultContent").GetBoolean(),
+                IsRacyContent = adult.GetProperty("isRacyContent").GetBoolean(),
+                IsGoryContent = adult.GetProperty("isGoryContent").GetBoolean(),
+                AdultScore = adult.GetProperty("adultScore").GetDouble(),
+                RacyScore = adult.GetProperty("racyScore").GetDouble(),
+                GoreScore = adult.GetProperty("goreScore").GetDouble()
             };
-
-            if (result.RootElement.TryGetProperty("faces", out var faces))
-            {
-                foreach (var face in faces.EnumerateArray())
-                {
-                    var detectedFace = new AzureLogin.Shared.Services.DetectedFace();
-
-                    if (face.TryGetProperty("faceRectangle", out var rect))
-                    {
-                        detectedFace.X = rect.GetProperty("left").GetInt32();
-                        detectedFace.Y = rect.GetProperty("top").GetInt32();
-                        detectedFace.Width = rect.GetProperty("width").GetInt32();
-                        detectedFace.Height = rect.GetProperty("height").GetInt32();
-                    }
-
-                    if (face.TryGetProperty("age", out var age))
-                        detectedFace.Age = age.GetInt32();
-
-                    if (face.TryGetProperty("gender", out var gender))
-                        detectedFace.Gender = gender.GetString();
-
-                    detectedFace.Confidence = 0.9; // CV 3.2 doesn't return confidence for faces
-
-                    faceResult.Faces.Add(detectedFace);
-                }
-            }
-
-            _logger?.LogInformation("Face detection found {Count} faces", faceResult.Faces.Count);
-            return faceResult;
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Face detection failed");
-            return new AzureLogin.Shared.Services.FaceDetectionResult { Success = false, ErrorMessage = ex.Message };
+            return new AzureLogin.Shared.Services.AdultContentResult { Success = false, ErrorMessage = $"Adult parse failed: {ex.Message}" };
         }
     }
 
-    /// <summary>Gets image type (photo, clipart, line drawing) using Computer Vision 3.2 API</summary>
+    public async Task<AzureLogin.Shared.Services.FaceDetectionResult> DetectFacesAsync(byte[] imageBytes)
+    {
+        var doc = await AnalyzeWithV32Async(imageBytes, "Faces");
+        if (doc == null) return new AzureLogin.Shared.Services.FaceDetectionResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
+        try
+        {
+            var faces = doc.RootElement.GetProperty("faces");
+            var list = new List<AzureLogin.Shared.Services.DetectedFace>();
+            foreach (var f in faces.EnumerateArray())
+            {
+                list.Add(new AzureLogin.Shared.Services.DetectedFace
+                {
+                    Age = f.TryGetProperty("age", out var age) ? age.GetInt32() : null,
+                    Gender = f.TryGetProperty("gender", out var gender) ? gender.GetString() : null,
+                    X = f.GetProperty("faceRectangle").GetProperty("left").GetInt32(),
+                    Y = f.GetProperty("faceRectangle").GetProperty("top").GetInt32(),
+                    Width = f.GetProperty("faceRectangle").GetProperty("width").GetInt32(),
+                    Height = f.GetProperty("faceRectangle").GetProperty("height").GetInt32(),
+                    Confidence = f.TryGetProperty("confidence", out var conf) ? conf.GetDouble() : 0
+                });
+            }
+            return new AzureLogin.Shared.Services.FaceDetectionResult { Success = true, Faces = list };
+        }
+        catch (Exception ex)
+        {
+            return new AzureLogin.Shared.Services.FaceDetectionResult { Success = false, ErrorMessage = $"Face parse failed: {ex.Message}" };
+        }
+    }
+
     public async Task<AzureLogin.Shared.Services.ImageTypeResult> GetImageTypeAsync(byte[] imageBytes)
     {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.ImageTypeResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
+        var doc = await AnalyzeWithV32Async(imageBytes, "ImageType");
+        if (doc == null) return new AzureLogin.Shared.Services.ImageTypeResult { Success = false, ErrorMessage = "Azure Vision service not configured" };
         try
         {
-            var result = await CallComputerVision32Async(imageBytes, "imageType");
-            
-            var typeResult = new AzureLogin.Shared.Services.ImageTypeResult { Success = true };
-
-            if (result.RootElement.TryGetProperty("imageType", out var imageType))
+            var type = doc.RootElement.GetProperty("imageType");
+            return new AzureLogin.Shared.Services.ImageTypeResult
             {
-                var clipArtType = imageType.GetProperty("clipArtType").GetInt32();
-                var lineDrawingType = imageType.GetProperty("lineDrawingType").GetInt32();
-
-                typeResult.ClipArtConfidence = clipArtType / 3.0; // 0-3 scale
-                typeResult.LineDrawingConfidence = lineDrawingType; // 0-1 scale
-                typeResult.IsClipArt = clipArtType >= 2;
-                typeResult.IsLineDrawing = lineDrawingType == 1;
-
-                if (typeResult.IsLineDrawing)
-                    typeResult.ImageType = "linedrawing";
-                else if (typeResult.IsClipArt)
-                    typeResult.ImageType = "clipart";
-                else
-                    typeResult.ImageType = "photo";
-            }
-
-            _logger?.LogInformation("Image type detection: Type={Type}, ClipArt={ClipArt}, LineDrawing={Line}", 
-                typeResult.ImageType, typeResult.IsClipArt, typeResult.IsLineDrawing);
-            return typeResult;
-        }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Image type detection failed");
-            return new AzureLogin.Shared.Services.ImageTypeResult { Success = false, ErrorMessage = ex.Message };
-        }
-    }
-
-    /// <summary>Removes background from image using Vision 4.0 Segment API</summary>
-    public async Task<AzureLogin.Shared.Services.BackgroundRemovalResult> RemoveBackgroundAsync(byte[] imageBytes)
-    {
-        if (!IsConfigured)
-            return new AzureLogin.Shared.Services.BackgroundRemovalResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-        try
-        {
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _apiKey);
-
-            var requestUri = $"{_endpoint.TrimEnd('/')}/computervision/imageanalysis:segment?api-version=2023-02-01-preview&mode=backgroundRemoval";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await httpClient.PostAsync(requestUri, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var resultBytes = await response.Content.ReadAsByteArrayAsync();
-                _logger?.LogInformation("Background removal succeeded, output size: {Size} bytes", resultBytes.Length);
-                return new AzureLogin.Shared.Services.BackgroundRemovalResult
-                {
-                    Success = true,
-                    ImageWithoutBackground = resultBytes,
-                    Base64Image = Convert.ToBase64String(resultBytes)
-                };
-            }
-
-            var error = await response.Content.ReadAsStringAsync();
-            _logger?.LogWarning("Background removal failed: {Error}", error);
-            return new AzureLogin.Shared.Services.BackgroundRemovalResult
-            {
-                Success = false,
-                ErrorMessage = $"Background removal failed: {error}"
+                Success = true,
+                ImageType = type.TryGetProperty("clipArtType", out _) ? type.GetProperty("clipArtType").GetInt32() > 0 ? "clipart" : "photo" : null,
+                IsClipArt = type.TryGetProperty("clipArtType", out var clip) && clip.GetInt32() > 0,
+                IsLineDrawing = type.TryGetProperty("lineDrawingType", out var line) && line.GetInt32() > 0,
+                ClipArtConfidence = type.TryGetProperty("clipArtType", out var c) ? c.GetInt32() : 0,
+                LineDrawingConfidence = type.TryGetProperty("lineDrawingType", out var l) ? l.GetInt32() : 0
             };
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Background removal failed");
-            return new AzureLogin.Shared.Services.BackgroundRemovalResult
-            {
-                Success = false,
-                ErrorMessage = ex.Message
-            };
+            return new AzureLogin.Shared.Services.ImageTypeResult { Success = false, ErrorMessage = $"ImageType parse failed: {ex.Message}" };
         }
     }
 
-    /// <summary>Helper method to call Computer Vision 3.2 REST API</summary>
-    private async Task<JsonDocument> CallComputerVision32Async(byte[] imageBytes, string visualFeatures)
+    public Task<AzureLogin.Shared.Services.BackgroundRemovalResult> RemoveBackgroundAsync(byte[] imageBytes)
     {
-        using var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _apiKey);
+        // Background removal not yet supported via current SDK/REST in this project. Return graceful error.
+        return Task.FromResult(new AzureLogin.Shared.Services.BackgroundRemovalResult
+        {
+            Success = false,
+            ErrorMessage = "Background removal not supported in this build"
+        });
+    }
+    #endregion
 
-        // Use Computer Vision 3.2 endpoint for features not in 4.0
-        var requestUri = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures={visualFeatures}";
+    #region Private Methods
 
+    private async Task<JsonDocument?> AnalyzeWithV32Async(byte[] imageBytes, string visualFeatures)
+    {
+        if (!IsConfigured)
+            return null;
+        var url = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures={visualFeatures}";
         using var content = new ByteArrayContent(imageBytes);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-        var response = await httpClient.PostAsync(requestUri, content);
-        var responseContent = await response.Content.ReadAsStringAsync();
-
+        var response = await _httpClient.PostAsync(url, content);
         if (!response.IsSuccessStatusCode)
-        {
-            _logger?.LogError("Computer Vision 3.2 API call failed: {Status} - {Content}", response.StatusCode, responseContent);
-            throw new Exception($"API call failed: {response.StatusCode} - {responseContent}");
-        }
-
-        return JsonDocument.Parse(responseContent);
+            return null;
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonDocument.Parse(body);
     }
 
     #endregion

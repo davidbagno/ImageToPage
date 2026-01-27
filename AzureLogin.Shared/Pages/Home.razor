@@ -460,7 +460,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-    
+
     .analysis-select option {
         font-weight: 500;
         font-size: 0.95rem !important;
@@ -470,16 +470,31 @@
         background: #ffffff;
         border-bottom: 1px solid #f3f4f6;
     }
-    
+
+    /* Make the first option under each group stand out */
+    .analysis-select optgroup option:first-child {
+        background: #111827 !important;
+        color: #f9fafb !important;
+        font-size: 1.05rem !important;
+        font-weight: 700;
+        border-top: 1px solid #0f172a;
+        border-bottom: 1px solid #1f2937;
+    }
+
     .analysis-select option:hover {
         background: #f0f4ff !important;
     }
-    
+
+    .analysis-select optgroup option:first-child:hover {
+        background: #0f172a !important;
+        color: #e5e7eb !important;
+    }
+
     .analysis-select option:checked {
         background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%) !important;
         font-weight: 600;
     }
-    
+
     /* API Detail Card Animation */
     .api-detail-card {
         transition: all 0.3s ease;
@@ -1076,6 +1091,11 @@
                                                     <option value="generateImage">🎨 Generate (DALL-E) → Create from text</option>
                                                 </optgroup>
                                                 <optgroup label="👁️ AZURE VISION 4.0 — Computer Vision">
+                                                    <option value="visionCaption">📝 Caption → Single description</option>
+                                                    <option value="visionDenseCaptions">💬 Dense Captions → Region captions</option>
+                                                    <option value="visionTags">🏷️ Tags → Content labels</option>
+                                                    <option value="visionSmartCrops">✂️ Smart Crops → Suggested crops</option>
+                                                    <option value="visionRead">🔎 OCR (Vision) → Printed/handwriting</option>
                                                     <option value="detectObjects">📦 Objects → Detect with bounding boxes</option>
                                                     <option value="detectFaces">👤 Faces → Age, gender, emotion</option>
                                                     <option value="detectPeople">🚶 People → Person detection</option>
@@ -2892,81 +2912,188 @@
                 case "extractImages":
                     await RunImageExtractionAsync();
                     break;
-                    
+
                 case "describe":
                     var descResult = await VisionService.DescribeImageAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = descResult.Success ? descResult.Content ?? "" : $"Error: {descResult.ErrorMessage}";
                     break;
-                    
+
                 case "colors":
                     _colorAnalysis = await VisionService.ExtractColorPaletteAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_colorAnalysis.Success) _codeError = _colorAnalysis.ErrorMessage ?? "Failed to extract colors";
                     break;
-                    
+
                 case "typography":
                     _typographyAnalysis = await VisionService.ExtractTypographyAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_typographyAnalysis.Success) _codeError = _typographyAnalysis.ErrorMessage ?? "Failed to extract typography";
                     break;
-                    
+
                 case "layout":
                     _layoutAnalysis = await VisionService.ExtractLayoutAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_layoutAnalysis.Success) _codeError = _layoutAnalysis.ErrorMessage ?? "Failed to analyze layout";
                     break;
-                    
+
                 case "components":
                     _componentsAnalysis = await VisionService.ExtractUIComponentsAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_componentsAnalysis.Success) _codeError = _componentsAnalysis.ErrorMessage ?? "Failed to extract components";
                     break;
-                    
+
                 case "icons":
                     _iconsAnalysis = await VisionService.IdentifyIconsAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_iconsAnalysis.Success) _codeError = _iconsAnalysis.ErrorMessage ?? "Failed to identify icons";
                     break;
-                    
+
                 case "accessibility":
                     _accessibilityAnalysis = await VisionService.AnalyzeAccessibilityAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_accessibilityAnalysis.Success) _codeError = _accessibilityAnalysis.ErrorMessage ?? "Failed to analyze accessibility";
                     break;
-                    
+
                 case "improvements":
                     var impResult = await VisionService.SuggestImprovementsAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = impResult.Success ? impResult.Content ?? "" : $"Error: {impResult.ErrorMessage}";
                     break;
-                    
+
                 case "text":
                     var textResult = await VisionService.ExtractTextAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = textResult.Success ? textResult.Content ?? "" : $"Error: {textResult.ErrorMessage}";
                     break;
-                    
+
                 case "comprehensive":
                     _comprehensiveAnalysis = await VisionService.AnalyzeUIAsync(_codeImageBase64, _codeImageMimeType);
                     if (!_comprehensiveAnalysis.Success) _codeError = _comprehensiveAnalysis.ErrorMessage ?? "Failed to perform comprehensive analysis";
                     break;
-                
+
                 // ===== NEW ANALYSIS TYPES =====
-                
+
+                // Azure Vision 4.0 - Caption, Dense Captions, Tags, Smart Crops, OCR
+                case "visionCaption":
+                    if (AzureVision != null && AzureVision.IsConfigured)
+                    {
+                        var captionResult = await AzureVision.GetImageCaptionAsync(Convert.FromBase64String(_codeImageBase64));
+                        _analysisResult = captionResult.Success
+                            ? $"Caption: {captionResult.Caption}\nConfidence: {captionResult.Confidence:P0}"
+                            : $"Error: {captionResult.ErrorMessage}";
+                    }
+                    else
+                    {
+                        _codeError = "Azure Vision service not configured";
+                    }
+                    break;
+
+                case "visionDenseCaptions":
+                    if (AzureVision != null && AzureVision.IsConfigured)
+                    {
+                        var denseResult = await AzureVision.GetDenseCaptionsAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (denseResult.Success && denseResult.Regions != null)
+                        {
+                            var sbDense = new StringBuilder();
+                            sbDense.AppendLine($"Dense captions: {denseResult.Regions.Count}");
+                            foreach (var r in denseResult.Regions)
+                            {
+                                sbDense.AppendLine($"• {r.Caption} ({r.Confidence:P0}) at [{r.X},{r.Y}] {r.Width}×{r.Height}");
+                            }
+                            _analysisResult = sbDense.ToString();
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {denseResult.ErrorMessage ?? "No regions returned"}";
+                        }
+                    }
+                    else
+                    {
+                        _codeError = "Azure Vision service not configured";
+                    }
+                    break;
+
+                case "visionTags":
+                    if (AzureVision != null && AzureVision.IsConfigured)
+                    {
+                        var tagsResult = await AzureVision.GetImageTagsAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (tagsResult.Success && tagsResult.Tags != null)
+                        {
+                            _analysisResult = "Tags:\n" + string.Join("\n", tagsResult.Tags.Select(t => $"• {t.Name} ({t.Confidence:P0})"));
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {tagsResult.ErrorMessage ?? "No tags returned"}";
+                        }
+                    }
+                    else
+                    {
+                        _codeError = "Azure Vision service not configured";
+                    }
+                    break;
+
+                case "visionSmartCrops":
+                    if (AzureVision != null && AzureVision.IsConfigured)
+                    {
+                        var cropsResult = await AzureVision.GetSmartCropsAsync(Convert.FromBase64String(_codeImageBase64), 1.0, 1.6);
+                        if (cropsResult.Success && cropsResult.Crops != null)
+                        {
+                            var sbCrops = new StringBuilder();
+                            sbCrops.AppendLine($"Smart crops: {cropsResult.Crops.Count}");
+                            foreach (var c in cropsResult.Crops)
+                            {
+                                sbCrops.AppendLine($"• [{c.X},{c.Y}] {c.Width}×{c.Height} (AR {c.AspectRatio:F2})");
+                            }
+                            _analysisResult = sbCrops.ToString();
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {cropsResult.ErrorMessage ?? "No crops returned"}";
+                        }
+                    }
+                    else
+                    {
+                        _codeError = "Azure Vision service not configured";
+                    }
+                    break;
+
+                case "visionRead":
+                    if (AzureVision != null && AzureVision.IsConfigured)
+                    {
+                        var readResult = await AzureVision.DetectTextAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (readResult.Success)
+                        {
+                            _analysisResult = !string.IsNullOrEmpty(readResult.FullText)
+                                ? readResult.FullText!
+                                : (readResult.TextRegions != null
+                                    ? string.Join("\n", readResult.TextRegions.Select(t => $"[{t.X},{t.Y}] {t.Width}×{t.Height}: {t.Text}"))
+                                    : "No text found");
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {readResult.ErrorMessage}";
+                        }
+                    }
+                    else
+                    {
+                        _codeError = "Azure Vision service not configured";
+                    }
+                    break;
+
                 // Text & OCR
                 case "handwriting":
                     var handwritingResult = await VisionService.ReadHandwritingAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = handwritingResult.Success ? $"Handwriting Text:\n{handwritingResult.RecognizedText}\n\nConfidence: {handwritingResult.Confidence:P0}" : $"Error: {handwritingResult.ErrorMessage}";
                     break;
-                    
+
                 case "table":
                     var tableResult = await VisionService.ExtractTableAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = tableResult.Success ? FormatTableResult(tableResult) : $"Error: {tableResult.ErrorMessage}";
                     break;
-                    
+
                 case "math":
                     var mathResult = await VisionService.ParseMathEquationAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = mathResult.Success ? $"LaTeX: {mathResult.Latex}\n\nPlain Text: {mathResult.PlainText}" : $"Error: {mathResult.ErrorMessage}";
                     break;
-                
+
                 // Document Analysis
                 case "document":
                     var docResult = await VisionService.ParseDocumentAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = docResult.Success ? $"Document Type: {docResult.DocumentType}\n\nFields:\n{FormatDocumentFields(docResult)}" : $"Error: {docResult.ErrorMessage}";
                     break;
-                    
+
                 case "invoice":
                     if (AdvancedAI != null)
                     {
@@ -2978,7 +3105,7 @@
                         _analysisResult = "Document Intelligence service not configured";
                     }
                     break;
-                    
+
                 case "receipt":
                     if (AdvancedAI != null)
                     {
@@ -2990,21 +3117,21 @@
                         _analysisResult = "Document Intelligence service not configured";
                     }
                     break;
-                    
+
                 case "chart":
                     var chartResult = await VisionService.ExtractChartDataAsync(_codeImageBase64, _codeImageMimeType);
                     _analysisResult = chartResult.Success ? FormatChartResult(chartResult) : $"Error: {chartResult.ErrorMessage}";
                     break;
-                
+
                 // Advanced Analysis
                 case "compare":
                     _analysisResult = "Please use the Compare Images feature with two images loaded.";
                     break;
-                    
+
                 case "askQuestion":
                     _analysisResult = "Enter your question about the image in the prompt field and click Analyze.";
                     break;
-                
+
                 // Image Processing (Azure Vision)
                 case "removeBackground":
                     if (AzureVision != null && AzureVision.IsConfigured)
@@ -3025,7 +3152,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "upscale":
                     if (AdvancedAI != null)
                     {
@@ -3041,7 +3168,7 @@
                         }
                     }
                     break;
-                    
+
                 case "styleTransfer":
                     if (AdvancedAI != null)
                     {
@@ -3057,7 +3184,7 @@
                         }
                     }
                     break;
-                    
+
                 case "segment":
                     if (AdvancedAI != null)
                     {
@@ -3065,7 +3192,7 @@
                         _analysisResult = segmentResult.Success ? $"Found {segmentResult.Segments?.Count ?? 0} segments" : $"Error: {segmentResult.ErrorMessage}";
                     }
                     break;
-                    
+
                 case "depthMap":
                     if (AdvancedAI != null)
                     {
@@ -3081,7 +3208,7 @@
                         }
                     }
                     break;
-                
+
                 // Detection (Azure Vision)
                 case "detectObjects":
                     if (AzureVision != null && AzureVision.IsConfigured)
@@ -3094,7 +3221,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "detectFaces":
                     if (AzureVision != null && AzureVision.IsConfigured)
                     {
@@ -3106,7 +3233,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "detectPeople":
                     if (AzureVision != null && AzureVision.IsConfigured)
                     {
@@ -3118,7 +3245,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "detectBrands":
                     if (AzureVision != null && AzureVision.IsConfigured)
                     {
@@ -3130,7 +3257,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "imageType":
                     if (AzureVision != null && AzureVision.IsConfigured)
                     {
@@ -3142,7 +3269,7 @@
                         _codeError = "Azure Vision service not configured";
                     }
                     break;
-                    
+
                 case "adultContent":
                     if (AzureVision != null && AzureVision.IsConfigured)
                     {

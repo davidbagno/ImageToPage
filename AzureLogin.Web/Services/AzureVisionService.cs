@@ -668,32 +668,24 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<ImageCaptionResult> GetImageCaptionAsync(byte[] imageBytes)
     {
+        if (!IsConfigured) return new ImageCaptionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new ImageCaptionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
             var apiUrl = $"{_endpoint.TrimEnd('/')}/computervision/imageanalysis:analyze?api-version=2024-02-01&features=caption";
-
             using var content = new ByteArrayContent(imageBytes);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
             var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
+            var body = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
                 return new ImageCaptionResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new ImageCaptionResult { Success = true };
-            if (root.TryGetProperty("captionResult", out var captionResult))
+            using var doc = JsonDocument.Parse(body);
+            var caption = doc.RootElement.GetProperty("caption");
+            return new ImageCaptionResult
             {
-                result.Caption = captionResult.TryGetProperty("text", out var text) ? text.GetString() : null;
-                result.Confidence = captionResult.TryGetProperty("confidence", out var conf) ? conf.GetDouble() : 0;
-            }
-            return result;
+                Success = true,
+                Caption = caption.GetProperty("text").GetString(),
+                Confidence = caption.GetProperty("confidence").GetDouble()
+            };
         }
         catch (Exception ex)
         {
@@ -703,39 +695,22 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<ImageTagsResult> GetImageTagsAsync(byte[] imageBytes)
     {
+        if (!IsConfigured) return new ImageTagsResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new ImageTagsResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
             var apiUrl = $"{_endpoint.TrimEnd('/')}/computervision/imageanalysis:analyze?api-version=2024-02-01&features=tags";
-
             using var content = new ByteArrayContent(imageBytes);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
             var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
+            var body = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
                 return new ImageTagsResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new ImageTagsResult { Success = true, Tags = new List<ImageTag>() };
-            if (root.TryGetProperty("tagsResult", out var tagsResult) &&
-                tagsResult.TryGetProperty("values", out var values))
-            {
-                foreach (var tag in values.EnumerateArray())
-                {
-                    result.Tags.Add(new ImageTag
-                    {
-                        Name = tag.TryGetProperty("name", out var name) ? name.GetString() : "",
-                        Confidence = tag.TryGetProperty("confidence", out var conf) ? conf.GetDouble() : 0
-                    });
-                }
-            }
-            return result;
+            using var doc = JsonDocument.Parse(body);
+            var tagArray = doc.RootElement.GetProperty("tags");
+            var tags = tagArray.EnumerateArray()
+                .Select(t => new ImageTag { Name = t.GetProperty("name").GetString(), Confidence = t.GetProperty("confidence").GetDouble() })
+                .ToList();
+            return new ImageTagsResult { Success = true, Tags = tags };
         }
         catch (Exception ex)
         {
@@ -745,47 +720,25 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<BrandDetectionResult> DetectBrandsAsync(byte[] imageBytes)
     {
+        var doc = await AnalyzeV32Async(imageBytes, "Brands");
+        if (doc == null) return new BrandDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new BrandDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-            // Brands detection uses v3.2 API
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures=Brands";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new BrandDetectionResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new BrandDetectionResult { Success = true, Brands = new List<DetectedBrand>() };
-            if (root.TryGetProperty("brands", out var brands))
+            var brands = doc.RootElement.GetProperty("brands");
+            var list = new List<DetectedBrand>();
+            foreach (var b in brands.EnumerateArray())
             {
-                foreach (var brand in brands.EnumerateArray())
+                list.Add(new DetectedBrand
                 {
-                    var detectedBrand = new DetectedBrand
-                    {
-                        Name = brand.TryGetProperty("name", out var name) ? name.GetString() : "",
-                        Confidence = brand.TryGetProperty("confidence", out var conf) ? conf.GetDouble() : 0
-                    };
-                    if (brand.TryGetProperty("rectangle", out var rect))
-                    {
-                        detectedBrand.X = rect.TryGetProperty("x", out var x) ? x.GetInt32() : 0;
-                        detectedBrand.Y = rect.TryGetProperty("y", out var y) ? y.GetInt32() : 0;
-                        detectedBrand.Width = rect.TryGetProperty("w", out var w) ? w.GetInt32() : 0;
-                        detectedBrand.Height = rect.TryGetProperty("h", out var h) ? h.GetInt32() : 0;
-                    }
-                    result.Brands.Add(detectedBrand);
-                }
+                    Name = b.GetProperty("name").GetString(),
+                    Confidence = b.GetProperty("confidence").GetDouble(),
+                    X = b.GetProperty("rectangle").GetProperty("x").GetInt32(),
+                    Y = b.GetProperty("rectangle").GetProperty("y").GetInt32(),
+                    Width = b.GetProperty("rectangle").GetProperty("w").GetInt32(),
+                    Height = b.GetProperty("rectangle").GetProperty("h").GetInt32()
+                });
             }
-            return result;
+            return new BrandDetectionResult { Success = true, Brands = list };
         }
         catch (Exception ex)
         {
@@ -795,38 +748,13 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<CategoryResult> GetImageCategoryAsync(byte[] imageBytes)
     {
+        var doc = await AnalyzeV32Async(imageBytes, "Categories");
+        if (doc == null) return new CategoryResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new CategoryResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures=Categories";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new CategoryResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new CategoryResult { Success = true, Categories = new List<ImageCategory>() };
-            if (root.TryGetProperty("categories", out var categories))
-            {
-                foreach (var cat in categories.EnumerateArray())
-                {
-                    result.Categories.Add(new ImageCategory
-                    {
-                        Name = cat.TryGetProperty("name", out var name) ? name.GetString() : "",
-                        Confidence = cat.TryGetProperty("score", out var score) ? score.GetDouble() : 0
-                    });
-                }
-            }
-            return result;
+            var cats = doc.RootElement.GetProperty("categories");
+            var list = cats.EnumerateArray().Select(c => new ImageCategory { Name = c.GetProperty("name").GetString(), Confidence = c.GetProperty("score").GetDouble() }).ToList();
+            return new CategoryResult { Success = true, PrimaryCategory = list.FirstOrDefault()?.Name, Categories = list };
         }
         catch (Exception ex)
         {
@@ -836,36 +764,21 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<AdultContentResult> DetectAdultContentAsync(byte[] imageBytes)
     {
+        var doc = await AnalyzeV32Async(imageBytes, "Adult");
+        if (doc == null) return new AdultContentResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new AdultContentResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures=Adult";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new AdultContentResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new AdultContentResult { Success = true };
-            if (root.TryGetProperty("adult", out var adult))
+            var adult = doc.RootElement.GetProperty("adult");
+            return new AdultContentResult
             {
-                result.IsAdultContent = adult.TryGetProperty("isAdultContent", out var isAdult) && isAdult.GetBoolean();
-                result.IsRacyContent = adult.TryGetProperty("isRacyContent", out var isRacy) && isRacy.GetBoolean();
-                result.IsGoryContent = adult.TryGetProperty("isGoryContent", out var isGory) && isGory.GetBoolean();
-                result.AdultScore = adult.TryGetProperty("adultScore", out var adultScore) ? adultScore.GetDouble() : 0;
-                result.RacyScore = adult.TryGetProperty("racyScore", out var racyScore) ? racyScore.GetDouble() : 0;
-                result.GoreScore = adult.TryGetProperty("goreScore", out var goreScore) ? goreScore.GetDouble() : 0;
-            }
-            return result;
+                Success = true,
+                IsAdultContent = adult.GetProperty("isAdultContent").GetBoolean(),
+                IsRacyContent = adult.GetProperty("isRacyContent").GetBoolean(),
+                IsGoryContent = adult.GetProperty("isGoryContent").GetBoolean(),
+                AdultScore = adult.GetProperty("adultScore").GetDouble(),
+                RacyScore = adult.GetProperty("racyScore").GetDouble(),
+                GoreScore = adult.GetProperty("goreScore").GetDouble()
+            };
         }
         catch (Exception ex)
         {
@@ -875,46 +788,26 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<FaceDetectionResult> DetectFacesAsync(byte[] imageBytes)
     {
+        var doc = await AnalyzeV32Async(imageBytes, "Faces");
+        if (doc == null) return new FaceDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new FaceDetectionResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures=Faces";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new FaceDetectionResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new FaceDetectionResult { Success = true, Faces = new List<DetectedFace>() };
-            if (root.TryGetProperty("faces", out var faces))
+            var faces = doc.RootElement.GetProperty("faces");
+            var list = new List<DetectedFace>();
+            foreach (var f in faces.EnumerateArray())
             {
-                foreach (var face in faces.EnumerateArray())
+                list.Add(new DetectedFace
                 {
-                    var detectedFace = new DetectedFace
-                    {
-                        Age = face.TryGetProperty("age", out var age) ? age.GetInt32() : 0,
-                        Gender = face.TryGetProperty("gender", out var gender) ? gender.GetString() : ""
-                    };
-                    if (face.TryGetProperty("faceRectangle", out var rect))
-                    {
-                        detectedFace.X = rect.TryGetProperty("left", out var x) ? x.GetInt32() : 0;
-                        detectedFace.Y = rect.TryGetProperty("top", out var y) ? y.GetInt32() : 0;
-                        detectedFace.Width = rect.TryGetProperty("width", out var w) ? w.GetInt32() : 0;
-                        detectedFace.Height = rect.TryGetProperty("height", out var h) ? h.GetInt32() : 0;
-                    }
-                    result.Faces.Add(detectedFace);
-                }
+                    Age = f.TryGetProperty("age", out var age) ? age.GetInt32() : null,
+                    Gender = f.TryGetProperty("gender", out var gender) ? gender.GetString() : null,
+                    X = f.GetProperty("faceRectangle").GetProperty("left").GetInt32(),
+                    Y = f.GetProperty("faceRectangle").GetProperty("top").GetInt32(),
+                    Width = f.GetProperty("faceRectangle").GetProperty("width").GetInt32(),
+                    Height = f.GetProperty("faceRectangle").GetProperty("height").GetInt32(),
+                    Confidence = f.TryGetProperty("confidence", out var conf) ? conf.GetDouble() : 0
+                });
             }
-            return result;
+            return new FaceDetectionResult { Success = true, Faces = list };
         }
         catch (Exception ex)
         {
@@ -924,37 +817,20 @@ public class AzureVisionService : IAzureVisionService
 
     public async Task<ImageTypeResult> GetImageTypeAsync(byte[] imageBytes)
     {
+        var doc = await AnalyzeV32Async(imageBytes, "ImageType");
+        if (doc == null) return new ImageTypeResult { Success = false, ErrorMessage = "Azure Vision not configured" };
         try
         {
-            if (!IsConfigured)
-                return new ImageTypeResult { Success = false, ErrorMessage = "Azure Vision not configured" };
-
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures=ImageType";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new ImageTypeResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-
-            using var doc = JsonDocument.Parse(responseBody);
-            var root = doc.RootElement;
-            
-            var result = new ImageTypeResult { Success = true };
-            if (root.TryGetProperty("imageType", out var imageType))
+            var type = doc.RootElement.GetProperty("imageType");
+            return new ImageTypeResult
             {
-                var clipArtType = imageType.TryGetProperty("clipArtType", out var clipArt) ? clipArt.GetInt32() : 0;
-                var lineDrawType = imageType.TryGetProperty("lineDrawingType", out var lineDraw) ? lineDraw.GetInt32() : 0;
-                result.IsClipArt = clipArtType > 0;
-                result.IsLineDrawing = lineDrawType > 0;
-                result.ClipArtConfidence = clipArtType / 3.0; // Convert 0-3 scale to 0-1
-                result.LineDrawingConfidence = lineDrawType / 1.0; // Convert 0-1 scale
-                result.ImageType = clipArtType > 0 ? "clipart" : (lineDrawType > 0 ? "linedrawing" : "photo");
-            }
-            return result;
+                Success = true,
+                ImageType = type.TryGetProperty("clipArtType", out _) ? type.GetProperty("clipArtType").GetInt32() > 0 ? "clipart" : "photo" : null,
+                IsClipArt = type.TryGetProperty("clipArtType", out var clip) && clip.GetInt32() > 0,
+                IsLineDrawing = type.TryGetProperty("lineDrawingType", out var line) && line.GetInt32() > 0,
+                ClipArtConfidence = type.TryGetProperty("clipArtType", out var c) ? c.GetInt32() : 0,
+                LineDrawingConfidence = type.TryGetProperty("lineDrawingType", out var l) ? l.GetInt32() : 0
+            };
         }
         catch (Exception ex)
         {
@@ -962,36 +838,20 @@ public class AzureVisionService : IAzureVisionService
         }
     }
 
-    public async Task<BackgroundRemovalResult> RemoveBackgroundAsync(byte[] imageBytes)
+    public Task<BackgroundRemovalResult> RemoveBackgroundAsync(byte[] imageBytes)
     {
-        try
-        {
-            if (!IsConfigured)
-                return new BackgroundRemovalResult { Success = false, ErrorMessage = "Azure Vision not configured" };
+        return Task.FromResult(new BackgroundRemovalResult { Success = false, ErrorMessage = "Background removal not supported in this build" });
+    }
 
-            var apiUrl = $"{_endpoint.TrimEnd('/')}/computervision/imageanalysis:segment?api-version=2023-02-01-preview&mode=backgroundRemoval";
-
-            using var content = new ByteArrayContent(imageBytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            var response = await _httpClient.PostAsync(apiUrl, content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return new BackgroundRemovalResult { Success = false, ErrorMessage = $"API error: {response.StatusCode}" };
-            }
-
-            var resultBytes = await response.Content.ReadAsByteArrayAsync();
-            return new BackgroundRemovalResult
-            {
-                Success = true,
-                ImageWithoutBackground = resultBytes,
-                Base64Image = Convert.ToBase64String(resultBytes)
-            };
-        }
-        catch (Exception ex)
-        {
-            return new BackgroundRemovalResult { Success = false, ErrorMessage = ex.Message };
-        }
+    private async Task<JsonDocument?> AnalyzeV32Async(byte[] imageBytes, string visualFeatures)
+    {
+        if (!IsConfigured) return null;
+        var url = $"{_endpoint.TrimEnd('/')}/vision/v3.2/analyze?visualFeatures={visualFeatures}";
+        using var content = new ByteArrayContent(imageBytes);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        var response = await _httpClient.PostAsync(url, content);
+        if (!response.IsSuccessStatusCode) return null;
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonDocument.Parse(body);
     }
 }
