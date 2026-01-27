@@ -32,6 +32,8 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .tab-btn::before {
@@ -55,7 +57,8 @@
     opacity: 1;
 }
 
-.tab-btn.active {
+.tab-btn.active,
+.tab-btn[aria-selected="true"] {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
@@ -64,6 +67,44 @@
 .tab-btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+}
+
+.tab-btn:focus {
+    outline: none;
+}
+
+.tab-btn:focus-visible {
+    color: white;
+    /* High-contrast visible focus ring */
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 0 6px rgba(102, 126, 234, 0.55);
+}
+
+.tab-btn.active:focus-visible,
+.tab-btn[aria-selected="true"]:focus-visible {
+    /* Reinforce focus when active (keeps active shadow + adds ring) */
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 0 6px rgba(102, 126, 234, 0.55);
+}
+
+.tab-btn:focus-visible::before {
+    opacity: 1;
+}
+
+.tab-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.tab-btn:disabled:focus-visible {
+    /* Don't show an aggressive ring on disabled items */
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tab-btn {
+        transition: none;
+    }
+    .tab-btn::before {
+        transition: none;
+    }
 }
 
 .tab-btn .tab-icon {
@@ -87,7 +128,8 @@
     letter-spacing: 0.5px;
 }
 
-.tab-btn.active .tab-badge {
+.tab-btn.active .tab-badge,
+.tab-btn[aria-selected="true"] .tab-badge {
     background: rgba(255, 255, 255, 0.3);
     color: white;
 }
