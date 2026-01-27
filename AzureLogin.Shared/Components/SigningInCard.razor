@@ -1,0 +1,137 @@
+@namespace AzureLogin.Shared.Components
+
+@if (string.IsNullOrEmpty(UserCode))
+{
+    <div class="card glass-card border-0 shadow-lg" style="border-radius: 16px; max-width: 720px; margin: 0 auto;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <span>🔐</span>
+                </div>
+                <div class="ms-3">
+                    <h5 class="mb-1 fw-bold" style="color: #1f2937; letter-spacing: -0.3px;">Setting up secure login</h5>
+                    <p class="mb-0 text-muted">Connecting to Azure to generate your device code...</p>
+                </div>
+                <div class="ms-auto text-end">
+                    <div class="small text-muted">Elapsed</div>
+                    <div class="fw-semibold" style="color: #4f46e5;">@SignInElapsedSeconds sec</div>
+                </div>
+            </div>
+
+            <div class="progress mb-3" style="height: 10px; border-radius: 999px; background: #eef2ff;">
+                <div class="progress-bar" role="progressbar"
+                     style="width: @GetProgressPercent()%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 999px;"
+                     aria-valuenow="@GetProgressPercent()" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <ul class="list-unstyled mb-3" style="color: #4b5563;">
+                <li class="d-flex align-items-center mb-1">
+                    <span class="me-2">@(SignInStep >= 1 ? "✅" : "⏳")</span>
+                    <span>Loading Azure configuration</span>
+                </li>
+                <li class="d-flex align-items-center mb-1">
+                    <span class="me-2">@(SignInStep >= 2 ? "✅" : "⏳")</span>
+                    <span>Contacting Azure AD</span>
+                </li>
+                <li class="d-flex align-items-center mb-1">
+                    <span class="me-2">@(SignInStep >= 3 ? "✅" : "⏳")</span>
+                    <span>Generating device code</span>
+                </li>
+            </ul>
+
+            <div class="alert alert-info d-flex align-items-center" style="border-radius: 12px; background: #eef2ff; border: 1px solid #c7d2fe; color: #312e81;">
+                <span class="me-2">💡</span>
+                <div class="flex-fill">
+                    This only takes a moment. When ready, you'll get a device code to sign in securely.
+                </div>
+                <div class="ms-3 fw-semibold">@SignInElapsedSeconds s</div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-outline-secondary flex-fill" style="border-radius: 10px;" @onclick="OnCancel">
+                    ✖ Cancel
+                </button>
+                <button class="btn btn-gradient flex-fill" style="border-radius: 10px;" @onclick="OnShowSettings">
+                    ⚙ Settings
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card glass-card border-0 shadow-lg" style="border-radius: 16px; max-width: 720px; margin: 0 auto;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <span>🔑</span>
+                </div>
+                <div class="ms-3">
+                    <h5 class="mb-1 fw-bold" style="color: #1f2937; letter-spacing: -0.3px;">Complete sign in</h5>
+                    <p class="mb-0 text-muted">Use the device code below to authenticate with Microsoft</p>
+                </div>
+                <div class="ms-auto text-end">
+                    <div class="small text-muted">Expires in</div>
+                    <div class="fw-semibold" style="color: #ef4444;">@RemainingSeconds sec</div>
+                </div>
+            </div>
+
+            <div class="p-3 mb-3" style="background: #f9fafb; border-radius: 12px; border: 1px dashed #c7d2fe;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small">Device Code</span>
+                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">Step 2/2</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="code-display flex-fill">
+                        <div class="code-text">@UserCode</div>
+                    </div>
+                    <div class="d-flex flex-column gap-2" style="min-width: 160px;">
+                        <button class="btn btn-gradient w-100" style="border-radius: 10px;" @onclick="OnCopyCode">
+                            @(Copied ? "✓ Copied" : "📋 Copy Code")
+                        </button>
+                        <button class="btn btn-outline-secondary w-100" style="border-radius: 10px;" @onclick="OnOpenSignIn">
+                            🌐 Open Microsoft Login
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-2 small text-muted">Use code at https://microsoft.com/devicelogin</div>
+            </div>
+
+            <div class="alert alert-warning d-flex align-items-center mb-3" style="border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;">
+                <span class="me-2">⏱️</span>
+                <div class="flex-fill">
+                    Keep this window open while you complete the sign-in. The code expires soon.
+                </div>
+                <div class="ms-3 fw-semibold">@RemainingSeconds s</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary flex-fill" style="border-radius: 10px;" @onclick="OnCancel">
+                    ✖ Cancel
+                </button>
+                <button class="btn btn-gradient flex-fill" style="border-radius: 10px;" @onclick="OnShowSettings">
+                    ⚙ Settings
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string? UserCode { get; set; }
+    [Parameter] public bool Copied { get; set; }
+    [Parameter] public int RemainingSeconds { get; set; }
+    [Parameter] public int SignInStep { get; set; }
+    [Parameter] public int SignInElapsedSeconds { get; set; }
+    [Parameter] public EventCallback OnCopyCode { get; set; }
+    [Parameter] public EventCallback OnOpenSignIn { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnShowSettings { get; set; }
+
+    private int GetProgressPercent() => SignInStep switch
+    {
+        <= 1 => 25,
+        2 => 55,
+        _ => 85
+    };
+}

@@ -1,0 +1,93 @@
+.toolbar-container {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    border-radius: 14px;
+    padding: 5px;
+    box-shadow: 0 4px 15px rgba(55, 65, 81, 0.3);
+    margin-bottom: 16px;
+    border: 1px solid #4b5563;
+}
+
+.toolbar-inner {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.tab-btn:hover:not(.active):not(:disabled) {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn:hover:not(.active):not(:disabled)::before {
+    opacity: 1;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.tab-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.tab-btn .tab-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.tab-btn .tab-label {
+    font-weight: 600;
+    letter-spacing: -0.3px;
+}
+
+.tab-btn .tab-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tab-btn.active .tab-badge {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}

@@ -1,0 +1,56 @@
+@namespace AzureLogin.Shared.Components
+
+<div class="card glass-card border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span style="font-size: 20px;">💬</span>
+            <h5 class="mb-0 fw-semibold" style="color: #374151;">Chat with GPT-4o</h5>
+        </div>
+        
+        <textarea class="form-control form-control-modern mb-3" rows="4" @bind="Message" @bind:event="oninput"
+                  placeholder="Ask me anything... I'm here to help!" disabled="@IsSending"></textarea>
+        
+        <button class="btn btn-gradient w-100 py-2 fw-medium" style="border-radius: 8px;" 
+                @onclick="SendMessage" 
+                disabled="@(IsSending || string.IsNullOrWhiteSpace(Message))">
+            @if (IsSending)
+            {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                <span>Processing...</span>
+            }
+            else
+            {
+                <span>Send Message</span>
+            }
+        </button>
+        
+        @if (!string.IsNullOrEmpty(Response))
+        {
+            <div class="response-box">
+                <p class="section-title">Response</p>
+                <div style="white-space: pre-wrap; color: #333; line-height: 1.7;">@Response</div>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <div class="alert mt-4 mb-0" style="background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; border-radius: 12px;">
+                <strong>⚠️ Error:</strong> @Error
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public EventCallback<string> MessageChanged { get; set; }
+    [Parameter] public string Response { get; set; } = "";
+    [Parameter] public string Error { get; set; } = "";
+    [Parameter] public bool IsSending { get; set; }
+    [Parameter] public EventCallback OnSendMessage { get; set; }
+    
+    private async Task SendMessage()
+    {
+        await OnSendMessage.InvokeAsync();
+    }
+}

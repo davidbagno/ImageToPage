@@ -1,0 +1,60 @@
+@namespace AzureLogin.Shared.Components
+@using AzureLogin.Shared.Services
+
+<div class="p-4" style="background: #fff; border-radius: 16px; border: 2px solid #e0e0e0; flex: 1; overflow: auto;">
+    <h6 class="fw-bold mb-3" style="color: #333;">🔤 Typography Analysis</h6>
+    <div class="row g-3">
+        @if (!string.IsNullOrEmpty(TypographyAnalysis?.PrimaryFont))
+        {
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: #f8f9fa;">
+                    <small class="text-muted d-block">Primary Font</small>
+                    <strong style="font-size: 1.1rem;">@TypographyAnalysis.PrimaryFont</strong>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(TypographyAnalysis?.HeadingFont))
+        {
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: #f8f9fa;">
+                    <small class="text-muted d-block">Heading Font</small>
+                    <strong>@TypographyAnalysis.HeadingFont</strong>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(TypographyAnalysis?.BodyFont))
+        {
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: #f8f9fa;">
+                    <small class="text-muted d-block">Body Font</small>
+                    <strong>@TypographyAnalysis.BodyFont</strong>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(TypographyAnalysis?.LineHeight))
+        {
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: #f8f9fa;">
+                    <small class="text-muted d-block">Line Height</small>
+                    <strong>@TypographyAnalysis.LineHeight</strong>
+                </div>
+            </div>
+        }
+    </div>
+    @if (TypographyAnalysis?.FontSizes?.Any() == true)
+    {
+        <div class="mt-3">
+            <small class="text-muted d-block mb-2">Font Sizes</small>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var size in TypographyAnalysis.FontSizes)
+                {
+                    <span class="badge bg-secondary">@size.Key: @size.Value</span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public TypographyResult? TypographyAnalysis { get; set; }
+}

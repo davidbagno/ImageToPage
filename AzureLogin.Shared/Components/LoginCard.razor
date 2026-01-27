@@ -1,0 +1,94 @@
+@namespace AzureLogin.Shared.Components
+@inject IJSRuntime JS
+
+<div class="card glass-card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+    <div class="card-body text-center py-5 px-4 gradient-primary">
+        <div class="icon-circle">
+            🤖
+        </div>
+        <h1 class="mb-3 text-white fw-bold" style="font-size: 2.2rem;">Azure OpenAI</h1>
+        <p class="mb-4 px-3" style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">
+            Unlock the power of AI with your Microsoft account
+        </p>
+        
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <div class="alert mb-4 mx-auto" style="background: rgba(255,255,255,0.95); border: none; border-radius: 12px; max-width: 450px; color: #c53030;">
+                <div class="mb-2"><strong>⚠️ @(LoginTimedOut ? "Login Timed Out" : "Sign In Failed")</strong></div>
+                <p class="mb-2" style="font-size: 0.95rem;">@Error</p>
+                @if (LoginTimedOut)
+                {
+                    <p class="mb-0" style="font-size: 0.85rem; color: #666;">
+                        You can try again or check your Azure settings.
+                    </p>
+                }
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+                <button class="btn btn-light px-4 py-2 fw-bold" 
+                        style="border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" 
+                        @onclick="OnSignIn">
+                    <span style="color: #667eea;">🔄 Try Again</span>
+                </button>
+                <button class="btn btn-outline-light px-4 py-2 fw-semibold" 
+                        style="border-radius: 25px;" 
+                        @onclick="OnShowSettings">
+                    <span>⚙️ Check Settings</span>
+                </button>
+            </div>
+        }
+        else
+        {
+            <button class="btn btn-light btn-lg px-5 py-3 fw-bold" 
+                    style="border-radius: 50px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); font-size: 1.1rem;" 
+                    @onclick="OnSignIn">
+                <span style="color: #667eea;">🔐 Sign In with Microsoft</span>
+            </button>
+        }
+        
+        <p class="mt-4 mb-0" style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+            Secure authentication via Azure AD
+        </p>
+        
+        <button class="btn btn-link mt-2" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem;" 
+                @onclick="OnShowSettings">
+            ⚙️ Configure Service Settings
+        </button>
+    </div>
+</div>
+
+<style>
+    .glass-card {
+        background: #ffffff;
+        border: 1px solid #e2e4e8;
+        transition: box-shadow 0.2s ease;
+    }
+    
+    .glass-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    .gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .icon-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin: 0 auto 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+</style>
+
+@code {
+    [Parameter] public string Error { get; set; } = "";
+    [Parameter] public bool LoginTimedOut { get; set; }
+    [Parameter] public EventCallback OnSignIn { get; set; }
+    [Parameter] public EventCallback OnShowSettings { get; set; }
+}

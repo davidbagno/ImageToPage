@@ -1,0 +1,138 @@
+@* Premium Toolbar Navigation component *@
+
+<div class="toolbar-container" role="tablist" aria-label="Main navigation">
+    <div class="toolbar-inner">
+        @foreach (var tab in EffectiveTabs)
+        {
+            var isActive = tab.Id == EffectiveActiveTab;
+            <button type="button"
+                    class="tab-btn @(isActive ? "active" : "")"
+                    role="tab"
+                    aria-selected="@(isActive ? "true" : "false")"
+                    aria-disabled="@(tab.Disabled ? "true" : "false")"
+                    disabled="@tab.Disabled"
+                    tabindex="@(isActive ? 0 : -1)"
+                    @onclick="() => SelectTabAsync(tab.Id)"
+                    @onkeydown="(e) => OnKeyDownAsync(e, tab.Id)">
+                <span class="tab-icon">@tab.Icon</span>
+                <span class="tab-label">@tab.Label</span>
+                @if (!string.IsNullOrWhiteSpace(tab.Badge))
+                {
+                    <span class="tab-badge">@tab.Badge</span>
+                }
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    public sealed record TabItem(string Id, string Label, string Icon, string? Badge = null, bool Disabled = false);
+
+    [Parameter]
+    public IReadOnlyList<TabItem>? Tabs { get; set; }
+
+    /// <summary>Currently active tab id.</summary>
+    [Parameter]
+    public string ActiveTab { get; set; } = DefaultTabId;
+
+    /// <summary>Two-way binding hook for ActiveTab.</summary>
+    [Parameter]
+    public EventCallback<string> ActiveTabChanged { get; set; }
+
+    /// <summary>Optional extra callback invoked after a tab is selected.</summary>
+    [Parameter]
+    public EventCallback<string> OnTabSelected { get; set; }
+
+    private const string DefaultTabId = "chat";
+
+    private static readonly IReadOnlyList<TabItem> DefaultTabs = new List<TabItem>
+    {
+        new("chat", "Chat", "💬", "GPT-4o"),
+        new("image", "Image Studio", "🎨", "DALL-E"),
+        new("code", "Vision AI", "✨", "64 APIs"),
+    };
+
+    private IReadOnlyList<TabItem> EffectiveTabs => Tabs is { Count: > 0 } ? Tabs : DefaultTabs;
+
+    private string EffectiveActiveTab
+    {
+        get
+        {
+            // If the provided ActiveTab is invalid or disabled, fall back to first enabled tab.
+            var tabs = EffectiveTabs;
+            if (!string.IsNullOrWhiteSpace(ActiveTab))
+            {
+                var match = tabs.FirstOrDefault(t => t.Id == ActiveTab);
+                if (match is not null && !match.Disabled)
+                    return ActiveTab;
+            }
+
+            return tabs.FirstOrDefault(t => !t.Disabled)?.Id ?? DefaultTabId;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Self-heal: if parent gives invalid tab id, push the fallback back to parent when possible.
+        if (!string.Equals(ActiveTab, EffectiveActiveTab, StringComparison.Ordinal) && ActiveTabChanged.HasDelegate)
+        {
+            await ActiveTabChanged.InvokeAsync(EffectiveActiveTab);
+        }
+    }
+
+    private async Task SelectTabAsync(string tabId)
+    {
+        var tab = EffectiveTabs.FirstOrDefault(t => t.Id == tabId);
+        if (tab is null || tab.Disabled)
+            return;
+
+        if (ActiveTabChanged.HasDelegate)
+            await ActiveTabChanged.InvokeAsync(tabId);
+
+        if (OnTabSelected.HasDelegate)
+            await OnTabSelected.InvokeAsync(tabId);
+    }
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs e, string currentTabId)
+    {
+        if (e.Key is not ("ArrowLeft" or "ArrowRight" or "Home" or "End" or "Enter" or " "))
+            return;
+
+        var tabs = EffectiveTabs.Where(t => !t.Disabled).ToList();
+        if (tabs.Count == 0)
+            return;
+
+        var currentIndex = tabs.FindIndex(t => t.Id == currentTabId);
+        if (currentIndex < 0)
+            currentIndex = 0;
+
+        switch (e.Key)
+        {
+            case "Enter":
+            case " ":
+                await SelectTabAsync(currentTabId);
+                return;
+
+            case "Home":
+                await SelectTabAsync(tabs[0].Id);
+                return;
+
+            case "End":
+                await SelectTabAsync(tabs[^1].Id);
+                return;
+
+            case "ArrowLeft":
+            {
+                var next = (currentIndex - 1 + tabs.Count) % tabs.Count;
+                await SelectTabAsync(tabs[next].Id);
+                return;
+            }
+            case "ArrowRight":
+            {
+                var next = (currentIndex + 1) % tabs.Count;
+                await SelectTabAsync(tabs[next].Id);
+                return;
+            }
+        }
+    }
+}
