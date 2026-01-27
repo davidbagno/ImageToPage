@@ -10,6 +10,7 @@
 @inject IAzureVisionService? AzureVision
 @inject IAdvancedAIService? AdvancedAI
 @inject IDynamicRazorRenderer? RazorRenderer
+@inject ISecureStorageService? SecureStorage
 @inject IUrlLauncher UrlLauncher
 @inject IJSRuntime JS
 @inject IOptions<AzureOpenAISettings> AppSettings
@@ -2201,6 +2202,7 @@
 @* Service Settings Dialog Component *@
 <ServiceSettingsDialog @bind-IsVisible="_showServiceSettingsDialog"
                        Settings="_serviceSettings"
+                       SecureStorage="SecureStorage"
                        OnSave="HandleServiceSettingsSaved" />
 
 @code {

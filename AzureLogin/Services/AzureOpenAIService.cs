@@ -11,38 +11,94 @@ namespace AzureLogin.Services;
 public class AzureOpenAIService : IAzureOpenAIService
 {
     private readonly AzureOpenAISettings _settings;
+    private readonly ISecureStorageService _secureStorage;
     private readonly ILogger<AzureOpenAIService>? _logger;
     private AzureOpenAIClient? _client;
     private string? _userName;
     private bool _isAuthenticated;
+    private string? _cachedApiKey;
 
-    public AzureOpenAIService(IOptions<AzureOpenAISettings> settings, ILogger<AzureOpenAIService>? logger = null)
+    public AzureOpenAIService(
+        IOptions<AzureOpenAISettings> settings, 
+        ISecureStorageService secureStorage,
+        ILogger<AzureOpenAIService>? logger = null)
     {
         _settings = settings.Value ?? new AzureOpenAISettings();
+        _secureStorage = secureStorage;
         _logger = logger;
         
-        // Auto-initialize with API key if available
-        InitializeClient();
+        // Try to initialize on construction (will use cached key if available)
+        _ = InitializeClientAsync();
     }
 
-    private void InitializeClient()
+    private async Task<string?> GetApiKeyAsync()
     {
-        if (!string.IsNullOrEmpty(_settings.Endpoint) && !string.IsNullOrEmpty(_settings.ApiKey))
+        // Return cached key if available
+        if (!string.IsNullOrEmpty(_cachedApiKey))
+            return _cachedApiKey;
+        
+        // Try secure storage first
+        var secureKey = await _secureStorage.GetAsync(SecureStorageKeys.AzureOpenAIApiKey);
+        if (!string.IsNullOrEmpty(secureKey))
+        {
+            _cachedApiKey = secureKey;
+            return secureKey;
+        }
+        
+        // Fall back to appsettings (for initial setup or migration)
+        if (!string.IsNullOrEmpty(_settings.ApiKey) && _settings.ApiKey != "YOUR-AZURE-OPENAI-API-KEY")
+        {
+            // Migrate key to secure storage
+            await _secureStorage.SetAsync(SecureStorageKeys.AzureOpenAIApiKey, _settings.ApiKey);
+            _cachedApiKey = _settings.ApiKey;
+            _logger?.LogInformation("API key migrated to secure storage");
+            return _settings.ApiKey;
+        }
+        
+        return null;
+    }
+
+    private async Task InitializeClientAsync()
+    {
+        var apiKey = await GetApiKeyAsync();
+        
+        if (!string.IsNullOrEmpty(_settings.Endpoint) && !string.IsNullOrEmpty(apiKey))
         {
             try
             {
-                var credential = new AzureKeyCredential(_settings.ApiKey);
+                var credential = new AzureKeyCredential(apiKey);
                 _client = new AzureOpenAIClient(new Uri(_settings.Endpoint), credential);
                 _isAuthenticated = true;
                 _userName = "API Key User";
-                _logger?.LogInformation("Azure OpenAI client initialized with API key");
+                _logger?.LogInformation("Azure OpenAI client initialized with API key from secure storage");
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to initialize Azure OpenAI client with API key");
+                _logger?.LogError(ex, "Failed to initialize Azure OpenAI client");
                 _isAuthenticated = false;
             }
         }
+    }
+
+    /// <summary>
+    /// Store API key in secure storage
+    /// </summary>
+    public async Task SetApiKeyAsync(string apiKey)
+    {
+        await _secureStorage.SetAsync(SecureStorageKeys.AzureOpenAIApiKey, apiKey);
+        _cachedApiKey = apiKey;
+        _isAuthenticated = false;
+        _client = null;
+        await InitializeClientAsync();
+    }
+
+    /// <summary>
+    /// Check if API key is configured
+    /// </summary>
+    public async Task<bool> HasApiKeyAsync()
+    {
+        var key = await GetApiKeyAsync();
+        return !string.IsNullOrEmpty(key);
     }
 
     public string Endpoint => _settings.Endpoint ?? "Not configured";
@@ -52,7 +108,7 @@ public class AzureOpenAIService : IAzureOpenAIService
     public string? UserCode => null;
     public string? VerificationUrl => null;
 
-    public Task<AuthenticationStatus> GetAuthenticationStatusAsync()
+    public async Task<AuthenticationStatus> GetAuthenticationStatusAsync()
     {
         var status = new AuthenticationStatus();
         
@@ -60,32 +116,33 @@ public class AzureOpenAIService : IAzureOpenAIService
         {
             status.IsAuthenticated = false;
             status.ErrorMessage = "Azure OpenAI endpoint not configured in appsettings.json";
-            return Task.FromResult(status);
+            return status;
         }
 
-        if (string.IsNullOrEmpty(_settings.ApiKey))
+        var apiKey = await GetApiKeyAsync();
+        if (string.IsNullOrEmpty(apiKey))
         {
             status.IsAuthenticated = false;
-            status.ErrorMessage = "Azure OpenAI API key not configured in appsettings.json";
-            return Task.FromResult(status);
+            status.ErrorMessage = "Azure OpenAI API key not configured. Please set your API key in Settings.";
+            return status;
         }
 
         if (_isAuthenticated && _client != null)
         {
             status.IsAuthenticated = true;
             status.UserName = _userName;
-            status.AuthenticationMethod = "API Key";
-            return Task.FromResult(status);
+            status.AuthenticationMethod = "API Key (Secure Storage)";
+            return status;
         }
 
         // Try to initialize if not already done
-        InitializeClient();
+        await InitializeClientAsync();
         
         if (_isAuthenticated && _client != null)
         {
             status.IsAuthenticated = true;
             status.UserName = _userName;
-            status.AuthenticationMethod = "API Key";
+            status.AuthenticationMethod = "API Key (Secure Storage)";
         }
         else
         {
@@ -93,7 +150,7 @@ public class AzureOpenAIService : IAzureOpenAIService
             status.ErrorMessage = "Failed to initialize Azure OpenAI client";
         }
         
-        return Task.FromResult(status);
+        return status;
     }
 
     public void SignOut()
@@ -107,9 +164,9 @@ public class AzureOpenAIService : IAzureOpenAIService
     {
         if (_client == null)
         {
-            InitializeClient();
+            await InitializeClientAsync();
             if (_client == null)
-                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json");
+                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key in Settings.");
         }
         
         var chatClient = _client.GetChatClient(_settings.DefaultDeployment);
@@ -127,12 +184,11 @@ public class AzureOpenAIService : IAzureOpenAIService
     {
         if (_client == null)
         {
-            InitializeClient();
+            await InitializeClientAsync();
             if (_client == null)
-                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json");
+                throw new InvalidOperationException("Azure OpenAI client not configured. Check your API key in Settings.");
         }
         
-        // Use gpt-4o for vision tasks
         var visionDeployment = !string.IsNullOrEmpty(_settings.VisionDeployment) 
             ? _settings.VisionDeployment 
             : "gpt-4o";
@@ -164,9 +220,9 @@ public class AzureOpenAIService : IAzureOpenAIService
     {
         if (_client == null)
         {
-            InitializeClient();
+            await InitializeClientAsync();
             if (_client == null)
-                return new ImageGenerationResult { Success = false, ErrorMessage = "Azure OpenAI client not configured. Check your API key and endpoint in appsettings.json" };
+                return new ImageGenerationResult { Success = false, ErrorMessage = "Azure OpenAI client not configured. Check your API key in Settings." };
         }
 
         try
@@ -186,7 +242,6 @@ public class AzureOpenAIService : IAzureOpenAIService
             var response = await imageClient.GenerateImageAsync(prompt, options);
             var image = response.Value;
 
-            // Handle both URL and base64 responses
             string? imageUrl = null;
             if (image.ImageUri != null)
             {
@@ -194,7 +249,6 @@ public class AzureOpenAIService : IAzureOpenAIService
             }
             else if (image.ImageBytes != null && image.ImageBytes.ToArray().Length > 0)
             {
-                // Convert base64 bytes to data URL for display
                 var base64 = Convert.ToBase64String(image.ImageBytes.ToArray());
                 imageUrl = $"data:image/png;base64,{base64}";
             }
