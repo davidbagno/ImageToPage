@@ -108,95 +108,6 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     
-    /* Premium Toolbar Navigation - Dark Gray/Purple Theme */
-    .toolbar-container {
-        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-        border-radius: 14px;
-        padding: 5px;
-        box-shadow: 0 4px 15px rgba(55, 65, 81, 0.3);
-        margin-bottom: 16px;
-        border: 1px solid #4b5563;
-    }
-    
-    .toolbar-inner {
-        display: flex;
-        gap: 4px;
-        background: rgba(0, 0, 0, 0.15);
-        border-radius: 10px;
-        padding: 4px;
-    }
-    
-    .tab-btn {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 12px 20px;
-        border-radius: 8px;
-        border: none;
-        background: transparent;
-        color: rgba(255, 255, 255, 0.75);
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .tab-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
-        opacity: 0;
-        transition: opacity 0.25s ease;
-    }
-    
-    .tab-btn:hover:not(.active) {
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .tab-btn:hover:not(.active)::before {
-        opacity: 1;
-    }
-    
-    .tab-btn.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .tab-btn .tab-icon {
-        font-size: 1.2rem;
-        line-height: 1;
-    }
-    
-    .tab-btn .tab-label {
-        font-weight: 600;
-        letter-spacing: -0.3px;
-    }
-    
-    .tab-btn .tab-badge {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 2px 8px;
-        border-radius: 5px;
-        font-size: 0.65rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .tab-btn.active .tab-badge {
-        background: rgba(255, 255, 255, 0.3);
-        color: white;
-    }
     
     .extraction-mode-btn:hover {
         background: #f0f4ff !important;
@@ -816,25 +727,7 @@
                 </div>
                 
                 @* Premium Toolbar Navigation *@
-                <div class="toolbar-container">
-                    <div class="toolbar-inner">
-                        <button class="tab-btn @(_activeTab == "chat" ? "active" : "")" @onclick="SetChatTab">
-                            <span class="tab-icon">💬</span>
-                            <span class="tab-label">Chat</span>
-                            <span class="tab-badge">GPT-4o</span>
-                        </button>
-                        <button class="tab-btn @(_activeTab == "image" ? "active" : "")" @onclick="SetImageTab">
-                            <span class="tab-icon">🎨</span>
-                            <span class="tab-label">Image Studio</span>
-                            <span class="tab-badge">DALL-E</span>
-                        </button>
-                        <button class="tab-btn @(_activeTab == "code" ? "active" : "")" @onclick="SetCodeTab">
-                            <span class="tab-icon">✨</span>
-                            <span class="tab-label">Vision AI</span>
-                            <span class="tab-badge">64 APIs</span>
-                        </button>
-                    </div>
-                </div>
+                <TabToolbar @bind-ActiveTab="_activeTab" />
                 
                 @if (_activeTab == "chat")
                 {
@@ -2583,9 +2476,7 @@
         _state = AppState.NotSignedIn;
     }
     
-    private void SetChatTab() => _activeTab = "chat";
-    private void SetImageTab() => _activeTab = "image";
-    private void SetCodeTab() => _activeTab = "code";
+    // Tab switching is handled by TabToolbar via @bind-ActiveTab.
     
     private async Task SendMessage()
     {
@@ -2818,57 +2709,7 @@
     {
         await JS.InvokeVoidAsync("eval", "document.getElementById('codeImageUpload').click()");
     }
-    
-    private async Task HandleCodeImageUpload(ChangeEventArgs e)
-    {
-        try
-        {
-            var result = await JS.InvokeAsync<string>("eval", @"
-                (function() {
-                    return new Promise((resolve, reject) => {
-                        var input = document.getElementById('codeImageUpload');
-                        if (input.files && input.files[0]) {
-                            var file = input.files[0];
-                            var reader = new FileReader();
-                            reader.onload = function(e) {
-                                resolve(JSON.stringify({
-                                    name: file.name,
-                                    type: file.type || 'image/png',
-                                    data: e.target.result
-                                }));
-                            };
-                            reader.onerror = function() { reject('Failed to read file'); };
-                            reader.readAsDataURL(file);
-                        } else {
-                            resolve(null);
-                        }
-                    });
-                })()
-            ");
-            
-            if (!string.IsNullOrEmpty(result) && result != "null")
-            {
-                var fileData = JsonDocument.Parse(result);
-                _codeImageUrl = fileData.RootElement.GetProperty("data").GetString() ?? "";
-                _codeImageMimeType = fileData.RootElement.GetProperty("type").GetString() ?? "image/png";
-                
-                // Extract base64 from data URL
-                if (_codeImageUrl.Contains(","))
-                {
-                    _codeImageBase64 = _codeImageUrl.Split(',')[1];
-                }
-                
-                _codeError = "";
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            _codeError = $"Upload failed: {ex.Message}";
-            StateHasChanged();
-        }
-    }
-    
+     
     private async Task HandleCodeImageUploadNew(InputFileChangeEventArgs e)
     {
         try
@@ -2882,7 +2723,7 @@
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms);
                 var bytes = ms.ToArray();
-                
+
                 // Convert to base64 data URL
                 var base64 = Convert.ToBase64String(bytes);
                 var mimeType = file.ContentType ?? "image/png";
