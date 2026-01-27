@@ -1,0 +1,401 @@
+@namespace AzureLogin.Shared.Components
+@using System.Text.RegularExpressions
+
+<div class="dynamic-razor-preview" style="@ContainerStyle">
+    @if (IsLoading)
+    {
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8fafc;">
+            <div style="text-align: center;">
+                <div class="spinner-border" style="width: 2rem; height: 2rem; color: #8b5cf6; border-width: 3px;"></div>
+                <p style="margin-top: 12px; color: #6d28d9; font-weight: 500;">Rendering preview...</p>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div style="padding: 20px; background: #fef2f2; color: #991b1b; border-radius: 8px; margin: 10px;">
+            <h4 style="margin: 0 0 8px 0;">⚠️ Preview Error</h4>
+            <p style="margin: 0; font-size: 14px;">@ErrorMessage</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(RazorMarkup))
+    {
+        <div class="preview-container" style="padding: 16px; background: white; min-height: 100%;">
+            @if (ShowWarnings && Warnings?.Count > 0)
+            {
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px;">
+                    <div style="font-weight: 600; color: #92400e; margin-bottom: 8px;">⚠️ Preview Limitations</div>
+                    <ul style="margin: 0; padding-left: 20px; color: #78350f;">
+                        @foreach (var warning in Warnings)
+                        {
+                            <li style="margin: 4px 0;">@warning</li>
+                        }
+                    </ul>
+                </div>
+            }
+            <div class="preview-badge" style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; z-index: 100; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);">
+                🔮 @Framework Preview
+            </div>
+            <div class="rendered-content">
+                @RenderedContent
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #94a3b8;">
+            <div style="text-align: center;">
+                <span style="font-size: 48px; opacity: 0.5;">👁️</span>
+                <p style="margin-top: 12px;">Generate code to see the preview</p>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .dynamic-razor-preview {
+        position: relative;
+        height: 100%;
+        overflow: auto;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .rendered-content {
+        /* Scoped styles for rendered content */
+    }
+    
+    /* Utility classes for rendered content */
+    .rendered-content .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+    .rendered-content .flex { display: flex; }
+    .rendered-content .flex-col { flex-direction: column; }
+    .rendered-content .items-center { align-items: center; }
+    .rendered-content .justify-center { justify-content: center; }
+    .rendered-content .justify-between { justify-content: space-between; }
+    .rendered-content .gap-2 { gap: 0.5rem; }
+    .rendered-content .gap-4 { gap: 1rem; }
+    .rendered-content .p-2 { padding: 0.5rem; }
+    .rendered-content .p-4 { padding: 1rem; }
+    .rendered-content .p-6 { padding: 1.5rem; }
+    .rendered-content .m-2 { margin: 0.5rem; }
+    .rendered-content .m-4 { margin: 1rem; }
+    .rendered-content .mb-2 { margin-bottom: 0.5rem; }
+    .rendered-content .mb-4 { margin-bottom: 1rem; }
+    .rendered-content .mt-2 { margin-top: 0.5rem; }
+    .rendered-content .mt-4 { margin-top: 1rem; }
+    .rendered-content .text-center { text-align: center; }
+    .rendered-content .text-sm { font-size: 0.875rem; }
+    .rendered-content .text-lg { font-size: 1.125rem; }
+    .rendered-content .text-xl { font-size: 1.25rem; }
+    .rendered-content .text-2xl { font-size: 1.5rem; }
+    .rendered-content .font-bold { font-weight: 700; }
+    .rendered-content .font-semibold { font-weight: 600; }
+    .rendered-content .text-white { color: white; }
+    .rendered-content .text-gray-500 { color: #6b7280; }
+    .rendered-content .text-gray-700 { color: #374151; }
+    .rendered-content .bg-white { background-color: white; }
+    .rendered-content .bg-gray-100 { background-color: #f3f4f6; }
+    .rendered-content .bg-blue-500 { background-color: #3b82f6; }
+    .rendered-content .bg-blue-600 { background-color: #2563eb; }
+    .rendered-content .rounded { border-radius: 0.25rem; }
+    .rendered-content .rounded-lg { border-radius: 0.5rem; }
+    .rendered-content .rounded-xl { border-radius: 0.75rem; }
+    .rendered-content .shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .rendered-content .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .rendered-content .border { border: 1px solid #e5e7eb; }
+    .rendered-content .w-full { width: 100%; }
+    
+    /* Bootstrap-like components */
+    .rendered-content .btn { 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        padding: 0.5rem 1rem; 
+        border-radius: 0.375rem; 
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s ease;
+    }
+    .rendered-content .btn-primary { background: #3b82f6; color: white; }
+    .rendered-content .btn-secondary { background: #6b7280; color: white; }
+    .rendered-content .btn-success { background: #22c55e; color: white; }
+    .rendered-content .btn-danger { background: #ef4444; color: white; }
+    
+    .rendered-content .card { 
+        background: white; 
+        border-radius: 0.5rem; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .rendered-content .card-header { padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 600; }
+    .rendered-content .card-body { padding: 1rem; }
+    .rendered-content .card-footer { padding: 1rem; border-top: 1px solid #e5e7eb; background: #f9fafb; }
+    
+    .rendered-content .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+    
+    .rendered-content .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    
+    .rendered-content .alert {
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+    }
+    .rendered-content .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .rendered-content .alert-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .rendered-content .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .rendered-content .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    
+    .rendered-content .table { width: 100%; border-collapse: collapse; }
+    .rendered-content .table th, .rendered-content .table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .rendered-content .table th { font-weight: 600; background: #f9fafb; }
+    
+    /* Razor-specific visual indicators */
+    .rendered-content .razor-var {
+        background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+        color: #5b21b6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+    
+    .rendered-content .razor-conditional {
+        border-left: 3px solid #3b82f6;
+        background: #eff6ff;
+        padding: 8px 12px;
+        margin: 8px 0;
+        border-radius: 0 6px 6px 0;
+    }
+    
+    .rendered-content .razor-loop {
+        border-left: 3px solid #10b981;
+        background: #ecfdf5;
+        padding: 8px 12px;
+        margin: 8px 0;
+        border-radius: 0 6px 6px 0;
+    }
+    
+    .rendered-content .razor-component {
+        border: 2px dashed #8b5cf6;
+        background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+        border-radius: 8px;
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .rendered-content .razor-component-header {
+        font-weight: 700;
+        color: #6d28d9;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string? RazorMarkup { get; set; }
+    
+    [Parameter]
+    public string Framework { get; set; } = "Blazor Razor";
+    
+    [Parameter]
+    public bool ShowWarnings { get; set; } = true;
+    
+    [Parameter]
+    public string ContainerStyle { get; set; } = "height: 100%;";
+    
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+    private MarkupString RenderedContent { get; set; }
+    private List<string> Warnings { get; set; } = new();
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(RazorMarkup))
+        {
+            await RenderPreviewAsync();
+        }
+    }
+    
+    private async Task RenderPreviewAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+        Warnings.Clear();
+        StateHasChanged();
+        
+        try
+        {
+            await Task.Delay(50); // Small delay for UI update
+            
+            var (html, warnings) = TranspileRazorToHtml(RazorMarkup!);
+            RenderedContent = new MarkupString(html);
+            Warnings = warnings;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+    private (string html, List<string> warnings) TranspileRazorToHtml(string markup)
+    {
+        var warnings = new List<string>();
+        var html = markup;
+        
+        // Clean up code block markers if present (```html, ```razor, etc.)
+        if (html.StartsWith("```"))
+        {
+            var firstNewline = html.IndexOf('\n');
+            if (firstNewline > 0)
+            {
+                html = html.Substring(firstNewline + 1);
+            }
+        }
+        if (html.EndsWith("```"))
+        {
+            html = html.Substring(0, html.Length - 3);
+        }
+        html = html.Trim();
+        
+        // Check if this is pure HTML (no Razor syntax)
+        var isRazorContent = html.Contains("@") && (
+            Regex.IsMatch(html, @"@(page|using|inject|code|if|foreach|for|bind|on\w+)") ||
+            Regex.IsMatch(html, @"@\w+") // Has @ followed by word
+        );
+        
+        // For pure HTML/CSS, return as-is (just strip any full document wrapper for embedding)
+        if (!isRazorContent)
+        {
+            // If it's a full HTML document, extract just the body content
+            var bodyMatch = Regex.Match(html, @"<body[^>]*>([\s\S]*?)</body>", RegexOptions.IgnoreCase);
+            if (bodyMatch.Success)
+            {
+                html = bodyMatch.Groups[1].Value.Trim();
+            }
+            // Remove doctype and html tags if present
+            html = Regex.Replace(html, @"<!DOCTYPE[^>]*>", "", RegexOptions.IgnoreCase);
+            html = Regex.Replace(html, @"</?html[^>]*>", "", RegexOptions.IgnoreCase);
+            html = Regex.Replace(html, @"<head>[\s\S]*?</head>", "", RegexOptions.IgnoreCase);
+            
+            return (html.Trim(), warnings);
+        }
+        
+        // For Razor content, process the syntax
+        // Remove directives
+        html = Regex.Replace(html, @"@page\s+""[^""]+""", "");
+        html = Regex.Replace(html, @"@using\s+[\w\.]+", "");
+        html = Regex.Replace(html, @"@inject\s+\w+[\?]?\s+\w+", "");
+        html = Regex.Replace(html, @"@inherits\s+\w+", "");
+        html = Regex.Replace(html, @"@implements\s+[\w\<\>]+", "");
+        html = Regex.Replace(html, @"@namespace\s+[\w\.]+", "");
+        html = Regex.Replace(html, @"@attribute\s+\[[^\]]+\]", "");
+        
+        // Remove @code blocks
+        html = Regex.Replace(html, @"@code\s*\{[\s\S]*?\}(?=\s*$|\s*@|\s*<)", "", RegexOptions.Multiline);
+        
+        // Check for features that won't work in preview
+        if (Regex.IsMatch(markup, @"@on\w+="""))
+        {
+            warnings.Add("Event handlers (@onclick, @onchange, etc.) are visualized but won't execute");
+        }
+        if (Regex.IsMatch(markup, @"@bind[-\w]*="""))
+        {
+            warnings.Add("Data bindings (@bind) are shown but won't be interactive");
+        }
+        
+        // Convert event handlers to visual indicators
+        html = Regex.Replace(html, @"@(on\w+)=""([^""]+)""", m =>
+            $"data-event=\"{m.Groups[1].Value}\" title=\"{m.Groups[1].Value}: {EscapeHtml(m.Groups[2].Value)}\" style=\"cursor: pointer;\"");
+        
+        // Convert @bind to visual indicator
+        html = Regex.Replace(html, @"@bind(-[\w]+)?=""([^""]+)""", m =>
+            $"data-bind=\"{m.Groups[2].Value}\" placeholder=\"[{m.Groups[2].Value}]\" style=\"border: 2px solid #f59e0b;\"");
+        
+        // Convert simple @Variable expressions
+        html = Regex.Replace(html, @"@(\w+)(?![<\w\(])", m =>
+            $"<span class=\"razor-var\">{m.Groups[1].Value}</span>");
+        
+        // Convert @Model.Property expressions  
+        html = Regex.Replace(html, @"@([\w\.]+)\b(?!\()", m =>
+            $"<span class=\"razor-var\">{m.Groups[1].Value}</span>");
+        
+        // Convert @if blocks
+        html = Regex.Replace(html, @"@if\s*\(([^)]+)\)\s*\{([^}]*)\}", m =>
+            $"<div class=\"razor-conditional\"><small style=\"color: #1d4ed8;\">🔀 @if ({EscapeHtml(m.Groups[1].Value)})</small>{m.Groups[2].Value}</div>");
+        
+        // Convert @foreach blocks
+        html = Regex.Replace(html, @"@foreach\s*\(([^)]+)\)\s*\{([^}]*)\}", m =>
+        {
+            warnings.Add("Loops show single iteration preview");
+            return $"<div class=\"razor-loop\"><small style=\"color: #047857;\">🔄 @foreach ({EscapeHtml(m.Groups[1].Value)})</small>{m.Groups[2].Value}<div style=\"font-size: 11px; color: #059669; font-style: italic;\">... (items would repeat)</div></div>";
+        });
+        
+        // Convert @for blocks
+        html = Regex.Replace(html, @"@for\s*\(([^)]+)\)\s*\{([^}]*)\}", m =>
+            $"<div class=\"razor-loop\"><small style=\"color: #047857;\">🔄 @for ({EscapeHtml(m.Groups[1].Value)})</small>{m.Groups[2].Value}</div>");
+        
+        // Find and convert PascalCase component tags (custom components)
+        var componentMatches = Regex.Matches(html, @"<([A-Z][a-zA-Z0-9]+)(\s[^>]*)?>", RegexOptions.Multiline);
+        var componentNames = componentMatches.Cast<Match>().Select(m => m.Groups[1].Value).Distinct().ToList();
+        
+        foreach (var componentName in componentNames)
+        {
+            // Self-closing
+            html = Regex.Replace(html, $@"<{componentName}(\s[^>]*)?\s*/>", m =>
+                $"<div class=\"razor-component\"><div class=\"razor-component-header\">🧩 {componentName}</div>{FormatProps(m.Groups[1].Value)}</div>");
+            
+            // With content
+            html = Regex.Replace(html, $@"<{componentName}(\s[^>]*)?>([\s\S]*?)</{componentName}>", m =>
+                $"<div class=\"razor-component\"><div class=\"razor-component-header\">🧩 {componentName}</div>{FormatProps(m.Groups[1].Value)}<div style=\"margin-top: 8px; padding-top: 8px; border-top: 1px dashed #c4b5fd;\">{m.Groups[2].Value}</div></div>");
+        }
+        
+        if (componentNames.Count > 0)
+        {
+            warnings.Add($"Child components ({string.Join(", ", componentNames)}) shown as placeholders");
+        }
+        
+        // Clean up remaining @ symbols
+        html = Regex.Replace(html, @"@\{[^}]*\}", "<span class=\"razor-var\">[code]</span>");
+        html = Regex.Replace(html, @"@\([^)]*\)", m => $"<span class=\"razor-var\">{EscapeHtml(m.Value)}</span>");
+        
+        // Clean empty lines
+        html = Regex.Replace(html, @"^\s*$\n", "", RegexOptions.Multiline);
+        
+        return (html.Trim(), warnings);
+    }
+    
+    private string FormatProps(string propsString)
+    {
+        if (string.IsNullOrWhiteSpace(propsString)) return "";
+        
+        var props = Regex.Matches(propsString, @"(\w+)=""([^""]*)""")
+            .Cast<Match>()
+            .Select(m => $"<span style=\"color: #7c3aed; font-size: 12px;\">{m.Groups[1].Value}=\"{EscapeHtml(m.Groups[2].Value)}\"</span>")
+            .ToList();
+        
+        if (props.Count == 0) return "";
+        return $"<div style=\"font-family: monospace; font-size: 12px;\">{string.Join(" ", props)}</div>";
+    }
+    
+    private static string EscapeHtml(string text)
+    {
+        return text
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;")
+            .Replace("\"", "&quot;");
+    }
+}

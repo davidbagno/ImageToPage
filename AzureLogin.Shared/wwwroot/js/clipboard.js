@@ -50,3 +50,39 @@ window.openLoginPopup = function(url) {
     window.open(url, 'AzureLogin', 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
 };
 
+// Load HTML content into iframe using srcdoc (MAUI WebView compatible)
+window.loadIframeContent = function(iframeIds, htmlContent) {
+    var ids = iframeIds.split(',');
+    ids.forEach(function(id) {
+        var iframe = document.getElementById(id.trim());
+        if (iframe) {
+            // Method 1: Use srcdoc attribute (most reliable for MAUI)
+            iframe.srcdoc = htmlContent;
+            
+            // Method 2: Fallback - try blob URL if srcdoc doesn't work
+            iframe.onerror = function() {
+                try {
+                    var blob = new Blob([htmlContent], { type: 'text/html' });
+                    iframe.src = URL.createObjectURL(blob);
+                } catch (e) {
+                    console.error('Failed to load iframe content:', e);
+                }
+            };
+        }
+    });
+    return true;
+};
+
+// Clear iframe content
+window.clearIframeContent = function(iframeIds) {
+    var ids = iframeIds.split(',');
+    ids.forEach(function(id) {
+        var iframe = document.getElementById(id.trim());
+        if (iframe) {
+            iframe.srcdoc = '';
+            iframe.src = 'about:blank';
+        }
+    });
+    return true;
+};
+

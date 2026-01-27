@@ -295,20 +295,170 @@ public class DynamicRazorRenderer : IDynamicRazorRenderer
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>{framework} Preview</title>
-    <script src=""https://cdn.tailwindcss.com""></script>
-    <link href=""https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"" rel=""stylesheet"">
-    <link href=""https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"" rel=""stylesheet"">
     <style>
-        * {{ box-sizing: border-box; }}
+        /* Base Reset & Typography */
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{ 
-            margin: 0; 
-            padding: 16px; 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.5;
+            color: #1f2937;
             background: #ffffff;
+            padding: 16px;
+            min-height: 100vh;
         }}
         
-        /* Razor Preview Styles */
+        /* Common Utility Classes (Tailwind-like) */
+        .container {{ max-width: 1200px; margin: 0 auto; padding: 0 1rem; }}
+        .flex {{ display: flex; }}
+        .flex-col {{ flex-direction: column; }}
+        .items-center {{ align-items: center; }}
+        .justify-center {{ justify-content: center; }}
+        .justify-between {{ justify-content: space-between; }}
+        .gap-2 {{ gap: 0.5rem; }}
+        .gap-4 {{ gap: 1rem; }}
+        .p-2 {{ padding: 0.5rem; }}
+        .p-4 {{ padding: 1rem; }}
+        .p-6 {{ padding: 1.5rem; }}
+        .m-2 {{ margin: 0.5rem; }}
+        .m-4 {{ margin: 1rem; }}
+        .mb-2 {{ margin-bottom: 0.5rem; }}
+        .mb-4 {{ margin-bottom: 1rem; }}
+        .mt-2 {{ margin-top: 0.5rem; }}
+        .mt-4 {{ margin-top: 1rem; }}
+        .text-center {{ text-align: center; }}
+        .text-sm {{ font-size: 0.875rem; }}
+        .text-lg {{ font-size: 1.125rem; }}
+        .text-xl {{ font-size: 1.25rem; }}
+        .text-2xl {{ font-size: 1.5rem; }}
+        .font-bold {{ font-weight: 700; }}
+        .font-semibold {{ font-weight: 600; }}
+        .text-white {{ color: white; }}
+        .text-gray-500 {{ color: #6b7280; }}
+        .text-gray-700 {{ color: #374151; }}
+        .text-blue-600 {{ color: #2563eb; }}
+        .text-green-600 {{ color: #16a34a; }}
+        .text-red-600 {{ color: #dc2626; }}
+        .bg-white {{ background-color: white; }}
+        .bg-gray-100 {{ background-color: #f3f4f6; }}
+        .bg-gray-200 {{ background-color: #e5e7eb; }}
+        .bg-blue-500 {{ background-color: #3b82f6; }}
+        .bg-blue-600 {{ background-color: #2563eb; }}
+        .bg-green-500 {{ background-color: #22c55e; }}
+        .bg-red-500 {{ background-color: #ef4444; }}
+        .rounded {{ border-radius: 0.25rem; }}
+        .rounded-lg {{ border-radius: 0.5rem; }}
+        .rounded-xl {{ border-radius: 0.75rem; }}
+        .rounded-full {{ border-radius: 9999px; }}
+        .shadow {{ box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
+        .shadow-lg {{ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
+        .border {{ border: 1px solid #e5e7eb; }}
+        .border-gray-200 {{ border-color: #e5e7eb; }}
+        .border-gray-300 {{ border-color: #d1d5db; }}
+        .w-full {{ width: 100%; }}
+        .h-full {{ height: 100%; }}
+        .min-h-screen {{ min-height: 100vh; }}
+        .hidden {{ display: none; }}
+        .block {{ display: block; }}
+        .inline-block {{ display: inline-block; }}
+        .grid {{ display: grid; }}
+        .grid-cols-2 {{ grid-template-columns: repeat(2, 1fr); }}
+        .grid-cols-3 {{ grid-template-columns: repeat(3, 1fr); }}
+        .overflow-hidden {{ overflow: hidden; }}
+        .overflow-auto {{ overflow: auto; }}
+        
+        /* Bootstrap-like Components */
+        .btn {{ 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 0.5rem 1rem; 
+            border-radius: 0.375rem; 
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+        }}
+        .btn-primary {{ background: #3b82f6; color: white; }}
+        .btn-primary:hover {{ background: #2563eb; }}
+        .btn-secondary {{ background: #6b7280; color: white; }}
+        .btn-success {{ background: #22c55e; color: white; }}
+        .btn-danger {{ background: #ef4444; color: white; }}
+        .btn-outline-primary {{ background: transparent; border: 1px solid #3b82f6; color: #3b82f6; }}
+        
+        .card {{ 
+            background: white; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .card-header {{ padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 600; }}
+        .card-body {{ padding: 1rem; }}
+        .card-footer {{ padding: 1rem; border-top: 1px solid #e5e7eb; background: #f9fafb; }}
+        
+        .form-control {{
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }}
+        .form-control:focus {{
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }}
+        
+        .form-label {{ display: block; margin-bottom: 0.5rem; font-weight: 500; }}
+        
+        .alert {{
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }}
+        .alert-success {{ background: #dcfce7; color: #166534; border: 1px solid #86efac; }}
+        .alert-danger {{ background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }}
+        .alert-warning {{ background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }}
+        .alert-info {{ background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }}
+        
+        .badge {{
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }}
+        .badge-primary {{ background: #dbeafe; color: #1d4ed8; }}
+        .badge-success {{ background: #dcfce7; color: #166534; }}
+        .badge-danger {{ background: #fee2e2; color: #991b1b; }}
+        
+        .table {{ width: 100%; border-collapse: collapse; }}
+        .table th, .table td {{ padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }}
+        .table th {{ font-weight: 600; background: #f9fafb; }}
+        .table-striped tr:nth-child(even) {{ background: #f9fafb; }}
+        
+        .navbar {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }}
+        .navbar-brand {{ font-weight: 700; font-size: 1.25rem; color: #1f2937; text-decoration: none; }}
+        .nav-link {{ color: #4b5563; text-decoration: none; padding: 0.5rem 1rem; }}
+        .nav-link:hover {{ color: #1f2937; }}
+        
+        .list-group {{ list-style: none; padding: 0; }}
+        .list-group-item {{ 
+            padding: 0.75rem 1rem; 
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+        }}
+        .list-group-item:first-child {{ border-radius: 0.375rem 0.375rem 0 0; }}
+        .list-group-item:last-child {{ border-bottom: 1px solid #e5e7eb; border-radius: 0 0 0.375rem 0.375rem; }}
+        
+        /* Razor Preview Specific Styles */
         .preview-warnings {{
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border: 1px solid #f59e0b;
