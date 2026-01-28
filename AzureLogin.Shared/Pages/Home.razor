@@ -5771,32 +5771,43 @@ Return ONLY the complete Razor page code.";
                 if (CanShowPreview())
                 {
                     _codeViewMode = "split";
+                    Console.WriteLine($"[StartPremiumConversion] Switched to split view, _targetFramework={_targetFramework}");
                 }
+                
+                // DEBUG: Log the generated code
+                Console.WriteLine($"[StartPremiumConversion] SUCCESS - Code length: {_generatedCode?.Length ?? 0}");
+                Console.WriteLine($"[StartPremiumConversion] First 300 chars: {_generatedCode?.Substring(0, Math.Min(300, _generatedCode?.Length ?? 0))}");
             }
             else
             {
                 _codeError = _premiumConversionResult.ErrorMessage ?? "Premium conversion failed";
+                Console.WriteLine($"[StartPremiumConversion] FAILED: {_codeError}");
             }
         }
         catch (Exception ex)
         {
             _codeError = $"Premium conversion error: {ex.Message}";
+            Console.WriteLine($"[StartPremiumConversion] EXCEPTION: {ex.Message}");
         }
         finally
         {
             _isConvertingToCode = false;
+            Console.WriteLine($"[StartPremiumConversion] FINALLY - _generatedCode length: {_generatedCode?.Length ?? 0}, CanShowPreview: {CanShowPreview()}, IsHtmlFramework: {IsHtmlFramework()}");
             StateHasChanged();
             
             // Load preview if HTML-based framework or Razor framework
             if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview())
             {
+                Console.WriteLine($"[StartPremiumConversion] Loading preview...");
                 if (IsHtmlFramework())
                 {
                     await LoadPreviewIframeAsync();
+                    Console.WriteLine($"[StartPremiumConversion] LoadPreviewIframeAsync completed");
                 }
                 else if (IsRazorFramework())
                 {
                     await LoadRazorPreviewAsync();
+                    Console.WriteLine($"[StartPremiumConversion] LoadRazorPreviewAsync completed");
                 }
             }
         }

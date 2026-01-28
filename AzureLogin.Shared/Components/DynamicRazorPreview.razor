@@ -35,12 +35,20 @@
                 </div>
             }
             <div class="preview-badge" style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; z-index: 100; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);">
-                🔮 @Framework Preview
+                🔮 @Framework Preview @(_useIframe ? "(iframe)" : "(inline)")
             </div>
+            
+            @* DEBUG: Show what mode we're in and content length *@
+            <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #0f0; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-family: monospace; z-index: 102;">
+                Mode: @(_useIframe ? "IFRAME" : "INLINE") | Content: @(_iframeHtmlContent?.Length ?? 0) chars | Framework: @Framework
+            </div>
+            
             @if (_useIframe)
             {
                 @* Use iframe for HTML content to properly isolate styles *@
-                <iframe id="@_iframeId" 
+                <iframe @ref="_iframeRef"
+                        id="@_iframeId" 
+                        srcdoc="@_iframeHtmlContent"
                         style="width: 100%; height: 100%; border: none; background: white;"
                         sandbox="allow-same-origin allow-scripts"
                         title="HTML Preview"></iframe>
@@ -232,44 +240,32 @@
     private string _iframeId = $"preview-iframe-{Guid.NewGuid():N}";
     private string _lastMarkup = "";
     private string _iframeHtmlContent = "";
+    private ElementReference _iframeRef;
     
     protected override async Task OnParametersSetAsync()
     {
+        Console.WriteLine($"[DynamicRazorPreview] OnParametersSetAsync - RazorMarkup length: {RazorMarkup?.Length ?? 0}, Framework: {Framework}");
+        
         if (!string.IsNullOrEmpty(RazorMarkup) && RazorMarkup != _lastMarkup)
         {
             _lastMarkup = RazorMarkup;
+            Console.WriteLine($"[DynamicRazorPreview] Markup changed, calling RenderPreviewAsync");
             await RenderPreviewAsync();
         }
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Load iframe content after render if using iframe mode
+        // Log for debugging
         if (_useIframe && !string.IsNullOrEmpty(_iframeHtmlContent))
         {
-            try
-            {
-                await JS.InvokeVoidAsync("eval", $@"
-                    (function() {{
-                        var iframe = document.getElementById('{_iframeId}');
-                        if (iframe) {{
-                            var doc = iframe.contentDocument || iframe.contentWindow.document;
-                            doc.open();
-                            doc.write({System.Text.Json.JsonSerializer.Serialize(_iframeHtmlContent)});
-                            doc.close();
-                        }}
-                    }})();
-                ");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to load iframe: {ex.Message}");
-            }
+            Console.WriteLine($"[DynamicRazorPreview] OnAfterRenderAsync - iframe mode, content length: {_iframeHtmlContent.Length}");
         }
     }
     
     private async Task RenderPreviewAsync()
     {
+        Console.WriteLine($"[DynamicRazorPreview] RenderPreviewAsync START");
         IsLoading = true;
         ErrorMessage = null;
         Warnings.Clear();
@@ -288,12 +284,16 @@
                 Regex.IsMatch(RazorMarkup, @"@\w+")
             );
             
+            Console.WriteLine($"[DynamicRazorPreview] isHtmlFramework: {isHtmlFramework}, hasRazorSyntax: {hasRazorSyntax}");
+            
             if (isHtmlFramework || !hasRazorSyntax)
             {
                 // Use iframe for HTML content to properly isolate styles
                 _useIframe = true;
                 _iframeHtmlContent = PrepareHtmlForIframe(RazorMarkup!);
                 RenderedContent = new MarkupString(""); // Clear inline content
+                Console.WriteLine($"[DynamicRazorPreview] Using IFRAME mode, HTML content length: {_iframeHtmlContent.Length}");
+                Console.WriteLine($"[DynamicRazorPreview] First 500 chars of iframe content: {_iframeHtmlContent.Substring(0, Math.Min(500, _iframeHtmlContent.Length))}");
             }
             else
             {
@@ -302,15 +302,18 @@
                 var (html, warnings) = TranspileRazorToHtml(RazorMarkup!);
                 RenderedContent = new MarkupString(html);
                 Warnings = warnings;
+                Console.WriteLine($"[DynamicRazorPreview] Using INLINE mode, HTML content length: {html.Length}");
             }
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            Console.WriteLine($"[DynamicRazorPreview] ERROR: {ex.Message}");
         }
         finally
         {
             IsLoading = false;
+            Console.WriteLine($"[DynamicRazorPreview] RenderPreviewAsync END - _useIframe: {_useIframe}, _iframeHtmlContent.Length: {_iframeHtmlContent?.Length ?? 0}");
             StateHasChanged();
         }
     }
