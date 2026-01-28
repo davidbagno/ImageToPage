@@ -12,15 +12,45 @@ public class ImageToCodeService : IImageToCodeService
     private readonly AzureOpenAISettings _settings;
     private readonly ILogger<ImageToCodeService>? _logger;
     private readonly IAzureOpenAIService _azureOpenAIService;
+    private readonly IVisionService? _visionService;
+    private readonly IImageExtractionService? _imageExtractionService;
+    private readonly IAzureVisionService? _azureVisionService;
+    private PremiumImageToCodeEngine? _premiumEngine;
 
     public ImageToCodeService(
         IOptions<AzureOpenAISettings> settings, 
         IAzureOpenAIService azureOpenAIService,
+        IVisionService? visionService = null,
+        IImageExtractionService? imageExtractionService = null,
+        IAzureVisionService? azureVisionService = null,
         ILogger<ImageToCodeService>? logger = null)
     {
         _settings = settings.Value;
         _azureOpenAIService = azureOpenAIService;
+        _visionService = visionService;
+        _imageExtractionService = imageExtractionService;
+        _azureVisionService = azureVisionService;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Gets or creates the premium engine instance (lazy initialization)
+    /// </summary>
+    private PremiumImageToCodeEngine GetPremiumEngine()
+    {
+        if (_premiumEngine == null && _visionService != null)
+        {
+            _premiumEngine = new PremiumImageToCodeEngine(
+                _azureOpenAIService,
+                _visionService,
+                _imageExtractionService,
+                _azureVisionService,
+                null // Logger - could inject if needed
+            );
+        }
+        
+        return _premiumEngine ?? throw new InvalidOperationException(
+            "Premium engine requires VisionService to be configured");
     }
 
     public async Task<ImageToCodeResult> GenerateCodeFromImageAsync(byte[] imageBytes, string mimeType, string framework = "HTML/CSS")
@@ -166,5 +196,62 @@ public class ImageToCodeService : IImageToCodeService
             code = code[..^3];
         
         return code.Trim();
+    }
+
+    /// <summary>
+    /// Premium multi-pass conversion engine - Best-in-class image to pixel-perfect code.
+    /// Combines structure analysis, component detection, design token extraction,
+    /// asset extraction, code generation, and iterative refinement.
+    /// </summary>
+    public async Task<PremiumConversionResult> ConvertWithPremiumEngineAsync(
+        byte[] imageBytes,
+        string mimeType,
+        PremiumConversionOptions? options = null,
+        Action<ConversionProgress>? onProgress = null)
+    {
+        try
+        {
+            // Check authentication
+            var status = await _azureOpenAIService.GetAuthenticationStatusAsync();
+            if (!status.IsAuthenticated)
+            {
+                return new PremiumConversionResult
+                {
+                    Success = false,
+                    ErrorMessage = "Please sign in first to use premium image-to-code conversion."
+                };
+            }
+
+            // Use premium engine
+            var engine = GetPremiumEngine();
+            return await engine.ConvertAsync(imageBytes, mimeType, options, onProgress);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("VisionService"))
+        {
+            _logger?.LogWarning("Premium engine not available, falling back to standard conversion");
+            
+            // Fallback to standard conversion
+            options ??= new PremiumConversionOptions();
+            var standardResult = await GenerateCodeFromImageAsync(imageBytes, mimeType, options.Framework);
+            
+            return new PremiumConversionResult
+            {
+                Success = standardResult.Success,
+                Code = standardResult.Code,
+                Language = standardResult.Language,
+                ErrorMessage = standardResult.ErrorMessage,
+                FidelityScore = 70,
+                Warnings = new List<string> { "Used standard conversion (premium engine unavailable)" }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Premium conversion failed");
+            return new PremiumConversionResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
+        }
     }
 }

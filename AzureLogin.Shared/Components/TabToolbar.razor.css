@@ -1,18 +1,19 @@
 .toolbar-container {
-    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
     border-radius: 14px;
     padding: 5px;
-    box-shadow: 0 4px 15px rgba(55, 65, 81, 0.3);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
     margin-bottom: 16px;
-    border: 1px solid #4b5563;
+    border: none;
 }
 
 .toolbar-inner {
     display: flex;
     gap: 4px;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     padding: 4px;
+    backdrop-filter: blur(10px);
 }
 
 .tab-btn {
@@ -59,9 +60,9 @@
 
 .tab-btn.active,
 .tab-btn[aria-selected="true"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .tab-btn:disabled {
@@ -82,7 +83,7 @@
 .tab-btn.active:focus-visible,
 .tab-btn[aria-selected="true"]:focus-visible {
     /* Reinforce focus when active (keeps active shadow + adds ring) */
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 0 6px rgba(102, 126, 234, 0.55);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 0 6px rgba(102, 126, 234, 0.55);
 }
 
 .tab-btn:focus-visible::before {
@@ -130,6 +131,6 @@
 
 .tab-btn.active .tab-badge,
 .tab-btn[aria-selected="true"] .tab-badge {
-    background: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }

@@ -224,4 +224,60 @@ public class ImageToCodeService : IImageToCodeService
         
         return code.Trim();
     }
+
+    /// <summary>
+    /// Premium multi-pass conversion engine - Best-in-class image to pixel-perfect code.
+    /// Note: For full premium features, use the MAUI app version which has access to all services.
+    /// </summary>
+    public async Task<PremiumConversionResult> ConvertWithPremiumEngineAsync(
+        byte[] imageBytes,
+        string mimeType,
+        PremiumConversionOptions? options = null,
+        Action<ConversionProgress>? onProgress = null)
+    {
+        try
+        {
+            var status = await _azureOpenAIService.GetAuthenticationStatusAsync();
+            if (!status.IsAuthenticated)
+            {
+                return new PremiumConversionResult
+                {
+                    Success = false,
+                    ErrorMessage = "Please sign in first to use premium image-to-code conversion."
+                };
+            }
+
+            // Web version: Use enhanced single-pass with quality options
+            options ??= new PremiumConversionOptions();
+            
+            onProgress?.Invoke(new ConversionProgress 
+            { 
+                Stage = "Generating Code", 
+                CurrentStep = 1, 
+                TotalSteps = 1, 
+                Message = "Converting image to code..." 
+            });
+
+            var result = await GenerateCodeFromImageAsync(imageBytes, mimeType, options.Framework);
+            
+            return new PremiumConversionResult
+            {
+                Success = result.Success,
+                Code = result.Code,
+                Language = result.Language,
+                ErrorMessage = result.ErrorMessage,
+                FidelityScore = result.Success ? 75 : 0,
+                Warnings = new List<string> { "Web version uses standard conversion. For premium features, use the desktop app." }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Premium conversion failed");
+            return new PremiumConversionResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
 }

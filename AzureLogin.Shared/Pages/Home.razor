@@ -205,8 +205,12 @@
         height: 100%;
         border: none;
     }
-    
-    .vertical-splitter {
+
+    /* Utility helpers for views to fully fill parents */
+    .fill-area { width: 100%; height: 100%; min-height: 0; }
+    .stack-fill { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+     
+     .vertical-splitter {
         width: 8px;
         background: linear-gradient(180deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
         cursor: col-resize;
@@ -436,7 +440,7 @@
     }
     
     /* Analysis Select Styling - Enhanced for visibility */
-    .analysis-select {
+    .form-select.form-control-modern.analysis-select {
         border: 2px solid #e0e7ff;
         transition: all 0.2s ease;
         font-size: 1rem !important;
@@ -444,24 +448,24 @@
         line-height: 1.5;
         min-height: 52px;
     }
-    
-    .analysis-select:focus {
+
+    .form-select.form-control-modern.analysis-select:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
     }
-    
-    .analysis-select optgroup {
+
+    .form-select.form-control-modern.analysis-select optgroup {
         font-weight: 800 !important;
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
         color: #ffffff !important;
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-        padding: 12px 10px !important;
+        background: #1f2937 !important;
+        padding: 14px 12px !important;
         margin-top: 8px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    .analysis-select option {
+    .form-select.form-control-modern.analysis-select option {
         font-weight: 500;
         font-size: 0.95rem !important;
         color: #1f2937;
@@ -472,33 +476,356 @@
     }
 
     /* Make the first option under each group stand out */
-    .analysis-select optgroup option:first-child {
+    .form-select.form-control-modern.analysis-select optgroup option:first-child {
         background: #111827 !important;
         color: #f9fafb !important;
-        font-size: 1.05rem !important;
-        font-weight: 700;
+        font-size: 1.08rem !important;
+        font-weight: 800;
         border-top: 1px solid #0f172a;
         border-bottom: 1px solid #1f2937;
     }
 
-    .analysis-select option:hover {
+    /* Explicit header row to bypass optgroup background limitations */
+    .form-select.form-control-modern.analysis-select option.analysis-optgroup-header {
+        background: #111827 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        font-size: 1.08rem !important;
+        padding: 14px 12px !important;
+        cursor: default;
+    }
+
+    .form-select.form-control-modern.analysis-select option:hover {
         background: #f0f4ff !important;
     }
 
-    .analysis-select optgroup option:first-child:hover {
+    .form-select.form-control-modern.analysis-select optgroup option:first-child:hover {
         background: #0f172a !important;
         color: #e5e7eb !important;
     }
 
-    .analysis-select option:checked {
-        background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%) !important;
-        font-weight: 600;
-    }
+            .form-select.form-control-modern.analysis-select option:checked {
+                background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%) !important;
+                font-weight: 600;
+            }
 
-    /* API Detail Card Animation */
-    .api-detail-card {
-        transition: all 0.3s ease;
-    }
+            /* Premium Left Panel Styles */
+            .left-panel-container {
+                background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+                border-radius: 16px;
+                border: 1px solid rgba(102, 126, 234, 0.15);
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                height: 100%;
+                overflow: auto;
+                padding: 20px;
+            }
+
+            .left-panel-section {
+                background: #ffffff;
+                border-radius: 14px;
+                border: 1px solid #e5e7eb;
+                padding: 16px;
+                margin-bottom: 16px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: all 0.2s ease;
+            }
+
+            .left-panel-section:hover {
+                border-color: rgba(102, 126, 234, 0.3);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 14px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #f1f5f9;
+            }
+
+            .section-header-icon {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            }
+
+            .section-header-text {
+                flex: 1;
+            }
+
+            .section-header-title {
+                font-weight: 700;
+                font-size: 0.95rem;
+                color: #1e293b;
+                margin: 0;
+                letter-spacing: -0.3px;
+            }
+
+            .section-header-subtitle {
+                font-size: 0.72rem;
+                color: #64748b;
+                margin: 0;
+                margin-top: 2px;
+            }
+
+            .premium-upload-zone {
+                border: 2px dashed #c7d2fe;
+                border-radius: 14px;
+                background: linear-gradient(180deg, #faf5ff 0%, #f5f3ff 50%, #ede9fe 100%);
+                cursor: pointer;
+                min-height: 280px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+                padding: 20px;
+            }
+
+            .premium-upload-zone::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+                opacity: 0;
+                transition: opacity 0.25s ease;
+            }
+
+            .premium-upload-zone:hover {
+                border-color: #a5b4fc;
+                background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            }
+
+            .premium-upload-zone:hover::before {
+                opacity: 1;
+            }
+
+            .premium-upload-zone.drag-over {
+                border-color: #38ef7d !important;
+                background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%) !important;
+                transform: scale(1.02);
+                box-shadow: 0 12px 32px rgba(56, 239, 125, 0.25);
+            }
+
+            .upload-zone-icon {
+                width: 64px;
+                height: 64px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+                border-radius: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                margin-bottom: 14px;
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+                transition: all 0.25s ease;
+            }
+
+            .premium-upload-zone:hover .upload-zone-icon {
+                transform: scale(1.08);
+                box-shadow: 0 12px 32px rgba(102, 126, 234, 0.45);
+            }
+
+            .upload-zone-title {
+                font-weight: 700;
+                font-size: 0.95rem;
+                color: #4f46e5;
+                margin-bottom: 4px;
+                text-align: center;
+            }
+
+            .upload-zone-subtitle {
+                font-size: 0.78rem;
+                color: #64748b;
+                text-align: center;
+            }
+
+            .uploaded-image-container {
+                position: relative;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .uploaded-image {
+                max-width: 100%;
+                max-height: 260px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+                border: 3px solid rgba(102, 126, 234, 0.2);
+            }
+
+            /* Polished Analysis Picker */
+            .analysis-picker {
+                border: none;
+                border-radius: 14px;
+                background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+                box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+                overflow: hidden;
+            }
+
+            .analysis-group {
+                border-top: 1px solid #eef2f6;
+                background: #fbfcfd;
+            }
+
+            .analysis-group:first-child {
+                border-top: none;
+            }
+
+            .analysis-group:not(:last-child) {
+                box-shadow: inset 0 -1px 0 rgba(226, 232, 240, 0.7);
+            }
+
+            .analysis-group-title {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+                color: #fff;
+                border-radius: 0;
+                padding: 12px 16px;
+                font-weight: 800;
+                font-size: 1.02rem;
+                letter-spacing: 0.3px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                justify-content: space-between;
+                box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+            }
+
+                    .analysis-group-title .badge-microsoft {
+                        background: rgba(255, 255, 255, 0.18);
+                        color: #fff;
+                        border-radius: 10px;
+                        font-weight: 700;
+                        font-size: 0.72rem;
+                        padding: 4px 8px;
+                        letter-spacing: 0.3px;
+                    }
+
+                    .analysis-group-title .status-icon {
+                        font-size: 1rem;
+                        opacity: 0.9;
+                    }
+
+                    .analysis-group-disabled {
+                        opacity: 0.55;
+                        filter: grayscale(0.25);
+                    }
+
+                    .group-collapsed-note {
+                        padding: 12px 14px;
+                        background: #fef2f2;
+                        color: #b91c1c;
+                        font-size: 0.87rem;
+                        border-top: 1px solid #fee2e2;
+                    }
+                    .group-collapsed-note .hint-link {
+                        color: #b91c1c;
+                        font-weight: 600;
+                    }
+
+            .analysis-option {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                text-align: left;
+                padding: 12px 14px;
+                border: none;
+                background: #ffffff;
+                color: #0f172a;
+                font-size: 0.95rem;
+                font-weight: 600;
+                transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+                box-shadow: inset 0 -1px 0 rgba(226, 232, 240, 0.8);
+            }
+
+            .analysis-option:hover {
+                background: #f6f8fb;
+                box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.25);
+                transform: translateY(-1px);
+            }
+
+            .analysis-option:focus-visible {
+                outline: 2px solid #8b5cf6;
+                outline-offset: -2px;
+            }
+
+            .analysis-option.active {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+                color: #fff;
+                box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.2), 0 2px 8px rgba(102, 126, 234, 0.3);
+            }
+
+            .analysis-option .analysis-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 100%);
+                color: #667eea;
+                font-weight: 700;
+                font-size: 0.9rem;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.04);
+            }
+
+            .analysis-option.active .analysis-icon {
+                background: rgba(255, 255, 255, 0.25);
+                color: white;
+            }
+
+            .collapse-toggle {
+                border: 1px solid rgba(255,255,255,0.35);
+                background: rgba(255,255,255,0.15);
+                border-radius: 8px;
+                width: 32px;
+                height: 32px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                transition: background 0.18s ease, transform 0.18s ease;
+            }
+
+            .collapse-toggle:hover {
+                background: rgba(255,255,255,0.25);
+                transform: translateY(-1px);
+            }
+
+            .collapse-icon {
+                width: 0;
+                height: 0;
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 8px solid currentColor;
+                transition: transform 0.18s ease;
+            }
+
+            .collapse-icon.collapsed {
+                transform: rotate(-90deg);
+            }
+     
+             /* API Detail Card Animation */
+             .api-detail-card {
+                 transition: all 0.3s ease;
+             }
     
     .api-detail-card:hover {
         border-color: #667eea;
@@ -981,14 +1308,18 @@
                             <div class="split-container" id="splitContainer" style="flex: 1;">
                                 @* Left Pane - Upload & Analysis Options *@
                                 <div class="split-pane-left" id="leftPane" style="width: 35%;">
-                                    <div class="h-100 p-3" style="background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 12px; border: 1px solid #e5e7eb; height: 100%; overflow: auto;">
-                                            <h6 class="fw-bold mb-3" style="color: #4f46e5; display: flex; align-items: center; gap: 8px;">
-                                                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">📤</span>
-                                                Upload UI Design
-                                            </h6>
+                                    <div class="left-panel-container">
+                                        @* Upload Section *@
+                                        <div class="left-panel-section">
+                                            <div class="section-header">
+                                                <div class="section-header-icon">📤</div>
+                                                <div class="section-header-text">
+                                                    <div class="section-header-title">Upload UI Design</div>
+                                                    <div class="section-header-subtitle">Drop or click to add your screenshot</div>
+                                                </div>
+                                            </div>
                                             
-                                            <div class="upload-zone p-3 text-center mb-3 @(_isDragOver ? "drag-over" : "")" 
-                                                 style="border: 2px dashed @(_isDragOver ? "#38ef7d" : "#667eea"); border-radius: 10px; background: @(_isDragOver ? "#f0fff4" : "#fff"); cursor: pointer; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s ease;"
+                                            <div class="premium-upload-zone @(_isDragOver ? "drag-over" : "")" 
                                                  @onclick="TriggerCodeImageUpload"
                                                  @ondragenter="HandleDragEnter"
                                                  @ondragenter:preventDefault
@@ -1000,116 +1331,464 @@
                                                  @ondrop:preventDefault>
                                                 @if (string.IsNullOrEmpty(_codeImageUrl))
                                                 {
-                                                    <div style="color: @(_isDragOver ? "#38ef7d" : "#667eea");">
-                                                        <span style="font-size: 48px; display: block; margin-bottom: 10px;">@(_isDragOver ? "📥" : "🎨")</span>
-                                                        <p class="mb-1 fw-medium">@(_isDragOver ? "Drop image here!" : "Click or drag & drop a UI screenshot")</p>
-                                                        <p class="mb-0 small text-muted">PNG, JPG, WebP up to 20MB</p>
+                                                    <div class="upload-zone-icon">
+                                                        @(_isDragOver ? "📥" : "🎨")
+                                                    </div>
+                                                    <div class="upload-zone-title">@(_isDragOver ? "Drop image here!" : "Click or drag & drop")</div>
+                                                    <div class="upload-zone-subtitle">PNG, JPG, WebP, MP4 up to 20MB</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="uploaded-image-container">
+                                                        <img src="@_codeImageUrl" alt="Uploaded UI" class="uploaded-image" />
+                                                    </div>
+                                                }
+                                            </div>
+                                            
+                                            <InputFile id="codeImageUpload" accept="image/*,video/*" style="display: none;" OnChange="HandleCodeImageUploadNew" />
+                                        
+                                            @if (!string.IsNullOrEmpty(_codeImageUrl))
+                                            {
+                                                <button class="btn btn-outline-danger w-100 mt-3" style="border-radius: 10px; font-weight: 600;" @onclick="ClearCodeImage">
+                                                    🗑️ Remove Image
+                                                </button>
+                                            }
+                                        </div>
+
+                                        @* Generate button section *@
+                                        <div class="left-panel-section" style="border: 2px solid #e0e7ff; background: linear-gradient(180deg, #faf5ff 0%, #f5f3ff 100%);">
+                                            <button class="btn w-100 premium-action-btn @(_isAnalyzing || _isConvertingToCode ? "processing" : "")" 
+                                                    style="background: @(string.IsNullOrEmpty(_codeImageUrl) ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)" : "linear-gradient(135deg, #667eea 0%, #764ba2 40%, #ec4899 100%)"); color: white; border: none; border-radius: 16px; padding: 24px 28px; box-shadow: @(string.IsNullOrEmpty(_codeImageUrl) ? "0 4px 12px rgba(107, 114, 128, 0.3)" : "0 8px 32px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(102, 126, 234, 0.15)"); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1.2rem; position: relative; overflow: hidden; min-height: 90px; opacity: @(string.IsNullOrEmpty(_codeImageUrl) ? "0.7" : "1"); cursor: @(string.IsNullOrEmpty(_codeImageUrl) ? "not-allowed" : "pointer");" 
+                                                    @onclick="RunAnalysis" 
+                                                    disabled="@(string.IsNullOrEmpty(_codeImageUrl) || _isAnalyzing || _isConvertingToCode)">
+                                                <div class="btn-shimmer" style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transition: left 0.6s ease;"></div>
+                                                @if (_isAnalyzing || _isConvertingToCode)
+                                                {
+                                                    <div class="d-flex align-items-center justify-content-center gap-4">
+                                                        <div class="processing-spinner" style="width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                                                        <div style="text-align: left;">
+                                                            <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px;">Processing with AI...</div>
+                                                            <div style="font-size: 0.9rem; opacity: 0.9;">@GetServiceName() is analyzing your image</div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (string.IsNullOrEmpty(_codeImageUrl))
+                                                {
+                                                    <div class="d-flex align-items-center justify-content-center gap-4">
+                                                        <div style="background: rgba(255,255,255,0.25); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(8px);">
+                                                            <span style="font-size: 2rem;">📤</span>
+                                                        </div>
+                                                        <div style="text-align: left; flex: 1;">
+                                                            <div style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Upload an Image First</div>
+                                                            <div style="font-size: 0.95rem; opacity: 0.95; margin-top: 2px;">
+                                                                Drop or select an image above to get started
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 }
                                                 else
                                                 {
-                                                    <img src="@_codeImageUrl" alt="Uploaded UI" 
-                                                         style="max-width: 100%; max-height: 360px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);" />
+                                                    <div class="d-flex align-items-center justify-content-center gap-4">
+                                                        <div style="background: rgba(255,255,255,0.25); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(8px);">
+                                                            <span style="font-size: 2rem;">@GetAnalysisButtonIcon()</span>
+                                                        </div>
+                                                        <div style="text-align: left; flex: 1;">
+                                                            <div style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">@GetAnalysisButtonText()</div>
+                                                            <div style="font-size: 0.95rem; opacity: 0.95; margin-top: 2px;">
+                                                                @GetServiceName() • <span style="font-weight: 600;">@_targetFramework</span>
+                                                            </div>
+                                                        </div>
+                                                        <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 6px;">
+                                                            <span style="font-size: 1.5rem;">▶</span>
+                                                            <span style="font-weight: 700; font-size: 1rem;">GO</span>
+                                                        </div>
+                                                    </div>
                                                 }
-                                            </div>
-                                            
-                                            <InputFile id="codeImageUpload" accept="image/*" style="display: none;" OnChange="HandleCodeImageUploadNew" />
-                                        
-                                        @if (!string.IsNullOrEmpty(_codeImageUrl))
-                                        {
-                                            <button class="btn btn-outline-danger w-100 mb-3" style="border-radius: 10px;" @onclick="ClearCodeImage">
-                                                🗑️ Remove Image
                                             </button>
-                                        }
+                                            @if (!string.IsNullOrEmpty(_codeImageUrl))
+                                            {
+                                                <div class="text-center mt-3" style="font-size: 0.8rem; color: #6b7280;">
+                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">⌘</kbd> + 
+                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">Enter</kbd> 
+                                                    to generate
+                                                </div>
+                                            }
+                                        </div>
                                         
                                         @* Analysis Type Selection - Enhanced with API Details *@
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <label class="section-title mb-0" style="font-size: 0.9rem;">
-                                                    <span style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 1rem;">🎯 Analysis Type</span>
-                                                </label>
-                                                <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.75rem; padding: 5px 10px; font-weight: 600;">64 APIs</span>
+                                        <div class="left-panel-section">
+                                            <div class="section-header">
+                                                <div class="section-header-icon">🎯</div>
+                                                <div class="section-header-text">
+                                                    <div class="section-header-title">Analysis Type</div>
+                                                    <div class="section-header-subtitle">Select what to analyze or generate</div>
+                                                </div>
+                                                <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.72rem; padding: 5px 10px; font-weight: 600;">64 APIs</span>
                                             </div>
-                                            <select class="form-select form-control-modern analysis-select" @bind="_selectedAnalysis" style="font-size: 1rem; padding: 14px 16px; font-weight: 500;">
-                                                <optgroup label="💻 CODE GENERATION — GPT-4o Vision">
-                                                    <option value="code">💻 Generate Code → HTML/CSS/React/Vue/Blazor</option>
-                                                    <option value="codeWithViewModel">📋 Code + ViewModel → Complete with data binding</option>
-                                                </optgroup>
-                                                <optgroup label="🖼️ IMAGE EXTRACTION — AI + SkiaSharp">
-                                                    <option value="extractImages">🖼️ Extract All → Detect & crop all images</option>
-                                                    <option value="extractIcons">🎯 Icons Only → Small graphics & symbols</option>
-                                                    <option value="extractLogos">🏷️ Logos/Brands → Brand elements</option>
-                                                    <option value="extractPhotos">📷 Photos Only → Photographs & images</option>
-                                                    <option value="extractAvatars">👤 Avatars → Profile pictures & people</option>
-                                                    <option value="extractCharts">📊 Charts → Graphs & diagrams</option>
-                                                    <option value="extractBackgrounds">🖼️ Backgrounds → Background images</option>
-                                                </optgroup>
-                                                <optgroup label="📝 TEXT & OCR — Vision + GPT-4o">
-                                                    <option value="text">📜 Extract Text → OCR all visible text</option>
-                                                    <option value="handwriting">✍️ Handwriting → Transcribe handwritten text</option>
-                                                    <option value="table">📊 Table Data → Extract rows & columns</option>
-                                                    <option value="math">🔢 Math Equations → Convert to LaTeX</option>
-                                                    <option value="denseCaptions">💬 Dense Captions → Multiple region descriptions</option>
-                                                    <option value="singleCaption">📝 Single Caption → One sentence description</option>
-                                                </optgroup>
-                                                <optgroup label="📄 DOCUMENT INTELLIGENCE — Azure AI">
-                                                    <option value="document">📄 Parse Document → Extract structured data</option>
-                                                    <option value="invoice">🧾 Invoice → Vendor, items, totals</option>
-                                                    <option value="receipt">🧾 Receipt → Merchant, items, total</option>
-                                                    <option value="idDocument">🪪 ID Document → Name, DOB, ID number</option>
-                                                    <option value="businessCard">💼 Business Card → Contact info</option>
-                                                    <option value="chart">📈 Chart Data → Extract graph values</option>
-                                                </optgroup>
-                                                <optgroup label="🎨 DESIGN ANALYSIS — GPT-4o Vision">
-                                                    <option value="describe">📝 Describe → Full UI description</option>
-                                                    <option value="colors">🎨 Colors → Extract color palette</option>
-                                                    <option value="typography">🔤 Typography → Fonts & text styles</option>
-                                                    <option value="layout">📐 Layout → Grid, spacing, structure</option>
-                                                    <option value="components">🧩 Components → UI elements & hierarchy</option>
-                                                    <option value="icons">🎯 Icons → Identify icon library matches</option>
-                                                    <option value="smartCrops">✂️ Smart Crops → AI crop suggestions</option>
-                                                    <option value="tags">🏷️ Tags → Content categorization</option>
-                                                </optgroup>
-                                                <optgroup label="🔍 ADVANCED ANALYSIS — GPT-4o + Vision">
-                                                    <option value="accessibility">♿ Accessibility → WCAG audit & issues</option>
-                                                    <option value="improvements">💡 Improvements → UX suggestions</option>
-                                                    <option value="compare">🔄 Compare 2 → Diff two images</option>
-                                                    <option value="compareMultiple">🔄 Compare Multiple → Multi-image diff</option>
-                                                    <option value="imageDiff">🔍 Image Diff → Highlight changes</option>
-                                                    <option value="askQuestion">❓ Ask Question → Custom image Q&A</option>
-                                                    <option value="spatialQuestion">📍 Spatial Q&A → "What's left of X?"</option>
-                                                    <option value="comprehensive">🔬 Full Analysis → Complete UI breakdown</option>
-                                                </optgroup>
-                                                <optgroup label="🖼️ IMAGE PROCESSING — Azure + DALL-E">
-                                                    <option value="removeBackground">🗑️ Remove Background → Transparent PNG</option>
-                                                    <option value="upscale">⬆️ Upscale → 2x/4x resolution</option>
-                                                    <option value="styleTransfer">🎭 Style Transfer → Apply artistic style</option>
-                                                    <option value="segment">✂️ Segment → Split into regions</option>
-                                                    <option value="depthMap">🗺️ Depth Map → 3D depth estimation</option>
-                                                    <option value="editImage">✏️ Edit (DALL-E) → Modify image regions</option>
-                                                    <option value="imageVariations">🔄 Variations (DALL-E) → Similar images</option>
-                                                    <option value="generateImage">🎨 Generate (DALL-E) → Create from text</option>
-                                                </optgroup>
-                                                <optgroup label="👁️ AZURE VISION 4.0 — Computer Vision">
-                                                    <option value="visionCaption">📝 Caption → Single description</option>
-                                                    <option value="visionDenseCaptions">💬 Dense Captions → Region captions</option>
-                                                    <option value="visionTags">🏷️ Tags → Content labels</option>
-                                                    <option value="visionSmartCrops">✂️ Smart Crops → Suggested crops</option>
-                                                    <option value="visionRead">🔎 OCR (Vision) → Printed/handwriting</option>
-                                                    <option value="detectObjects">📦 Objects → Detect with bounding boxes</option>
-                                                    <option value="detectFaces">👤 Faces → Age, gender, emotion</option>
-                                                    <option value="detectPeople">🚶 People → Person detection</option>
-                                                    <option value="detectBrands">🏷️ Brands → Logo recognition</option>
-                                                    <option value="imageType">🖼️ Image Type → Photo/clipart/drawing</option>
-                                                    <option value="adultContent">🔞 Content Check → Adult/racy/gore</option>
-                                                    <option value="imageCategory">📁 Category → Scene classification</option>
-                                                    <option value="analyzeComprehensive">🔬 Vision Full → All features combined</option>
-                                                </optgroup>
-                                                <optgroup label="🤖 CHAT & CUSTOM — GPT-4o">
-                                                    <option value="chat">💬 Chat → Conversation with AI</option>
-                                                    <option value="customPrompt">📝 Custom Prompt → Your own question</option>
-                                                </optgroup>
-                                            </select>
+                                            <div class="analysis-picker">
+                                                <div class="analysis-group @(IsGroupEnabled("codeGen") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("codeGen")' aria-label="Toggle Code Generation" aria-expanded="@(!IsGroupCollapsed("codeGen"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("codeGen") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>💻 CODE GENERATION — GPT-4o Vision</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("codeGen")" @onchange='e => ToggleGroup("codeGen", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("codeGen"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("codeGen"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "code" ? "active" : "" )" @onclick='() => SelectAnalysis("code")'><span class="analysis-icon">CG</span>Generate Code → HTML/CSS/React/Vue/Blazor</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "codeWithViewModel" ? "active" : "" )" @onclick='() => SelectAnalysis("codeWithViewModel")'><span class="analysis-icon">VM</span>Code + ViewModel → Complete with data binding</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("imageExtraction") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("imageExtraction")' aria-label="Toggle Image Extraction" aria-expanded="@(!IsGroupCollapsed("imageExtraction"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("imageExtraction") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🖼️ IMAGE EXTRACTION — AI + SkiaSharp</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("imageExtraction")" @onchange='e => ToggleGroup("imageExtraction", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("imageExtraction"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("imageExtraction"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractImages" ? "active" : "" )" @onclick='() => SelectAnalysis("extractImages")'><span class="analysis-icon">EX</span>Extract All → Detect & crop all images</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractIcons" ? "active" : "" )" @onclick='() => SelectAnalysis("extractIcons")'><span class="analysis-icon">IC</span>Icons Only → Small graphics & symbols</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractLogos" ? "active" : "" )" @onclick='() => SelectAnalysis("extractLogos")'><span class="analysis-icon">LG</span>Logos/Brands → Brand elements</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractPhotos" ? "active" : "" )" @onclick='() => SelectAnalysis("extractPhotos")'><span class="analysis-icon">PH</span>Photos Only → Photographs & images</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractAvatars" ? "active" : "" )" @onclick='() => SelectAnalysis("extractAvatars")'><span class="analysis-icon">AV</span>Avatars → Profile pictures & people</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractCharts" ? "active" : "" )" @onclick='() => SelectAnalysis("extractCharts")'><span class="analysis-icon">CH</span>Charts → Graphs & diagrams</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "extractBackgrounds" ? "active" : "" )" @onclick='() => SelectAnalysis("extractBackgrounds")'><span class="analysis-icon">BG</span>Backgrounds → Background images</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("textOcr") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("textOcr")' aria-label="Toggle Text and OCR" aria-expanded="@(!IsGroupCollapsed("textOcr"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("textOcr") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>📝 TEXT & OCR — Vision + GPT-4o</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("textOcr")" @onchange='e => ToggleGroup("textOcr", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("textOcr"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("textOcr"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "text" ? "active" : "" )" @onclick='() => SelectAnalysis("text")'><span class="analysis-icon">TX</span>Extract Text → OCR all visible text</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "handwriting" ? "active" : "" )" @onclick='() => SelectAnalysis("handwriting")'><span class="analysis-icon">HW</span>Handwriting → Transcribe handwritten text</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "table" ? "active" : "" )" @onclick='() => SelectAnalysis("table")'><span class="analysis-icon">TB</span>Table Data → Extract rows & columns</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "math" ? "active" : "" )" @onclick='() => SelectAnalysis("math")'><span class="analysis-icon">MX</span>Math Equations → Convert to LaTeX</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "denseCaptions" ? "active" : "" )" @onclick='() => SelectAnalysis("denseCaptions")'><span class="analysis-icon">DC</span>Dense Captions → Multiple region descriptions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "singleCaption" ? "active" : "" )" @onclick='() => SelectAnalysis("singleCaption")'><span class="analysis-icon">SC</span>Single Caption → One sentence description</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("docIntel") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("docIntel")' aria-label="Toggle Document Intelligence" aria-expanded="@(!IsGroupCollapsed("docIntel"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("docIntel") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>📄 DOCUMENT INTELLIGENCE — Azure AI</span>
+                                                             <span class="badge badge-microsoft">Microsoft</span>
+                                                             @{ var docIntelStatus = GetServiceStatus("docIntel"); }
+                                                             <span class="status-icon" title="@docIntelStatus.title">@docIntelStatus.icon</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("docIntel")" @onchange='e => ToggleGroup("docIntel", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("docIntel"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("docIntel"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "document" ? "active" : "" )" @onclick='() => SelectAnalysis("document")'><span class="analysis-icon">DI</span>Parse Document → Extract structured data</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "invoice" ? "active" : "" )" @onclick='() => SelectAnalysis("invoice")'><span class="analysis-icon">IN</span>Invoice → Vendor, items, totals</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "receipt" ? "active" : "" )" @onclick='() => SelectAnalysis("receipt")'><span class="analysis-icon">RC</span>Receipt → Merchant, items, total</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "idDocument" ? "active" : "" )" @onclick='() => SelectAnalysis("idDocument")'><span class="analysis-icon">ID</span>ID Document → Name, DOB, ID number</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "businessCard" ? "active" : "" )" @onclick='() => SelectAnalysis("businessCard")'><span class="analysis-icon">BC</span>Business Card → Contact info</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "chart" ? "active" : "" )" @onclick='() => SelectAnalysis("chart")'><span class="analysis-icon">CD</span>Chart Data → Extract graph values</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("customVision") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("customVision")' aria-label="Toggle Custom Vision" aria-expanded="@(!IsGroupCollapsed("customVision"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("customVision") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🤖 CUSTOM VISION — Advanced AI</span>
+                                                             <span class="badge badge-microsoft">Microsoft</span>
+                                                             @{ var customVisionStatus = GetServiceStatus("customVision"); }
+                                                             <span class="status-icon" title="@customVisionStatus.title">@customVisionStatus.icon</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("customVision")" @onchange='e => ToggleGroup("customVision", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("customVision"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("customVision"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "customVisionClassify" ? "active" : "" )" @onclick='() => SelectAnalysis("customVisionClassify")'><span class="analysis-icon">CL</span>Custom Classify → Project-trained labels</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "customVisionDetect" ? "active" : "" )" @onclick='() => SelectAnalysis("customVisionDetect")'><span class="analysis-icon">DT</span>Custom Detect → Project-trained objects</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("video") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("video")' aria-label="Toggle Video Analysis" aria-expanded="@(!IsGroupCollapsed("video"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("video") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🎬 VIDEO ANALYSIS — Advanced AI</span>
+                                                             <span class="badge badge-microsoft">Microsoft</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("video")" @onchange='e => ToggleGroup("video", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("video"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("video"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "videoFrames" ? "active" : "" )" @onclick='() => SelectAnalysis("videoFrames")'><span class="analysis-icon">VF</span>Extract Frames → Sample video timeline</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "videoAnalyze" ? "active" : "" )" @onclick='() => SelectAnalysis("videoAnalyze")'><span class="analysis-icon">VA</span>Analyze Video → Insights & transcript</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("design") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("design")' aria-label="Toggle Design Analysis" aria-expanded="@(!IsGroupCollapsed("design"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("design") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🎨 DESIGN ANALYSIS — GPT-4o Vision</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("design")" @onchange='e => ToggleGroup("design", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("design"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("design"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "describe" ? "active" : "" )" @onclick='() => SelectAnalysis("describe")'><span class="analysis-icon">DS</span>Describe → Full UI description</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "colors" ? "active" : "" )" @onclick='() => SelectAnalysis("colors")'><span class="analysis-icon">CL</span>Colors → Extract color palette</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "typography" ? "active" : "" )" @onclick='() => SelectAnalysis("typography")'><span class="analysis-icon">TY</span>Typography → Fonts & text styles</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "layout" ? "active" : "" )" @onclick='() => SelectAnalysis("layout")'><span class="analysis-icon">LY</span>Layout → Grid, spacing, structure</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "components" ? "active" : "" )" @onclick='() => SelectAnalysis("components")'><span class="analysis-icon">CP</span>Components → UI elements & hierarchy</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "icons" ? "active" : "" )" @onclick='() => SelectAnalysis("icons")'><span class="analysis-icon">IC</span>Icons → Identify icon library matches</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "smartCrops" ? "active" : "" )" @onclick='() => SelectAnalysis("smartCrops")'><span class="analysis-icon">CR</span>Smart Crops → AI crop suggestions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "tags" ? "active" : "" )" @onclick='() => SelectAnalysis("tags")'><span class="analysis-icon">TG</span>Tags → Content categorization</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("advanced") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("advanced")' aria-label="Toggle Advanced Analysis" aria-expanded="@(!IsGroupCollapsed("advanced"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("advanced") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🔍 ADVANCED ANALYSIS — GPT-4o + Vision</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("advanced")" @onchange='e => ToggleGroup("advanced", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("advanced"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("advanced"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "accessibility" ? "active" : "" )" @onclick='() => SelectAnalysis("accessibility")'><span class="analysis-icon">AC</span>Accessibility → WCAG audit & issues</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "improvements" ? "active" : "" )" @onclick='() => SelectAnalysis("improvements")'><span class="analysis-icon">UX</span>Improvements → UX suggestions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "compare" ? "active" : "" )" @onclick='() => SelectAnalysis("compare")'><span class="analysis-icon">C2</span>Compare 2 → Diff two images</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "compareMultiple" ? "active" : "" )" @onclick='() => SelectAnalysis("compareMultiple")'><span class="analysis-icon">CM</span>Compare Multiple → Multi-image diff</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "imageDiff" ? "active" : "" )" @onclick='() => SelectAnalysis("imageDiff")'><span class="analysis-icon">DF</span>Image Diff → Highlight changes</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "askQuestion" ? "active" : "" )" @onclick='() => SelectAnalysis("askQuestion")'><span class="analysis-icon">Q?</span>Ask Question → Custom image Q&A</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "spatialQuestion" ? "active" : "" )" @onclick='() => SelectAnalysis("spatialQuestion")'><span class="analysis-icon">SP</span>Spatial Q&A → "What's left of X?"</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "comprehensive" ? "active" : "" )" @onclick='() => SelectAnalysis("comprehensive")'><span class="analysis-icon">FA</span>Full Analysis → Complete UI breakdown</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("imageProcessing") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("imageProcessing")' aria-label="Toggle Image Processing" aria-expanded="@(!IsGroupCollapsed("imageProcessing"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("imageProcessing") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🖼️ IMAGE PROCESSING — Azure + DALL-E</span>
+                                                             <span class="badge badge-microsoft">Microsoft</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("imageProcessing")" @onchange='e => ToggleGroup("imageProcessing", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("imageProcessing"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("imageProcessing"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "removeBackground" ? "active" : "" )" @onclick='() => SelectAnalysis("removeBackground")'><span class="analysis-icon">RB</span>Remove Background → Transparent PNG</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "upscale" ? "active" : "" )" @onclick='() => SelectAnalysis("upscale")'><span class="analysis-icon">UP</span>Upscale → 2x/4x resolution</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "styleTransfer" ? "active" : "" )" @onclick='() => SelectAnalysis("styleTransfer")'><span class="analysis-icon">ST</span>Style Transfer → Apply artistic style</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "segment" ? "active" : "" )" @onclick='() => SelectAnalysis("segment")'><span class="analysis-icon">SG</span>Segment → Split into regions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "depthMap" ? "active" : "" )" @onclick='() => SelectAnalysis("depthMap")'><span class="analysis-icon">DM</span>Depth Map → 3D depth estimation</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "editImage" ? "active" : "" )" @onclick='() => SelectAnalysis("editImage")'><span class="analysis-icon">ED</span>Edit (DALL-E) → Modify image regions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "imageVariations" ? "active" : "" )" @onclick='() => SelectAnalysis("imageVariations")'><span class="analysis-icon">VR</span>Variations (DALL-E) → Similar images</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "generateImage" ? "active" : "" )" @onclick='() => SelectAnalysis("generateImage")'><span class="analysis-icon">GI</span>Generate (DALL-E) → Create from text</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("azureVision") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("azureVision")' aria-label="Toggle Azure Vision" aria-expanded="@(!IsGroupCollapsed("azureVision"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("azureVision") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>👁️ AZURE VISION 4.0 — Computer Vision</span>
+                                                             <span class="badge badge-microsoft">Microsoft</span>
+                                                             @{ var azureVisionStatus = GetServiceStatus("azureVision"); }
+                                                             <span class="status-icon" title="@azureVisionStatus.title">@azureVisionStatus.icon</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("azureVision")" @onchange='e => ToggleGroup("azureVision", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("azureVision"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("azureVision"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionAnalyze" ? "active" : "" )" @onclick='() => SelectAnalysis("visionAnalyze")'><span class="analysis-icon">VA</span>Analyze (Objects + Captions) → Quick vision pass</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionCaption" ? "active" : "" )" @onclick='() => SelectAnalysis("visionCaption")'><span class="analysis-icon">CP</span>Caption → Single description</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionDenseCaptions" ? "active" : "" )" @onclick='() => SelectAnalysis("visionDenseCaptions")'><span class="analysis-icon">DC</span>Dense Captions → Region captions</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionTags" ? "active" : "" )" @onclick='() => SelectAnalysis("visionTags")'><span class="analysis-icon">TG</span>Tags → Content labels</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionSmartCrops" ? "active" : "" )" @onclick='() => SelectAnalysis("visionSmartCrops")'><span class="analysis-icon">SC</span>Smart Crops → Suggested crops</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "visionRead" ? "active" : "" )" @onclick='() => SelectAnalysis("visionRead")'><span class="analysis-icon">OR</span>OCR (Vision) → Printed/handwriting</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "detectObjects" ? "active" : "" )" @onclick='() => SelectAnalysis("detectObjects")'><span class="analysis-icon">OB</span>Objects → Detect with bounding boxes</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "detectFaces" ? "active" : "" )" @onclick='() => SelectAnalysis("detectFaces")'><span class="analysis-icon">FC</span>Faces → Age, gender, emotion</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "detectPeople" ? "active" : "" )" @onclick='() => SelectAnalysis("detectPeople")'><span class="analysis-icon">PE</span>People → Person detection</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "detectBrands" ? "active" : "" )" @onclick='() => SelectAnalysis("detectBrands")'><span class="analysis-icon">BR</span>Brands → Logo recognition</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "imageType" ? "active" : "" )" @onclick='() => SelectAnalysis("imageType")'><span class="analysis-icon">IT</span>Image Type → Photo/clipart/drawing</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "adultContent" ? "active" : "" )" @onclick='() => SelectAnalysis("adultContent")'><span class="analysis-icon">SA</span>Content Check → Adult/racy/gore</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "imageCategory" ? "active" : "" )" @onclick='() => SelectAnalysis("imageCategory")'><span class="analysis-icon">CT</span>Category → Scene classification</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "analyzeComprehensive" ? "active" : "" )" @onclick='() => SelectAnalysis("analyzeComprehensive")'><span class="analysis-icon">VF</span>Vision Full → All features combined</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                                <div class="analysis-group @(IsGroupEnabled("chat") ? string.Empty : "analysis-group-disabled")">
+                                                    <div class="analysis-group-title">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button type="button" class="collapse-toggle" @onclick='() => ToggleGroupCollapse("chat")' aria-label="Toggle Chat" aria-expanded="@(!IsGroupCollapsed("chat"))">
+                                                                <span class="collapse-icon @(IsGroupCollapsed("chat") ? "collapsed" : string.Empty)"></span>
+                                                            </button>
+                                                            <span>🤖 CHAT & CUSTOM — GPT-4o</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="form-check form-switch m-0">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked="@IsGroupEnabled("chat")" @onchange='e => ToggleGroup("chat", e.Value)' />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (IsGroupCollapsed("chat"))
+                                                    {
+                                                        <div class="group-collapsed-note">Collapsed — expand to choose an option.</div>
+                                                    }
+                                                    else if (IsGroupEnabled("chat"))
+                                                    {
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "chat" ? "active" : "" )" @onclick='() => SelectAnalysis("chat")'><span class="analysis-icon">CH</span>Chat → Conversation with AI</button>
+                                                        <button type="button" class="analysis-option @( _selectedAnalysis == "customPrompt" ? "active" : "" )" @onclick='() => SelectAnalysis("customPrompt")'><span class="analysis-icon">CP</span>Custom Prompt → Your own question</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="group-collapsed-note">Group excluded</div>
+                                                    }
+                                                </div>
+                                            </div>
                                             
                                             @* API Details Card - Enhanced *@
                                             <div class="api-detail-card mt-3 p-3" style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%); border-radius: 12px; border: 2px solid #e0e7ff;">
@@ -1137,13 +1816,17 @@
                                         @* Image Extraction Options *@
                                         @if (_selectedAnalysis == "extractImages")
                                         {
-                                            <div class="mb-3 p-2" style="background: #f0f4ff; border-radius: 8px; border: 1px solid #667eea;">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <label class="section-title mb-0">🎯 Extraction Mode</label>
+                                            <div class="left-panel-section">
+                                                <div class="section-header">
+                                                    <div class="section-header-icon">🎯</div>
+                                                    <div class="section-header-text">
+                                                        <div class="section-header-title">Extraction Mode</div>
+                                                        <div class="section-header-subtitle">Configure image extraction settings</div>
+                                                    </div>
                                                     <button type="button" class="btn btn-sm" 
-                                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.75rem;"
+                                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.72rem; font-weight: 600;"
                                                             @onclick="ShowExtractionModeInfo">
-                                                        ℹ️ Service Info
+                                                        ℹ️ Info
                                                     </button>
                                                 </div>
                                                 @{
@@ -1273,11 +1956,14 @@
                                         
                                         @if (_selectedAnalysis == "code" || _selectedAnalysis == "codeWithViewModel")
                                         {
-                                            <div class="mb-4">
-                                                <label class="section-title" style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; margin-bottom: 10px;">
-                                                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">🎯</span>
-                                                    <span style="font-weight: 700; color: #4f46e5;">Target Framework</span>
-                                                </label>
+                                            <div class="left-panel-section">
+                                                <div class="section-header">
+                                                    <div class="section-header-icon">🎯</div>
+                                                    <div class="section-header-text">
+                                                        <div class="section-header-title">Target Framework</div>
+                                                        <div class="section-header-subtitle">Choose output format for code generation</div>
+                                                    </div>
+                                                </div>
                                                 <select class="form-select form-control-modern" @bind="_targetFramework" style="font-size: 1rem; padding: 12px 14px; font-weight: 500; border: 2px solid #e0e7ff;">
                                                     <option value="HTML/CSS">🌐 HTML/CSS — Vanilla web</option>
                                                     <option value="Tailwind CSS">🎨 Tailwind CSS — Utility-first</option>
@@ -1292,65 +1978,6 @@
                                             </div>
                                         }
                                         
-                                        @* ========== GIANT GENERATE BUTTON - ALWAYS VISIBLE ========== *@
-                                        <div class="generate-button-section" style="background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 100%); border-radius: 16px; padding: 16px; margin-top: 16px; border: 2px solid #e0e7ff;">
-                                            @if (string.IsNullOrEmpty(_codeImageUrl))
-                                            {
-                                                @* Upload Required Message *@
-                                                <div class="text-center p-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border: 2px dashed #f59e0b;">
-                                                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">📤</span>
-                                                    <p class="mb-1 fw-bold" style="color: #92400e; font-size: 1.1rem;">Upload an Image First</p>
-                                                    <p class="mb-0" style="color: #b45309; font-size: 0.9rem;">Drop or click the upload zone above to get started</p>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                @* GIANT GENERATE BUTTON *@
-                                                <button class="btn w-100 premium-action-btn @(_isAnalyzing || _isConvertingToCode ? "processing" : "")" 
-                                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 40%, #ec4899 100%); color: white; border: none; border-radius: 16px; padding: 24px 28px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(102, 126, 234, 0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1.2rem; position: relative; overflow: hidden; min-height: 90px;" 
-                                                        @onclick="RunAnalysis" 
-                                                        disabled="@(_isAnalyzing || _isConvertingToCode)">
-                                                    @* Animated Background Shimmer *@
-                                                    <div class="btn-shimmer" style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transition: left 0.6s ease;"></div>
-                                                    
-                                                    @if (_isAnalyzing || _isConvertingToCode)
-                                                    {
-                                                        <div class="d-flex align-items-center justify-content-center gap-4">
-                                                            <div class="processing-spinner" style="width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-                                                            <div style="text-align: left;">
-                                                                <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px;">Processing with AI...</div>
-                                                                <div style="font-size: 0.9rem; opacity: 0.9;">@GetServiceName() is analyzing your image</div>
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="d-flex align-items-center justify-content-center gap-4">
-                                                            <div style="background: rgba(255,255,255,0.25); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(8px);">
-                                                                <span style="font-size: 2rem;">@GetAnalysisButtonIcon()</span>
-                                                            </div>
-                                                            <div style="text-align: left; flex: 1;">
-                                                                <div style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">@GetAnalysisButtonText()</div>
-                                                                <div style="font-size: 0.95rem; opacity: 0.95; margin-top: 2px;">
-                                                                    @GetServiceName() • <span style="font-weight: 600;">@_targetFramework</span>
-                                                                </div>
-                                                            </div>
-                                                            <div style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 6px;">
-                                                                <span style="font-size: 1.5rem;">▶</span>
-                                                                <span style="font-weight: 700; font-size: 1rem;">GO</span>
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                </button>
-                                                
-                                                @* Keyboard Shortcut Hint *@
-                                                <div class="text-center mt-3" style="font-size: 0.8rem; color: #6b7280;">
-                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">⌘</kbd> + 
-                                                    <kbd style="background: #e5e7eb; padding: 3px 8px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; font-weight: 600;">Enter</kbd> 
-                                                    to generate
-                                                </div>
-                                            }
-                                        </div>
                                     </div>
                                 </div>
                                 
@@ -1449,7 +2076,7 @@
                                                             <span style="font-weight: 600; font-size: 0.85rem;">👁️ @GetPreviewTitle()</span>
                                                             <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; padding: 3px 10px; font-size: 0.75rem;" @onclick="RefreshPreview">🔄 Refresh</button>
                                                         </div>
-                                                        <div style="flex: 1; background: white; position: relative; min-height: 0; overflow: auto;">
+                                                        <div class="stack-fill" style="flex: 1; background: white; position: relative; overflow: hidden;">
                                                             @if (CanShowPreview())
                                                             {
                                                                 @* Universal Preview - Works for both Razor and HTML frameworks *@
@@ -1457,7 +2084,7 @@
                                                                     RazorMarkup="@_generatedCode" 
                                                                     Framework="@_targetFramework"
                                                                     ShowWarnings="true"
-                                                                    ContainerStyle="height: 100%; min-height: 300px;" />
+                                                                    ContainerStyle="width: 100%; height: 100%; min-height: 0;" />
                                                             }
                                                             else
                                                             {
@@ -1486,7 +2113,7 @@
                                                             <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 12px; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
                                                                 👁️ @GetPreviewTitle()
                                                             </div>
-                                                            <div style="flex: 1; background: white; position: relative; min-height: 0; overflow: auto;">
+                                                            <div class="stack-fill" style="flex: 1; background: white; position: relative; overflow: hidden;">
                                                                 @if (CanShowPreview())
                                                                 {
                                                                     @* Universal Preview - Works for both Razor and HTML frameworks *@
@@ -1494,7 +2121,7 @@
                                                                         RazorMarkup="@_generatedCode" 
                                                                         Framework="@_targetFramework"
                                                                         ShowWarnings="false"
-                                                                        ContainerStyle="height: 100%; min-height: 200px;" />
+                                                                        ContainerStyle="width: 100%; height: 100%; min-height: 0;" />
                                                                 }
                                                                 else
                                                                 {
@@ -2065,8 +2692,8 @@
                                             }
                                             else if (!string.IsNullOrEmpty(_analysisResult))
                                             {
-                                                <div style="flex: 1; overflow: auto;">
-                                                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">@_analysisResult</pre>
+                                                <div style="flex: 1; min-height: 0; overflow: auto; display: flex;">
+                                                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; width: 100%; min-height: 100%;">@_analysisResult</pre>
                                                 </div>
                                             }
                                             else
@@ -2180,6 +2807,45 @@
     
     // Vision Analysis Features
     private string _selectedAnalysis = "code"; // code, codeWithViewModel, extractImages, extractIcons, extractLogos, describe, colors, typography, layout, components, icons, accessibility, comprehensive
+    private readonly Dictionary<string, bool> _analysisGroupEnabled = new(StringComparer.OrdinalIgnoreCase)
+    {
+        {"codeGen", true},
+        {"imageExtraction", true},
+        {"textOcr", true},
+        {"docIntel", true},
+        {"customVision", true},
+        {"video", true},
+        {"design", true},
+        {"advanced", true},
+        {"imageProcessing", true},
+        {"azureVision", true},
+        {"chat", true}
+    };
+    private readonly Dictionary<string, bool> _analysisGroupCollapsed = new(StringComparer.OrdinalIgnoreCase)
+    {
+        {"codeGen", false},
+        {"imageExtraction", false},
+        {"textOcr", false},
+        {"docIntel", false},
+        {"customVision", false},
+        {"video", false},
+        {"design", false},
+        {"advanced", false},
+        {"imageProcessing", false},
+        {"azureVision", false},
+        {"chat", false}
+    };
+    private readonly List<string> _analysisOrder = new()
+    {
+        "code","codeWithViewModel","extractImages","extractIcons","extractLogos","extractPhotos","extractAvatars","extractCharts","extractBackgrounds",
+        "text","handwriting","table","math","denseCaptions","singleCaption","document","invoice","receipt","idDocument","businessCard","chart",
+        "customVisionClassify","customVisionDetect","videoFrames","videoAnalyze","describe","colors","typography","layout","components","icons","smartCrops","tags",
+        "accessibility","improvements","compare","compareMultiple","imageDiff","askQuestion","spatialQuestion","comprehensive",
+        "removeBackground","upscale","styleTransfer","segment","depthMap","editImage","imageVariations","generateImage",
+        "visionAnalyze","visionCaption","visionDenseCaptions","visionTags","visionSmartCrops","visionRead","detectObjects","detectFaces","detectPeople","detectBrands","imageType","adultContent","imageCategory","analyzeComprehensive",
+        "chat","customPrompt"
+    };
+    private const string AnalysisGroupSettingsKey = "AnalysisGroupVisibility";
     private string _analysisResult = "";
     private bool _isAnalyzing = false;
     private string? _processedImageBase64 = null; // For image processing results (background removal, upscale, etc.)
@@ -2213,7 +2879,6 @@
     private int _minComponentSize = 20;
     private bool _refineWithEdgeDetection = true;
     private int _edgeDetectionThreshold = 30;
-    private int _colorThreshold = 25;
     
     // ViewModel Generation with OCR
     private string _viewModelTab = "extracted"; // extracted, viewmodel, razor, preview
@@ -2230,12 +2895,125 @@
     private RenderResult? _lastRazorRenderResult;
     
     // HTML Preview content for srcdoc binding
-    private string _htmlPreviewContent = "<html><body style='font-family:sans-serif;padding:20px;color:#888;text-align:center;'><h2>👁️ Preview Area</h2><p>Generate HTML or Tailwind CSS code to see preview</p></body></html>";
+        private string _htmlPreviewContent = "<html><body style='font-family:sans-serif;padding:20px;color:#888;text-align:center;'><h2>👁️ Preview Area</h2><p>Generate HTML or Tailwind CSS code to see preview</p></body></html>";
 
-    private async Task StartSignIn()
-    {
-        _error = "";
-        _state = AppState.SigningIn;
+        private bool IsGroupCollapsed(string key) => _analysisGroupCollapsed.TryGetValue(key, out var collapsed) ? collapsed : false;
+
+        private void ToggleGroupCollapse(string key)
+        {
+            _analysisGroupCollapsed[key] = IsGroupCollapsed(key) == false;
+            StateHasChanged();
+        }
+
+        private bool IsGroupEnabled(string key) => _analysisGroupEnabled.TryGetValue(key, out var enabled) ? enabled : true;
+
+        private bool IsGroupHealthy(string key) => key switch
+        {
+            "azureVision" => AzureVision?.IsConfigured == true || (!string.IsNullOrEmpty(_serviceSettings.VisionEndpoint) && !string.IsNullOrEmpty(_serviceSettings.VisionKey)),
+            "docIntel" => !string.IsNullOrEmpty(_serviceSettings.DocumentIntelligenceEndpoint) && !string.IsNullOrEmpty(_serviceSettings.DocumentIntelligenceKey),
+            "customVision" => !string.IsNullOrEmpty(_serviceSettings.CustomVisionEndpoint) && !string.IsNullOrEmpty(_serviceSettings.CustomVisionKey),
+            _ => true
+        };
+
+        private (string icon, string title) GetServiceStatus(string key)
+        {
+            var healthy = IsGroupHealthy(key);
+            return healthy
+                ? ("🟢", "Service connected")
+                : ("⚪️", "Service not configured or unreachable");
+        }
+
+        private string GetGroupKeyForAnalysis(string analysis) => analysis switch
+        {
+            "code" or "codeWithViewModel" => "codeGen",
+            "extractImages" or "extractIcons" or "extractLogos" or "extractPhotos" or "extractAvatars" or "extractCharts" or "extractBackgrounds" => "imageExtraction",
+            "text" or "handwriting" or "table" or "math" or "denseCaptions" or "singleCaption" => "textOcr",
+            "document" or "invoice" or "receipt" or "idDocument" or "businessCard" or "chart" => "docIntel",
+            "customVisionClassify" or "customVisionDetect" => "customVision",
+            "videoFrames" or "videoAnalyze" => "video",
+            "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "smartCrops" or "tags" => "design",
+            "accessibility" or "improvements" or "compare" or "compareMultiple" or "imageDiff" or "askQuestion" or "spatialQuestion" or "comprehensive" => "advanced",
+            "removeBackground" or "upscale" or "styleTransfer" or "segment" or "depthMap" or "editImage" or "imageVariations" or "generateImage" => "imageProcessing",
+            "visionAnalyze" or "visionCaption" or "visionDenseCaptions" or "visionTags" or "visionSmartCrops" or "visionRead" or "detectObjects" or "detectFaces" or "detectPeople" or "detectBrands" or "imageType" or "adultContent" or "imageCategory" or "analyzeComprehensive" => "azureVision",
+            "chat" or "customPrompt" => "chat",
+            _ => "advanced"
+        };
+
+        private string? GetFirstEnabledAnalysis()
+        {
+            foreach (var key in _analysisOrder)
+            {
+                if (IsGroupEnabled(GetGroupKeyForAnalysis(key)))
+                    return key;
+            }
+            return null;
+        }
+
+        private async Task LoadGroupSettingsAsync()
+        {
+            try
+            {
+                var saved = await JS.InvokeAsync<string>("localStorage.getItem", AnalysisGroupSettingsKey);
+                if (!string.IsNullOrEmpty(saved))
+                {
+                    var loaded = JsonSerializer.Deserialize<Dictionary<string, bool>>(saved);
+                    if (loaded != null)
+                    {
+                        foreach (var kvp in loaded)
+                        {
+                            _analysisGroupEnabled[kvp.Key] = kvp.Value;
+                        }
+                    }
+                }
+            }
+            catch { /* ignore persistence failures */ }
+        }
+
+        private async Task SaveGroupSettingsAsync()
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(_analysisGroupEnabled);
+                await JS.InvokeVoidAsync("localStorage.setItem", AnalysisGroupSettingsKey, json);
+            }
+            catch { /* ignore persistence failures */ }
+        }
+
+        private async Task ToggleGroup(string key, object? value)
+        {
+            if (!bool.TryParse(Convert.ToString(value), out var enabled))
+            {
+                enabled = true;
+            }
+
+            _analysisGroupEnabled[key] = enabled;
+
+            if (!enabled && GetGroupKeyForAnalysis(_selectedAnalysis) == key)
+            {
+                _selectedAnalysis = GetFirstEnabledAnalysis() ?? _selectedAnalysis;
+            }
+
+            await SaveGroupSettingsAsync();
+            StateHasChanged();
+        }
+
+        private void SelectAnalysis(string value)
+        {
+            var group = GetGroupKeyForAnalysis(value);
+            if (!IsGroupEnabled(group))
+            {
+                // Pick first enabled analysis if target group is disabled
+                _selectedAnalysis = GetFirstEnabledAnalysis() ?? _selectedAnalysis;
+                return;
+            }
+
+            _selectedAnalysis = value;
+        }
+     
+         private async Task StartSignIn()
+         {
+             _error = "";
+             _state = AppState.SigningIn;
         _userCode = "";
         _verificationUrl = "";
         _copied = false;
@@ -2327,7 +3105,7 @@
             }
             
             // Wait for auth with timeout
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(LoginTimeoutSeconds), _loginCancellation.Token);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(LoginTimeoutSeconds), _loginCancellation!.Token);
             var completedTask = await Task.WhenAny(authTask, timeoutTask);
             
             if (completedTask == timeoutTask || _loginCancellation.Token.IsCancellationRequested)
@@ -2966,19 +3744,33 @@
                 // ===== NEW ANALYSIS TYPES =====
 
                 // Azure Vision 4.0 - Caption, Dense Captions, Tags, Smart Crops, OCR
-                case "visionCaption":
-                    if (AzureVision != null && AzureVision.IsConfigured)
-                    {
-                        var captionResult = await AzureVision.GetImageCaptionAsync(Convert.FromBase64String(_codeImageBase64));
-                        _analysisResult = captionResult.Success
-                            ? $"Caption: {captionResult.Caption}\nConfidence: {captionResult.Confidence:P0}"
-                            : $"Error: {captionResult.ErrorMessage}";
-                    }
-                    else
-                    {
-                        _codeError = "Azure Vision service not configured";
-                    }
-                    break;
+                 case "visionCaption":
+                     if (AzureVision != null && AzureVision.IsConfigured)
+                     {
+                         var captionResult = await AzureVision.GetImageCaptionAsync(Convert.FromBase64String(_codeImageBase64));
+                         _analysisResult = captionResult.Success
+                             ? $"Caption: {captionResult.Caption}\nConfidence: {captionResult.Confidence:P0}"
+                             : $"Error: {captionResult.ErrorMessage}";
+                     }
+                     else
+                     {
+                         _codeError = "Azure Vision service not configured";
+                     }
+                     break;
+
+                 case "visionAnalyze":
+                     if (AzureVision != null && AzureVision.IsConfigured)
+                     {
+                         var analyzeResult = await AzureVision.AnalyzeImageAsync(Convert.FromBase64String(_codeImageBase64));
+                         _analysisResult = analyzeResult.Success
+                             ? FormatObjectDetectionResult(analyzeResult)
+                             : $"Error: {analyzeResult.ErrorMessage}";
+                     }
+                     else
+                     {
+                         _codeError = "Azure Vision service not configured";
+                     }
+                     break;
 
                 case "visionDenseCaptions":
                     if (AzureVision != null && AzureVision.IsConfigured)
@@ -3123,6 +3915,111 @@
                     _analysisResult = chartResult.Success ? FormatChartResult(chartResult) : $"Error: {chartResult.ErrorMessage}";
                     break;
 
+                case "customVisionClassify":
+                    if (AdvancedAI != null)
+                    {
+                        var classifyResult = await AdvancedAI.ClassifyImageAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (classifyResult.Success && classifyResult.Predictions != null)
+                        {
+                            _analysisResult = "Custom Vision — Classification:\n" + string.Join("\n", classifyResult.Predictions.Select(p => $"• {p.TagName} ({p.Probability:P0})"));
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {classifyResult.ErrorMessage ?? "No predictions returned"}";
+                        }
+                    }
+                    else
+                    {
+                        _analysisResult = "Custom Vision not configured";
+                    }
+                    break;
+
+                case "customVisionDetect":
+                    if (AdvancedAI != null)
+                    {
+                        var detectResult = await AdvancedAI.DetectObjectsCustomAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (detectResult.Success && detectResult.Detections != null)
+                        {
+                            var sbDetect = new StringBuilder();
+                            sbDetect.AppendLine($"Custom Vision — Detected {detectResult.Detections.Count} objects:");
+                            foreach (var d in detectResult.Detections)
+                            {
+                                sbDetect.AppendLine($"• {d.TagName} ({d.Probability:P0}) at [{d.X},{d.Y}] {d.Width}×{d.Height}");
+                            }
+                            _analysisResult = sbDetect.ToString();
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {detectResult.ErrorMessage ?? "No detections returned"}";
+                        }
+                    }
+                    else
+                    {
+                        _analysisResult = "Custom Vision not configured";
+                    }
+                    break;
+
+                case "videoFrames":
+                    if (!IsVideoUpload())
+                    {
+                        _codeError = "Upload a video (e.g., MP4/MOV) to extract frames.";
+                        break;
+                    }
+                    if (AdvancedAI != null)
+                    {
+                        var framesResult = await AdvancedAI.ExtractVideoFramesAsync(Convert.FromBase64String(_codeImageBase64), 1);
+                        if (framesResult.Success)
+                        {
+                            var previewFrame = framesResult.Frames?.FirstOrDefault()?.Base64Image;
+                            _processedImageBase64 = previewFrame ?? _processedImageBase64;
+                            _analysisResult = $"Extracted {framesResult.TotalFrames} frames over {framesResult.DurationSeconds:F1}s (interval 1s).";
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {framesResult.ErrorMessage}";
+                        }
+                    }
+                    else
+                    {
+                        _analysisResult = "Video Indexer not configured";
+                    }
+                    break;
+
+                case "videoAnalyze":
+                    if (!IsVideoUpload())
+                    {
+                        _codeError = "Upload a video (e.g., MP4/MOV) to analyze.";
+                        break;
+                    }
+                    if (AdvancedAI != null)
+                    {
+                        var videoResult = await AdvancedAI.AnalyzeVideoAsync(Convert.FromBase64String(_codeImageBase64));
+                        if (videoResult.Success)
+                        {
+                            var sbVideo = new StringBuilder();
+                            sbVideo.AppendLine($"Duration: {videoResult.DurationSeconds:F1}s");
+                            if (videoResult.Labels?.Any() == true)
+                                sbVideo.AppendLine("Labels: " + string.Join(", ", videoResult.Labels.Select(l => $"{l.Name} ({l.Confidence:P0})")));
+                            if (videoResult.Faces?.Any() == true)
+                                sbVideo.AppendLine($"Faces: {videoResult.Faces.Count}");
+                            if (!string.IsNullOrEmpty(videoResult.Transcript))
+                            {
+                                var transcript = videoResult.Transcript.Length > 500 ? videoResult.Transcript[..500] + "..." : videoResult.Transcript;
+                                sbVideo.AppendLine("Transcript (excerpt): " + transcript);
+                            }
+                            _analysisResult = sbVideo.ToString();
+                        }
+                        else
+                        {
+                            _analysisResult = $"Error: {videoResult.ErrorMessage}";
+                        }
+                    }
+                    else
+                    {
+                        _analysisResult = "Video Indexer not configured";
+                    }
+                    break;
+
                 // Advanced Analysis
                 case "compare":
                     _analysisResult = "Please use the Compare Images feature with two images loaded.";
@@ -3246,17 +4143,56 @@
                     }
                     break;
 
-                case "detectBrands":
-                    if (AzureVision != null && AzureVision.IsConfigured)
-                    {
-                        var brandResult = await AzureVision.DetectBrandsAsync(Convert.FromBase64String(_codeImageBase64));
-                        _analysisResult = brandResult.Success ? FormatBrandDetectionResult(brandResult) : $"Error: {brandResult.ErrorMessage}";
-                    }
-                    else
-                    {
-                        _codeError = "Azure Vision service not configured";
-                    }
-                    break;
+                 case "detectBrands":
+                     if (AzureVision != null && AzureVision.IsConfigured)
+                     {
+                         var brandResult = await AzureVision.DetectBrandsAsync(Convert.FromBase64String(_codeImageBase64));
+                         _analysisResult = brandResult.Success ? FormatBrandDetectionResult(brandResult) : $"Error: {brandResult.ErrorMessage}";
+                     }
+                     else
+                     {
+                         _codeError = "Azure Vision service not configured";
+                     }
+                     break;
+
+                 case "imageCategory":
+                     if (AzureVision != null && AzureVision.IsConfigured)
+                     {
+                         var categoryResult = await AzureVision.GetImageCategoryAsync(Convert.FromBase64String(_codeImageBase64));
+                         if (categoryResult.Success && categoryResult.Categories != null)
+                         {
+                             var sbCat = new StringBuilder();
+                             sbCat.AppendLine($"Primary: {categoryResult.PrimaryCategory}");
+                             foreach (var c in categoryResult.Categories)
+                             {
+                                 sbCat.AppendLine($"• {c.Name} ({c.Confidence:P0})");
+                             }
+                             _analysisResult = sbCat.ToString();
+                         }
+                         else
+                         {
+                             _analysisResult = $"Error: {categoryResult.ErrorMessage ?? "No categories returned"}";
+                         }
+                     }
+                     else
+                     {
+                         _codeError = "Azure Vision service not configured";
+                     }
+                     break;
+
+                 case "analyzeComprehensive":
+                     if (AzureVision != null && AzureVision.IsConfigured)
+                     {
+                         var fullResult = await AzureVision.AnalyzeComprehensiveAsync(Convert.FromBase64String(_codeImageBase64));
+                         _analysisResult = fullResult.Success
+                             ? FormatObjectDetectionResult(fullResult)
+                             : $"Error: {fullResult.ErrorMessage}";
+                     }
+                     else
+                     {
+                         _codeError = "Azure Vision service not configured";
+                     }
+                     break;
 
                 case "imageType":
                     if (AzureVision != null && AzureVision.IsConfigured)
@@ -3576,6 +4512,10 @@
             "improvements" => "Get Suggestions",
             "text" => "Extract Text",
             "comprehensive" => "Run Full Analysis",
+            "customVisionClassify" => "Classify (Custom Vision)",
+            "customVisionDetect" => "Detect Objects (Custom Vision)",
+            "videoFrames" => "Extract Video Frames",
+            "videoAnalyze" => "Analyze Video",
             _ => "Analyze"
         };
     }
@@ -3595,62 +4535,86 @@
         "improvements" => "💡",
         "text" => "📜",
         "comprehensive" => "🔬",
+        "customVisionClassify" => "🎯",
+        "customVisionDetect" => "📦",
+        "videoFrames" => "🎞️",
+        "videoAnalyze" => "🎬",
         _ => "🚀"
     };
 
-    private string GetAnalysisDisplayName() => _selectedAnalysis switch
-    {
-        "code" => "Generate Code",
-        "codeWithViewModel" => "Generate Code + ViewModel",
-        "extractImages" => "Extract All Images",
-        "describe" => "Describe Design",
-        "colors" => "Extract Color Palette",
-        "typography" => "Extract Typography",
-        "layout" => "Analyze Layout",
-        "components" => "Extract UI Components",
-        "icons" => "Identify Icons",
-        "accessibility" => "Accessibility Audit",
-        "improvements" => "Suggest Improvements",
-        "text" => "Extract Text (OCR)",
-        "comprehensive" => "Full UI Analysis",
-        _ => "Analysis"
-    };
+     private string GetAnalysisDisplayName() => _selectedAnalysis switch
+     {
+         "code" => "Generate Code",
+         "codeWithViewModel" => "Generate Code + ViewModel",
+         "extractImages" => "Extract All Images",
+         "describe" => "Describe Design",
+         "colors" => "Extract Color Palette",
+         "typography" => "Extract Typography",
+         "layout" => "Analyze Layout",
+         "components" => "Extract UI Components",
+         "icons" => "Identify Icons",
+         "accessibility" => "Accessibility Audit",
+         "improvements" => "Suggest Improvements",
+         "text" => "Extract Text (OCR)",
+         "comprehensive" => "Full UI Analysis",
+         "visionAnalyze" => "Azure Vision — Analyze",
+         "analyzeComprehensive" => "Azure Vision — Full",
+         "imageCategory" => "Azure Vision — Categories",
+         "customVisionClassify" => "Custom Vision Classification",
+         "customVisionDetect" => "Custom Vision Object Detection",
+         "videoFrames" => "Extract Video Frames",
+         "videoAnalyze" => "Video Insights & Transcript",
+         _ => "Analysis"
+     };
 
-    private string GetAnalysisDescription() => _selectedAnalysis switch
-    {
-        "code" => "Convert UI screenshot to production-ready code. Supports HTML/CSS, React, Vue, Blazor, SwiftUI, MAUI XAML, Angular.",
-        "codeWithViewModel" => "Generate code with data binding. Extracts text content into a ViewModel/Model class for dynamic content.",
-        "extractImages" => "Detect and extract all images, icons, logos, and graphics from a composite screenshot with AI precision.",
-        "describe" => "Get a comprehensive description of UI design including layout, colors, components, and style.",
-        "colors" => "Extract complete color palette: primary, secondary, accent, background, text colors and gradients.",
-        "typography" => "Identify fonts, sizes, weights, line heights, and text styles used in the design.",
-        "layout" => "Analyze layout structure: grid system, spacing, sections, breakpoints, and responsive patterns.",
-        "components" => "Extract all UI components with their properties, styles, and hierarchy as structured data.",
-        "icons" => "Identify icons and suggest matches from popular libraries: Heroicons, Material, Font Awesome.",
-        "accessibility" => "WCAG accessibility audit: contrast ratios, text sizes, touch targets, and recommendations.",
-        "improvements" => "Get AI suggestions to improve the UI design: UX, accessibility, visual hierarchy.",
-        "text" => "OCR: Extract all visible text with position info. Supports multiple languages and fonts.",
-        "comprehensive" => "Complete UI analysis: colors, typography, layout, components, icons, and accessibility combined.",
-        _ => "Select an analysis type to see details."
-    };
+     private string GetAnalysisDescription() => _selectedAnalysis switch
+     {
+         "code" => "Convert UI screenshot to production-ready code. Supports HTML/CSS, React, Vue, Blazor, SwiftUI, MAUI XAML, Angular.",
+         "codeWithViewModel" => "Generate code with data binding. Extracts text content into a ViewModel/Model class for dynamic content.",
+         "extractImages" => "Detect and extract all images, icons, logos, and graphics from a composite screenshot with AI precision.",
+         "describe" => "Get a comprehensive description of UI design including layout, colors, components, and style.",
+         "colors" => "Extract complete color palette: primary, secondary, accent, background, text colors and gradients.",
+         "typography" => "Identify fonts, sizes, weights, line heights, and text styles used in the design.",
+         "layout" => "Analyze layout structure: grid system, spacing, sections, breakpoints, and responsive patterns.",
+         "components" => "Extract all UI components with their properties, styles, and hierarchy as structured data.",
+         "icons" => "Identify icons and suggest matches from popular libraries: Heroicons, Material, Font Awesome.",
+         "accessibility" => "WCAG accessibility audit: contrast ratios, text sizes, touch targets, and recommendations.",
+         "improvements" => "Get AI suggestions to improve the UI design: UX, accessibility, visual hierarchy.",
+         "text" => "OCR: Extract all visible text with position info. Supports multiple languages and fonts.",
+         "comprehensive" => "Complete UI analysis: colors, typography, layout, components, icons, and accessibility combined.",
+         "visionAnalyze" => "Azure Vision 4.0 quick pass with objects + dense captions.",
+         "analyzeComprehensive" => "Azure Vision 4.0 full feature set (objects, captions, people, tags, crops).",
+         "imageCategory" => "Classify the scene with Azure Vision categories and confidences.",
+         "customVisionClassify" => "Run your trained Custom Vision classifier to label the image with project-specific tags and probabilities.",
+         "customVisionDetect" => "Use your Custom Vision object detector to find project-specific objects with bounding boxes and confidence scores.",
+         "videoFrames" => "Upload a video to sample frames (1s interval) for quick visual inspection and thumbnails.",
+         "videoAnalyze" => "Analyze video for labels, faces, and transcript snippets using Azure AI Video Indexer.",
+         _ => "Select an analysis type to see details."
+     };
 
-    private string GetServiceName() => _selectedAnalysis switch
-    {
-        "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "GPT-4o Vision",
-        "extractImages" => "GPT-4o + SkiaSharp",
-        _ => "Azure AI"
-    };
+     private string GetServiceName() => _selectedAnalysis switch
+     {
+         "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "GPT-4o Vision",
+         "extractImages" => "GPT-4o + SkiaSharp",
+         "visionAnalyze" or "analyzeComprehensive" or "imageCategory" or "visionCaption" or "visionDenseCaptions" or "visionTags" or "visionSmartCrops" or "visionRead" or "detectObjects" or "detectFaces" or "detectPeople" or "detectBrands" or "imageType" or "adultContent" or "removeBackground" => "Azure AI Vision",
+         "customVisionClassify" or "customVisionDetect" => "Azure AI Custom Vision",
+         "videoFrames" or "videoAnalyze" => "Azure AI Video Indexer",
+         _ => "Azure AI"
+     };
 
-    private string GetServiceBadgeColor() => _selectedAnalysis switch
-    {
-        "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "#8b5cf6",
-        "extractImages" => "#10b981",
-        _ => "#667eea"
-    };
+     private string GetServiceBadgeColor() => _selectedAnalysis switch
+     {
+         "code" or "codeWithViewModel" or "describe" or "colors" or "typography" or "layout" or "components" or "icons" or "accessibility" or "improvements" or "comprehensive" or "text" => "#8b5cf6",
+         "extractImages" => "#10b981",
+         "visionAnalyze" or "analyzeComprehensive" or "imageCategory" or "visionCaption" or "visionDenseCaptions" or "visionTags" or "visionSmartCrops" or "visionRead" or "detectObjects" or "detectFaces" or "detectPeople" or "detectBrands" or "imageType" or "adultContent" or "removeBackground" => "#0ea5e9",
+         "customVisionClassify" or "customVisionDetect" => "#0ea5e9",
+         "videoFrames" or "videoAnalyze" => "#2563eb",
+         _ => "#667eea"
+     };
 
     private bool IsAzureVisionRequired() => _selectedAnalysis switch
     {
-        "denseCaptions" or "singleCaption" or "smartCrops" or "tags" or "removeBackground" or "detectObjects" or "detectPeople" or "analyzeComprehensive" or "detectFaces" or "detectBrands" or "imageType" or "adultContent" or "imageCategory" => true,
+        "visionAnalyze" or "visionCaption" or "visionDenseCaptions" or "visionTags" or "visionSmartCrops" or "visionRead" or "removeBackground" or "detectObjects" or "detectPeople" or "analyzeComprehensive" or "detectFaces" or "detectBrands" or "imageType" or "adultContent" or "imageCategory" => true,
         _ => false
     };
 
@@ -3727,13 +4691,15 @@
         // Check if the current framework is a Razor-based framework
         return _targetFramework is "Blazor Razor" or "Blazor MAUI" or "ASP.NET Razor";
     }
-    
+
     private bool IsHtmlFramework()
     {
         // Check if the current framework outputs pure HTML
         return _targetFramework is "HTML/CSS" or "Tailwind CSS";
     }
-    
+
+    private bool IsVideoUpload() => _codeImageMimeType?.StartsWith("video", StringComparison.OrdinalIgnoreCase) == true;
+
     private string GetPreviewTitle()
     {
         return _targetFramework switch
@@ -4441,6 +5407,10 @@ Return ONLY the complete Razor page code.";
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            await LoadGroupSettingsAsync();
+        }
         // Load preview iframe when in preview/split mode and code has changed (HTML frameworks only)
         if (!string.IsNullOrEmpty(_generatedCode) && 
             IsHtmlFramework() && 
