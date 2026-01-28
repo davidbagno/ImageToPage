@@ -1,5 +1,6 @@
 @namespace AzureLogin.Shared.Components
 @using System.Text.RegularExpressions
+@inject IJSRuntime JS
 
 <div class="dynamic-razor-preview" style="@ContainerStyle">
     @if (IsLoading)
@@ -20,10 +21,10 @@
     }
     else if (!string.IsNullOrEmpty(RazorMarkup))
     {
-        <div class="preview-container" style="padding: 16px; background: white; min-height: 100%;">
+        <div class="preview-container" style="height: 100%; background: white; position: relative;">
             @if (ShowWarnings && Warnings?.Count > 0)
             {
-                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px;">
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin: 8px; font-size: 13px; position: absolute; top: 0; left: 0; right: 0; z-index: 101;">
                     <div style="font-weight: 600; color: #92400e; margin-bottom: 8px;">⚠️ Preview Limitations</div>
                     <ul style="margin: 0; padding-left: 20px; color: #78350f;">
                         @foreach (var warning in Warnings)
@@ -36,9 +37,21 @@
             <div class="preview-badge" style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; z-index: 100; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);">
                 🔮 @Framework Preview
             </div>
-            <div class="rendered-content">
-                @RenderedContent
-            </div>
+            @if (_useIframe)
+            {
+                @* Use iframe for HTML content to properly isolate styles *@
+                <iframe id="@_iframeId" 
+                        style="width: 100%; height: 100%; border: none; background: white;"
+                        sandbox="allow-same-origin allow-scripts"
+                        title="HTML Preview"></iframe>
+            }
+            else
+            {
+                @* Use inline rendering for Razor content *@
+                <div class="rendered-content" style="padding: 16px; padding-top: @(ShowWarnings && Warnings?.Count > 0 ? "80px" : "40px");">
+                    @RenderedContent
+                </div>
+            }
         </div>
     }
     else
@@ -215,12 +228,43 @@
     private string? ErrorMessage { get; set; }
     private MarkupString RenderedContent { get; set; }
     private List<string> Warnings { get; set; } = new();
+    private bool _useIframe;
+    private string _iframeId = $"preview-iframe-{Guid.NewGuid():N}";
+    private string _lastMarkup = "";
+    private string _iframeHtmlContent = "";
     
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(RazorMarkup))
+        if (!string.IsNullOrEmpty(RazorMarkup) && RazorMarkup != _lastMarkup)
         {
+            _lastMarkup = RazorMarkup;
             await RenderPreviewAsync();
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Load iframe content after render if using iframe mode
+        if (_useIframe && !string.IsNullOrEmpty(_iframeHtmlContent))
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("eval", $@"
+                    (function() {{
+                        var iframe = document.getElementById('{_iframeId}');
+                        if (iframe) {{
+                            var doc = iframe.contentDocument || iframe.contentWindow.document;
+                            doc.open();
+                            doc.write({System.Text.Json.JsonSerializer.Serialize(_iframeHtmlContent)});
+                            doc.close();
+                        }}
+                    }})();
+                ");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load iframe: {ex.Message}");
+            }
         }
     }
     
@@ -229,15 +273,36 @@
         IsLoading = true;
         ErrorMessage = null;
         Warnings.Clear();
+        _useIframe = false;
+        _iframeHtmlContent = "";
         StateHasChanged();
         
         try
         {
             await Task.Delay(50); // Small delay for UI update
             
-            var (html, warnings) = TranspileRazorToHtml(RazorMarkup!);
-            RenderedContent = new MarkupString(html);
-            Warnings = warnings;
+            // Determine if this is HTML or Razor content
+            var isHtmlFramework = Framework is "HTML/CSS" or "Tailwind CSS";
+            var hasRazorSyntax = RazorMarkup!.Contains("@") && (
+                Regex.IsMatch(RazorMarkup, @"@(page|using|inject|code|if|foreach|for|bind|on\w+)") ||
+                Regex.IsMatch(RazorMarkup, @"@\w+")
+            );
+            
+            if (isHtmlFramework || !hasRazorSyntax)
+            {
+                // Use iframe for HTML content to properly isolate styles
+                _useIframe = true;
+                _iframeHtmlContent = PrepareHtmlForIframe(RazorMarkup!);
+                RenderedContent = new MarkupString(""); // Clear inline content
+            }
+            else
+            {
+                // Use inline rendering for Razor content
+                _useIframe = false;
+                var (html, warnings) = TranspileRazorToHtml(RazorMarkup!);
+                RenderedContent = new MarkupString(html);
+                Warnings = warnings;
+            }
         }
         catch (Exception ex)
         {
@@ -248,6 +313,58 @@
             IsLoading = false;
             StateHasChanged();
         }
+    }
+    
+    private string PrepareHtmlForIframe(string markup)
+    {
+        var html = markup;
+        
+        // Clean up code block markers if present
+        if (html.StartsWith("```"))
+        {
+            var firstNewline = html.IndexOf('\n');
+            if (firstNewline > 0)
+            {
+                html = html.Substring(firstNewline + 1);
+            }
+        }
+        if (html.EndsWith("```"))
+        {
+            html = html.Substring(0, html.Length - 3);
+        }
+        html = html.Trim();
+        
+        // If it's not a full HTML document, wrap it
+        if (!html.Contains("<!DOCTYPE") && !html.Contains("<html"))
+        {
+            // Check if there's a style tag that should go in head
+            var styleMatch = Regex.Match(html, @"(<style[^>]*>[\s\S]*?</style>)", RegexOptions.IgnoreCase);
+            var styleContent = styleMatch.Success ? styleMatch.Value : "";
+            var bodyContent = styleMatch.Success ? html.Replace(styleMatch.Value, "") : html;
+            
+            html = $@"<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <style>
+        * {{ box-sizing: border-box; }}
+        body {{ 
+            margin: 0; 
+            padding: 16px; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+        }}
+    </style>
+    {styleContent}
+</head>
+<body>
+{bodyContent.Trim()}
+</body>
+</html>";
+        }
+        
+        return html;
     }
     
     private (string html, List<string> warnings) TranspileRazorToHtml(string markup)
