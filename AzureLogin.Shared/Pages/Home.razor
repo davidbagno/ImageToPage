@@ -791,6 +791,30 @@
                 color: white;
             }
 
+            /* Premium option styling */
+            .analysis-option.premium-option {
+                background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+                border: 2px solid #fbbf24;
+                position: relative;
+            }
+            
+            .analysis-option.premium-option:hover {
+                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                border-color: #f59e0b;
+                box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            }
+            
+            .analysis-option.premium-option.active {
+                background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+                color: #78350f;
+                border-color: #d97706;
+            }
+            
+            .analysis-option.premium-option.active .analysis-icon {
+                background: rgba(255, 255, 255, 0.4);
+                color: #78350f;
+            }
+
             .collapse-toggle {
                 border: 1px solid rgba(255,255,255,0.35);
                 background: rgba(255,255,255,0.15);
@@ -1448,6 +1472,11 @@
                                                     {
                                                         <button type="button" class="analysis-option @( _selectedAnalysis == "code" ? "active" : "" )" @onclick='() => SelectAnalysis("code")'><span class="analysis-icon">CG</span>Generate Code → HTML/CSS/React/Vue/Blazor</button>
                                                         <button type="button" class="analysis-option @( _selectedAnalysis == "codeWithViewModel" ? "active" : "" )" @onclick='() => SelectAnalysis("codeWithViewModel")'><span class="analysis-icon">VM</span>Code + ViewModel → Complete with data binding</button>
+                                                        <button type="button" class="analysis-option premium-option @( _selectedAnalysis == "premiumCode" ? "active" : "" )" @onclick="OpenPremiumConversionDialog">
+                                                            <span class="analysis-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #78350f;">⭐</span>
+                                                            <span>Premium Engine → Multi-pass pixel-perfect conversion</span>
+                                                            <span class="badge ms-auto" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #78350f; font-size: 0.65rem;">BEST</span>
+                                                        </button>
                                                     }
                                                     else
                                                     {
@@ -2737,6 +2766,232 @@
                        SecureStorage="SecureStorage"
                        OnSave="HandleServiceSettingsSaved" />
 
+@* Premium Conversion Options Dialog *@
+@if (_showPremiumConversionDialog)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                @* Header with gradient *@
+                <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%); border-radius: 20px 20px 0 0; padding: 24px 28px;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(10px);">
+                            <span style="font-size: 1.8rem;">⭐</span>
+                        </div>
+                        <div>
+                            <h5 class="modal-title mb-1" style="color: white; font-weight: 800; font-size: 1.3rem;">Premium Conversion Engine</h5>
+                            <p class="mb-0" style="color: rgba(255,255,255,0.9); font-size: 0.85rem;">Multi-pass AI analysis for pixel-perfect code generation</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" @onclick="ClosePremiumConversionDialog"></button>
+                </div>
+                
+                <div class="modal-body" style="padding: 24px 28px; max-height: 70vh; overflow-y: auto;">
+                    @* Quality Level Selection *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2" style="color: #4f46e5;">
+                            <span style="font-size: 1.2rem;">🎯</span> Conversion Quality
+                        </label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="quality" id="qualityDraft" value="Draft" checked="@(_premiumOptions.Quality == ConversionQuality.Draft)" @onchange='() => _premiumOptions.Quality = ConversionQuality.Draft'>
+                            <label class="btn btn-outline-secondary" for="qualityDraft" style="flex: 1;">
+                                <div class="fw-bold">⚡ Draft</div>
+                                <small class="d-block text-muted">Fast, 1 pass</small>
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="quality" id="qualityStandard" value="Standard" checked="@(_premiumOptions.Quality == ConversionQuality.Standard)" @onchange='() => _premiumOptions.Quality = ConversionQuality.Standard'>
+                            <label class="btn btn-outline-secondary" for="qualityStandard" style="flex: 1;">
+                                <div class="fw-bold">✨ Standard</div>
+                                <small class="d-block text-muted">3 passes</small>
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="quality" id="qualityPremium" value="Premium" checked="@(_premiumOptions.Quality == ConversionQuality.Premium)" @onchange='() => _premiumOptions.Quality = ConversionQuality.Premium'>
+                            <label class="btn btn-outline-secondary" for="qualityPremium" style="flex: 1; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;">
+                                <div class="fw-bold" style="color: #92400e;">⭐ Premium</div>
+                                <small class="d-block" style="color: #a16207;">6 passes + refinement</small>
+                            </label>
+                        </div>
+                        <small class="text-muted mt-1 d-block">Premium uses structure analysis, component detection, design tokens, asset extraction, and iterative refinement.</small>
+                    </div>
+                    
+                    @* Target Framework *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2" style="color: #4f46e5;">
+                            <span style="font-size: 1.2rem;">🛠️</span> Target Framework
+                        </label>
+                        <select class="form-select" style="font-size: 1rem; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 12px;" @bind="_premiumOptions.Framework">
+                            <option value="HTML/CSS">🌐 HTML/CSS — Vanilla web with CSS variables</option>
+                            <option value="Tailwind CSS">🎨 Tailwind CSS — Utility-first classes</option>
+                            <option value="React">⚛️ React — Functional component with hooks</option>
+                            <option value="Vue">💚 Vue.js — Composition API SFC</option>
+                            <option value="Blazor Razor">🔷 Blazor Razor — .razor component</option>
+                            <option value="Razor Pages">📄 Razor Pages — .cshtml with PageModel</option>
+                            <option value="Angular">🅰️ Angular — TypeScript component</option>
+                            <option value="SwiftUI">🍎 SwiftUI — iOS/macOS native</option>
+                            <option value="MAUI XAML">📱 .NET MAUI — Cross-platform XAML</option>
+                        </select>
+                    </div>
+                    
+                    @* CSS Framework *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2" style="color: #4f46e5;">
+                            <span style="font-size: 1.2rem;">🎨</span> CSS Framework (optional)
+                        </label>
+                        <select class="form-select" style="padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 12px;" @bind="_premiumOptions.CssFramework">
+                            <option value="">None — Pure CSS with custom properties</option>
+                            <option value="Bootstrap">Bootstrap 5 — Component classes</option>
+                            <option value="Tailwind">Tailwind CSS — Utility classes</option>
+                            <option value="Bulma">Bulma — Modern CSS framework</option>
+                            <option value="Foundation">Foundation — Professional framework</option>
+                        </select>
+                    </div>
+                    
+                    @* Feature Toggles *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2 mb-3" style="color: #4f46e5;">
+                            <span style="font-size: 1.2rem;">⚙️</span> Features & Options
+                        </label>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optResponsive" @bind="_premiumOptions.GenerateResponsive">
+                                    <label class="form-check-label" for="optResponsive">
+                                        <span class="fw-semibold">📱 Responsive Design</span>
+                                        <small class="d-block text-muted">Mobile-first with breakpoints</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optTokens" @bind="_premiumOptions.UseDesignTokens">
+                                    <label class="form-check-label" for="optTokens">
+                                        <span class="fw-semibold">🎨 Design Tokens</span>
+                                        <small class="d-block text-muted">CSS custom properties</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optAccessibility" @bind="_premiumOptions.IncludeAccessibility">
+                                    <label class="form-check-label" for="optAccessibility">
+                                        <span class="fw-semibold">♿ Accessibility</span>
+                                        <small class="d-block text-muted">ARIA labels, alt text, roles</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optInteractive" @bind="_premiumOptions.IncludeInteractiveStates">
+                                    <label class="form-check-label" for="optInteractive">
+                                        <span class="fw-semibold">🖱️ Interactive States</span>
+                                        <small class="d-block text-muted">Hover, focus, active, disabled</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optAnimations" @bind="_premiumOptions.IncludeAnimations">
+                                    <label class="form-check-label" for="optAnimations">
+                                        <span class="fw-semibold">✨ Animations</span>
+                                        <small class="d-block text-muted">Transitions & micro-interactions</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                    <input class="form-check-input" type="checkbox" id="optAssets" @bind="_premiumOptions.ExtractAssets">
+                                    <label class="form-check-label" for="optAssets">
+                                        <span class="fw-semibold">🖼️ Extract Assets</span>
+                                        <small class="d-block text-muted">Icons, images, logos as base64</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @* Custom Instructions *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2" style="color: #4f46e5;">
+                            <span style="font-size: 1.2rem;">💬</span> Custom Instructions (optional)
+                        </label>
+                        <textarea class="form-control" rows="3" placeholder="Add any specific requirements, e.g., 'Use flexbox instead of grid', 'Include dark mode support', 'Use specific color palette #xxx'..." 
+                                  style="border: 2px solid #e0e7ff; border-radius: 12px; resize: none;"
+                                  @bind="_premiumOptions.CustomInstructions"></textarea>
+                    </div>
+                    
+                    @* Advanced Options (collapsed by default) *@
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-link p-0 text-decoration-none" style="color: #6366f1;" @onclick="() => _showAdvancedPremiumOptions = !_showAdvancedPremiumOptions">
+                            <span>@(_showAdvancedPremiumOptions ? "▼" : "▶") Advanced Options</span>
+                        </button>
+                        
+                        @if (_showAdvancedPremiumOptions)
+                        {
+                            <div class="mt-3 p-3" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">Max Refinement Iterations</label>
+                                        <input type="number" class="form-control" min="0" max="5" @bind="_premiumOptions.MaxRefinementIterations" 
+                                               style="border-radius: 8px;">
+                                        <small class="text-muted">0 = no refinement, up to 5 passes</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    @* What you'll get section *@
+                    <div class="p-3" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; border: 1px solid #bae6fd;">
+                        <div class="fw-bold mb-2" style="color: #0369a1;">📦 What you'll get:</div>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-4">
+                                <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> Generated Code</small>
+                            </div>
+                            @if (_premiumOptions.UseDesignTokens)
+                            {
+                                <div class="col-6 col-md-4">
+                                    <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> CSS Variables</small>
+                                </div>
+                            }
+                            @if (_premiumOptions.Quality != ConversionQuality.Draft)
+                            {
+                                <div class="col-6 col-md-4">
+                                    <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> Component Tree</small>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> Design Tokens</small>
+                                </div>
+                            }
+                            @if (_premiumOptions.ExtractAssets && _premiumOptions.Quality == ConversionQuality.Premium)
+                            {
+                                <div class="col-6 col-md-4">
+                                    <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> Extracted Assets</small>
+                                </div>
+                            }
+                            <div class="col-6 col-md-4">
+                                <small class="d-flex align-items-center gap-1"><span style="color: #10b981;">✓</span> Fidelity Score</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                @* Footer *@
+                <div class="modal-footer border-0 pt-0" style="padding: 20px 28px 24px;">
+                    <button type="button" class="btn btn-outline-secondary px-4" style="border-radius: 10px;" @onclick="ClosePremiumConversionDialog">Cancel</button>
+                    <button type="button" class="btn px-5" 
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%); color: white; border: none; border-radius: 10px; font-weight: 700; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);"
+                            @onclick="StartPremiumConversion"
+                            disabled="@(string.IsNullOrEmpty(_codeImageUrl))">
+                        <span class="me-2">⭐</span>
+                        Generate with Premium Engine
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     enum AppState { NotSignedIn, SigningIn, SignedIn }
     
@@ -2879,6 +3134,25 @@
     private int _minComponentSize = 20;
     private bool _refineWithEdgeDetection = true;
     private int _edgeDetectionThreshold = 30;
+    
+    // Premium Conversion Engine Options
+    private bool _showPremiumConversionDialog;
+    private bool _showAdvancedPremiumOptions;
+    private PremiumConversionOptions _premiumOptions = new()
+    {
+        Framework = "HTML/CSS",
+        Quality = ConversionQuality.Premium,
+        GenerateResponsive = true,
+        UseDesignTokens = true,
+        IncludeAccessibility = true,
+        IncludeInteractiveStates = true,
+        IncludeAnimations = true,
+        ExtractAssets = true,
+        MaxRefinementIterations = 2
+    };
+    private PremiumConversionResult? _premiumConversionResult;
+    private string _premiumConversionProgress = "";
+    private int _premiumConversionProgressPercent;
     
     // ViewModel Generation with OCR
     private string _viewModelTab = "extracted"; // extracted, viewmodel, razor, preview
@@ -5397,6 +5671,101 @@ Return ONLY the complete Razor page code.";
     private void ShowExtractionModeInfo() => _showServiceInfoModal = true;
     
     private void ShowApiCoverage() => _showServiceInfoModal = true;
+    
+    // === Premium Conversion Engine Methods ===
+    
+    private void OpenPremiumConversionDialog()
+    {
+        // Check if an image is uploaded
+        if (string.IsNullOrEmpty(_codeImageUrl))
+        {
+            _codeError = "Please upload an image first before using the Premium Engine.";
+            return;
+        }
+        
+        _selectedAnalysis = "premiumCode";
+        _showPremiumConversionDialog = true;
+        _showAdvancedPremiumOptions = false;
+        StateHasChanged();
+    }
+    
+    private void ClosePremiumConversionDialog()
+    {
+        _showPremiumConversionDialog = false;
+        StateHasChanged();
+    }
+    
+    private async Task StartPremiumConversion()
+    {
+        if (string.IsNullOrEmpty(_codeImageUrl) || string.IsNullOrEmpty(_codeImageBase64))
+        {
+            _codeError = "Please upload an image first.";
+            return;
+        }
+        
+        _showPremiumConversionDialog = false;
+        _isConvertingToCode = true;
+        _codeError = "";
+        _generatedCode = "";
+        _premiumConversionProgress = "Initializing...";
+        _premiumConversionProgressPercent = 0;
+        StateHasChanged();
+        
+        try
+        {
+            // Convert base64 to bytes
+            var imageBytes = Convert.FromBase64String(_codeImageBase64);
+            
+            // Call the premium conversion engine with progress callback
+            _premiumConversionResult = await ImageToCode.ConvertWithPremiumEngineAsync(
+                imageBytes,
+                _codeImageMimeType,
+                _premiumOptions,
+                progress =>
+                {
+                    _premiumConversionProgress = $"{progress.Stage}: {progress.Message}";
+                    _premiumConversionProgressPercent = progress.PercentComplete;
+                    InvokeAsync(StateHasChanged);
+                }
+            );
+            
+            if (_premiumConversionResult.Success)
+            {
+                _generatedCode = _premiumConversionResult.Code ?? "";
+                _codeLanguage = _premiumConversionResult.Language ?? "html";
+                
+                // Show fidelity score and warnings
+                if (_premiumConversionResult.FidelityScore > 0)
+                {
+                    _premiumConversionProgress = $"✓ Complete! Fidelity Score: {_premiumConversionResult.FidelityScore}/100";
+                }
+                
+                // If design tokens were extracted, show them in the output
+                if (_premiumConversionResult.DesignTokens?.CssVariables != null)
+                {
+                    // Prepend CSS variables to the code if it's HTML/CSS
+                    if (_premiumOptions.UseDesignTokens && 
+                        (_premiumOptions.Framework == "HTML/CSS" || _premiumOptions.Framework == "Tailwind CSS"))
+                    {
+                        _generatedCode = $"<style>\n{_premiumConversionResult.DesignTokens.CssVariables}\n</style>\n\n{_generatedCode}";
+                    }
+                }
+            }
+            else
+            {
+                _codeError = _premiumConversionResult.ErrorMessage ?? "Premium conversion failed";
+            }
+        }
+        catch (Exception ex)
+        {
+            _codeError = $"Premium conversion error: {ex.Message}";
+        }
+        finally
+        {
+            _isConvertingToCode = false;
+            StateHasChanged();
+        }
+    }
 
     #endregion
 
