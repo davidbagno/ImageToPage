@@ -2,4 +2,7 @@ bin/
 obj/
 /packages/
 riderModule.iml
-/_ReSharper.Caches/
+/_ReSharper.Caches/# Ignore appsettings with secrets
+AzureLogin/appsettings.json
+AzureLogin.Web/appsettings.json
+AzureLogin.Web/appsettings.Development.json
