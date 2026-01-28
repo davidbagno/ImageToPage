@@ -2080,7 +2080,20 @@
                                                 <div class="text-center" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                                                     <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: #667eea;"></div>
                                                     <p class="fw-semibold" style="color: #667eea;">Generating @_targetFramework code...</p>
-                                                    <p class="small text-muted">GPT-4o Vision is analyzing your UI</p>
+                                                    @if (!string.IsNullOrEmpty(_premiumConversionProgress))
+                                                    {
+                                                        <p class="small fw-semibold" style="color: #764ba2;">@_premiumConversionProgress</p>
+                                                        @if (_premiumConversionProgressPercent > 0)
+                                                        {
+                                                            <div class="progress mt-2" style="width: 200px; height: 6px; background: #e2e8f0; border-radius: 3px;">
+                                                                <div class="progress-bar" role="progressbar" style="width: @(_premiumConversionProgressPercent)%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 3px;"></div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="small text-muted">GPT-4o Vision is analyzing your UI</p>
+                                                    }
                                                 </div>
                                             }
                                             else if (!string.IsNullOrEmpty(_generatedCode))
@@ -5707,6 +5720,7 @@ Return ONLY the complete Razor page code.";
         _isConvertingToCode = true;
         _codeError = "";
         _generatedCode = "";
+        _targetFramework = _premiumOptions.Framework; // Set framework for loading message
         _premiumConversionProgress = "Initializing...";
         _premiumConversionProgressPercent = 0;
         StateHasChanged();
@@ -5750,6 +5764,9 @@ Return ONLY the complete Razor page code.";
                         _generatedCode = $"<style>\n{_premiumConversionResult.DesignTokens.CssVariables}\n</style>\n\n{_generatedCode}";
                     }
                 }
+                
+                // Update the target framework for display
+                _targetFramework = _premiumOptions.Framework;
             }
             else
             {
@@ -5764,6 +5781,19 @@ Return ONLY the complete Razor page code.";
         {
             _isConvertingToCode = false;
             StateHasChanged();
+            
+            // Load preview if HTML-based framework or Razor framework
+            if (!string.IsNullOrEmpty(_generatedCode) && CanShowPreview())
+            {
+                if (IsHtmlFramework())
+                {
+                    await LoadPreviewIframeAsync();
+                }
+                else if (IsRazorFramework())
+                {
+                    await LoadRazorPreviewAsync();
+                }
+            }
         }
     }
 

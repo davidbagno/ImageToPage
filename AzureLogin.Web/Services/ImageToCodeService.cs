@@ -264,6 +264,7 @@ public class ImageToCodeService : IImageToCodeService
             {
                 Success = result.Success,
                 Code = result.Code,
+                    
                 Language = result.Language,
                 ErrorMessage = result.ErrorMessage,
                 FidelityScore = result.Success ? 75 : 0,
