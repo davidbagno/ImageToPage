@@ -283,4 +283,63 @@ public class MauiUrlLauncher : IUrlLauncher
             catch { }
         });
     }
+    
+    /// <summary>
+    /// Opens HTML content in the system's default browser by writing to a temp file
+    /// </summary>
+    public async Task<bool> OpenHtmlPreviewAsync(string htmlContent, string title = "Preview")
+    {
+        try
+        {
+            // Create a temp file with the HTML content
+            var tempDir = System.IO.Path.GetTempPath();
+            var fileName = $"preview_{DateTime.Now:yyyyMMdd_HHmmss}.html";
+            var filePath = System.IO.Path.Combine(tempDir, fileName);
+            
+            // Write the HTML content to the file
+            await System.IO.File.WriteAllTextAsync(filePath, htmlContent);
+            
+            Console.WriteLine($"[MauiUrlLauncher] HTML preview saved to: {filePath}");
+            
+            // Open the file in the default browser
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                try
+                {
+                    // Use MAUI Launcher to open the file URL
+                    var fileUri = new Uri($"file://{filePath}");
+                    await Launcher.Default.OpenAsync(fileUri);
+                    Console.WriteLine($"[MauiUrlLauncher] Opened in browser: {fileUri}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MauiUrlLauncher] Launcher failed: {ex.Message}");
+                    
+                    // Fallback: Use Process.Start on macOS
+                    try
+                    {
+                        var psi = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "open",
+                            Arguments = $"\"{filePath}\"",
+                            UseShellExecute = false
+                        };
+                        System.Diagnostics.Process.Start(psi);
+                        Console.WriteLine($"[MauiUrlLauncher] Opened via 'open' command");
+                    }
+                    catch (Exception ex2)
+                    {
+                        Console.WriteLine($"[MauiUrlLauncher] Process.Start failed: {ex2.Message}");
+                    }
+                }
+            });
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MauiUrlLauncher] OpenHtmlPreviewAsync error: {ex.Message}");
+            return false;
+        }
+    }
 }

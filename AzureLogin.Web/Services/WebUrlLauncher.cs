@@ -173,4 +173,37 @@ public sealed class WebUrlLauncher(IJSRuntime jsRuntime) : IUrlLauncher
             System.Diagnostics.Debug.WriteLine($"Failed to open URL: {ex.Message}");
         }
     }
+    
+    /// <summary>
+    /// Opens HTML content in a new browser window
+    /// </summary>
+    public async Task<bool> OpenHtmlPreviewAsync(string htmlContent, string title = "Preview")
+    {
+        try
+        {
+            var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(htmlContent));
+            var escapedTitle = title.Replace("'", "\\'").Replace("\"", "\\\"");
+            
+            await jsRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    var win = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                    if (win) {{
+                        win.document.open();
+                        win.document.write(atob('{base64}'));
+                        win.document.close();
+                        win.document.title = '{escapedTitle}';
+                    }} else {{
+                        alert('Please allow popups for this site to view the preview.');
+                    }}
+                }})();
+            ");
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WebUrlLauncher] OpenHtmlPreviewAsync error: {ex.Message}");
+            return false;
+        }
+    }
 }
