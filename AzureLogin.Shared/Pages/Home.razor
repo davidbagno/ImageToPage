@@ -5766,6 +5766,12 @@ Return ONLY the complete Razor page code.";
                 
                 // Update the target framework for display
                 _targetFramework = _premiumOptions.Framework;
+                
+                // Auto-switch to split view to show both code AND preview
+                if (CanShowPreview())
+                {
+                    _codeViewMode = "split";
+                }
             }
             else
             {

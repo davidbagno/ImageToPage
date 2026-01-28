@@ -279,6 +279,19 @@
         // For pure HTML/CSS, return as-is (just strip any full document wrapper for embedding)
         if (!isRazorContent)
         {
+            // Extract any style tags from head section before removing it
+            var styleFromHead = "";
+            var headMatch = Regex.Match(html, @"<head[^>]*>([\s\S]*?)</head>", RegexOptions.IgnoreCase);
+            if (headMatch.Success)
+            {
+                var headContent = headMatch.Groups[1].Value;
+                var styleMatches = Regex.Matches(headContent, @"<style[^>]*>[\s\S]*?</style>", RegexOptions.IgnoreCase);
+                foreach (Match style in styleMatches)
+                {
+                    styleFromHead += style.Value + "\n";
+                }
+            }
+            
             // If it's a full HTML document, extract just the body content
             var bodyMatch = Regex.Match(html, @"<body[^>]*>([\s\S]*?)</body>", RegexOptions.IgnoreCase);
             if (bodyMatch.Success)
@@ -288,7 +301,13 @@
             // Remove doctype and html tags if present
             html = Regex.Replace(html, @"<!DOCTYPE[^>]*>", "", RegexOptions.IgnoreCase);
             html = Regex.Replace(html, @"</?html[^>]*>", "", RegexOptions.IgnoreCase);
-            html = Regex.Replace(html, @"<head>[\s\S]*?</head>", "", RegexOptions.IgnoreCase);
+            html = Regex.Replace(html, @"<head[^>]*>[\s\S]*?</head>", "", RegexOptions.IgnoreCase);
+            
+            // Prepend extracted styles to preserve CSS
+            if (!string.IsNullOrEmpty(styleFromHead))
+            {
+                html = styleFromHead + html;
+            }
             
             return (html.Trim(), warnings);
         }
